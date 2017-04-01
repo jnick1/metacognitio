@@ -1,0 +1,28 @@
+{
+  "name": "vendor_name/package_name",
+  "description": "description_text",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Nick Kerns"
+    },
+    {
+      "name": "Quentin Maltman"
+    },
+    {
+      "name": "Jason Medcoff",
+    },
+    {
+      "name": "Jacob Nick",
+    },
+    {
+      "name": "Sierra Rush",
+    }
+  ]
+  "require": {
+    "phpmailer/phpmailer": "~5.2"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
