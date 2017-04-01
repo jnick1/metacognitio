@@ -11,17 +11,17 @@
       "name": "Quentin Maltman"
     },
     {
-      "name": "Jason Medcoff",
+      "name": "Jason Medcoff"
     },
     {
-      "name": "Jacob Nick",
+      "name": "Jacob Nick"
     },
     {
-      "name": "Sierra Rush",
+      "name": "Sierra Rush"
     }
-  ]
+  ],
   "require": {
-    "phpmailer/phpmailer": "~5.2"
+    "phpmailer/phpmailer": "v5.2.23"
   },
   "minimum-stability": "dev",
   "prefer-stable": true
