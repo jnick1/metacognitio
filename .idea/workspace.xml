@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="90e8c0f9-8fd3-4398-a7c1-4cb08e219046" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Classes/entities/dbc.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/metacognitio.iml" afterPath="$PROJECT_DIR$/.idea/metacognitio.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Classes/authenticator.php" afterPath="$PROJECT_DIR$/Classes/authenticator.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Classes/controller.php" afterPath="$PROJECT_DIR$/Classes/controller.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Classes/entities/user.php" afterPath="$PROJECT_DIR$/Classes/entities/user.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Classes/hasher.php" afterPath="$PROJECT_DIR$/Classes/hasher.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Classes/mailman.php" afterPath="$PROJECT_DIR$/Classes/mailman.php" />
@@ -22,12 +23,12 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="hasher.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Classes/hasher.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="20" column="70" lean-forward="false" selection-start-line="20" selection-start-column="70" selection-end-line="20" selection-end-column="70" />
+            <state relative-caret-position="306">
+              <caret line="18" column="20" lean-forward="true" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
               <folding>
                 <element signature="e#6#131#0#PHP" expanded="true" />
               </folding>
@@ -38,20 +39,64 @@
       <file leaf-file-name="user.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Classes/entities/user.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="8" column="19" lean-forward="true" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
+            <state relative-caret-position="85">
+              <caret line="11" column="10" lean-forward="false" selection-start-line="11" selection-start-column="10" selection-end-line="11" selection-end-column="10" />
               <folding>
-                <element signature="e#6#105#0#PHP" expanded="true" />
+                <element signature="e#107#208#0#PHP" expanded="false" />
+                <element signature="e#461#493#0#PHP" expanded="false" />
+                <element signature="n#getpkUserID#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#577#618#0#PHP" expanded="false" />
+                <element signature="n#setpkUserID#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#716#748#0#PHP" expanded="false" />
+                <element signature="n#getEmail#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#826#864#0#PHP" expanded="false" />
+                <element signature="n#setEmail#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#950#982#0#PHP" expanded="false" />
+                <element signature="n#getFname#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#1060#1098#0#PHP" expanded="false" />
+                <element signature="n#setFname#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#1184#1216#0#PHP" expanded="false" />
+                <element signature="n#getLname#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#1294#1332#0#PHP" expanded="false" />
+                <element signature="n#setLname#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#1418#1450#0#PHP" expanded="false" />
+                <element signature="n#getAddr#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#1526#1563#0#PHP" expanded="false" />
+                <element signature="n#setAddr#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#1645#1677#0#PHP" expanded="false" />
+                <element signature="n#getCity#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#1753#1790#0#PHP" expanded="false" />
+                <element signature="n#setCity#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#1872#1904#0#PHP" expanded="false" />
+                <element signature="n#getZip#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#1978#2014#0#PHP" expanded="false" />
+                <element signature="n#setZip#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#2092#2124#0#PHP" expanded="false" />
+                <element signature="n#getPhone#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#2202#2240#0#PHP" expanded="false" />
+                <element signature="n#setPhone#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#2326#2358#0#PHP" expanded="false" />
+                <element signature="n#getGradsemester#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#2450#2495#0#PHP" expanded="false" />
+                <element signature="n#setGradsemester#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#2609#2641#0#PHP" expanded="false" />
+                <element signature="n#getGradyear#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#2725#2766#0#PHP" expanded="false" />
+                <element signature="n#setGradyear#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#2864#2896#0#PHP" expanded="false" />
+                <element signature="n#getIsactive#0;n#User#0;n#!!top" expanded="false" />
+                <element signature="e#2980#3021#0#PHP" expanded="false" />
+                <element signature="n#setIsactive#0;n#User#0;n#!!top" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="controller.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="controller.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Classes/controller.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="36">
-              <caret line="2" column="2" lean-forward="false" selection-start-line="2" selection-start-column="2" selection-end-line="2" selection-end-column="2" />
+            <state relative-caret-position="51">
+              <caret line="3" column="3" lean-forward="false" selection-start-line="3" selection-start-column="3" selection-end-line="3" selection-end-column="3" />
               <folding />
             </state>
           </provider>
@@ -60,8 +105,8 @@
       <file leaf-file-name="mailman.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Classes/mailman.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="13" column="59" lean-forward="false" selection-start-line="13" selection-start-column="59" selection-end-line="13" selection-end-column="59" />
+            <state relative-caret-position="187">
+              <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
               <folding>
                 <element signature="e#6#186#0#PHP" expanded="true" />
               </folding>
@@ -72,8 +117,18 @@
       <file leaf-file-name="authenticator.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Classes/authenticator.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="342">
-              <caret line="19" column="51" lean-forward="false" selection-start-line="19" selection-start-column="51" selection-end-line="19" selection-end-column="51" />
+            <state relative-caret-position="51">
+              <caret line="3" column="29" lean-forward="false" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="dbc.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Classes/entities/dbc.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="150">
+              <caret line="20" column="24" lean-forward="false" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
               <folding />
             </state>
           </provider>
@@ -91,11 +146,13 @@
         <option value="$PROJECT_DIR$/composer.json" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/index.php" />
-        <option value="$PROJECT_DIR$/Classes/hasher.php" />
-        <option value="$PROJECT_DIR$/Classes/mailman.php" />
-        <option value="$PROJECT_DIR$/Classes/authenticator.php" />
-        <option value="$PROJECT_DIR$/Classes/entities/user.php" />
         <option value="$PROJECT_DIR$/Classes/controller.php" />
+        <option value="$PROJECT_DIR$/Classes/mailman.php" />
+        <option value="$PROJECT_DIR$/Classes/entities/user.php" />
+        <option value="$PROJECT_DIR$/Classes/authenticator.php" />
+        <option value="$PROJECT_DIR$/../../secure/metacognitio/config.ini" />
+        <option value="$PROJECT_DIR$/Classes/entities/dbc.php" />
+        <option value="$PROJECT_DIR$/Classes/hasher.php" />
       </list>
     </option>
   </component>
@@ -112,8 +169,10 @@
     </include_path>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="width" value="1280" />
-    <option name="height" value="781" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1066" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="1" id="Add" />
@@ -143,6 +202,10 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="metacognitio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="metacognitio" />
               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
             </PATH_ELEMENT>
           </PATH>
@@ -153,10 +216,10 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="metacognitio" />
-              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="pageassembly" />
+              <option name="myItemId" value="metacognitio" />
               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
             </PATH_ELEMENT>
           </PATH>
@@ -164,6 +227,10 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="metacognitio" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="metacognitio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="metacognitio" />
@@ -178,6 +245,10 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="metacognitio" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="metacognitio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="metacognitio" />
@@ -200,7 +271,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="settings.editor.selected.configurable" value="web-ide.project.structure" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../bin/php/php7.0.10/php.exe" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../secure/metacognitio" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -300,20 +371,23 @@
       <updated>1491061813174</updated>
       <workItem from="1491061815578" duration="4801000" />
       <workItem from="1491158031404" duration="7622000" />
+      <workItem from="1491170976583" duration="4840000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="12423000" />
+    <option name="totallyTimeSpent" value="17263000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1280" height="781" extended-state="0" />
+    <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2492163" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1640625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -324,8 +398,6 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -336,10 +408,102 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Classes/hasher.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="20" column="70" lean-forward="false" selection-start-line="20" selection-start-column="70" selection-end-line="20" selection-end-column="70" />
+          <folding>
+            <element signature="e#6#131#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Classes/entities/user.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="8" column="19" lean-forward="true" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
+          <folding>
+            <element signature="e#107#208#0#PHP" expanded="false" />
+            <element signature="e#461#493#0#PHP" expanded="false" />
+            <element signature="n#getpkUserID#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#577#618#0#PHP" expanded="false" />
+            <element signature="n#setpkUserID#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#716#748#0#PHP" expanded="false" />
+            <element signature="n#getEmail#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#826#864#0#PHP" expanded="false" />
+            <element signature="n#setEmail#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#950#982#0#PHP" expanded="false" />
+            <element signature="n#getFname#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1060#1098#0#PHP" expanded="false" />
+            <element signature="n#setFname#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1184#1216#0#PHP" expanded="false" />
+            <element signature="n#getLname#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1294#1332#0#PHP" expanded="false" />
+            <element signature="n#setLname#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1418#1450#0#PHP" expanded="false" />
+            <element signature="n#getAddr#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1526#1563#0#PHP" expanded="false" />
+            <element signature="n#setAddr#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1645#1677#0#PHP" expanded="false" />
+            <element signature="n#getCity#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1753#1790#0#PHP" expanded="false" />
+            <element signature="n#setCity#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1872#1904#0#PHP" expanded="false" />
+            <element signature="n#getZip#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1978#2014#0#PHP" expanded="false" />
+            <element signature="n#setZip#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2092#2124#0#PHP" expanded="false" />
+            <element signature="n#getPhone#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2202#2240#0#PHP" expanded="false" />
+            <element signature="n#setPhone#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2326#2358#0#PHP" expanded="false" />
+            <element signature="n#getGradsemester#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2450#2495#0#PHP" expanded="false" />
+            <element signature="n#setGradsemester#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2609#2641#0#PHP" expanded="false" />
+            <element signature="n#getGradyear#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2725#2766#0#PHP" expanded="false" />
+            <element signature="n#setGradyear#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2864#2896#0#PHP" expanded="false" />
+            <element signature="n#getIsactive#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2980#3021#0#PHP" expanded="false" />
+            <element signature="n#setIsactive#0;n#User#0;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Classes/mailman.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="13" column="59" lean-forward="false" selection-start-line="13" selection-start-column="59" selection-end-line="13" selection-end-column="59" />
+          <folding>
+            <element signature="e#6#186#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Classes/authenticator.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="19" column="51" lean-forward="false" selection-start-line="19" selection-start-column="51" selection-end-line="19" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Classes/controller.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="2" lean-forward="false" selection-start-line="2" selection-start-column="2" selection-end-line="2" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -393,14 +557,21 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
           <caret line="7" column="24" lean-forward="false" selection-start-line="7" selection-start-column="24" selection-end-line="7" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../secure/metacognitio/config.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="27" lean-forward="true" selection-start-line="7" selection-start-column="27" selection-end-line="7" selection-end-column="27" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Classes/hasher.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="20" column="70" lean-forward="false" selection-start-line="20" selection-start-column="70" selection-end-line="20" selection-end-column="70" />
+        <state relative-caret-position="306">
+          <caret line="18" column="20" lean-forward="true" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
           <folding>
             <element signature="e#6#131#0#PHP" expanded="true" />
           </folding>
@@ -409,18 +580,70 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Classes/entities/user.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="8" column="19" lean-forward="true" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
+        <state relative-caret-position="85">
+          <caret line="11" column="10" lean-forward="false" selection-start-line="11" selection-start-column="10" selection-end-line="11" selection-end-column="10" />
           <folding>
-            <element signature="e#6#105#0#PHP" expanded="true" />
+            <element signature="e#107#208#0#PHP" expanded="false" />
+            <element signature="e#461#493#0#PHP" expanded="false" />
+            <element signature="n#getpkUserID#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#577#618#0#PHP" expanded="false" />
+            <element signature="n#setpkUserID#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#716#748#0#PHP" expanded="false" />
+            <element signature="n#getEmail#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#826#864#0#PHP" expanded="false" />
+            <element signature="n#setEmail#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#950#982#0#PHP" expanded="false" />
+            <element signature="n#getFname#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1060#1098#0#PHP" expanded="false" />
+            <element signature="n#setFname#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1184#1216#0#PHP" expanded="false" />
+            <element signature="n#getLname#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1294#1332#0#PHP" expanded="false" />
+            <element signature="n#setLname#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1418#1450#0#PHP" expanded="false" />
+            <element signature="n#getAddr#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1526#1563#0#PHP" expanded="false" />
+            <element signature="n#setAddr#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1645#1677#0#PHP" expanded="false" />
+            <element signature="n#getCity#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1753#1790#0#PHP" expanded="false" />
+            <element signature="n#setCity#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1872#1904#0#PHP" expanded="false" />
+            <element signature="n#getZip#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#1978#2014#0#PHP" expanded="false" />
+            <element signature="n#setZip#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2092#2124#0#PHP" expanded="false" />
+            <element signature="n#getPhone#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2202#2240#0#PHP" expanded="false" />
+            <element signature="n#setPhone#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2326#2358#0#PHP" expanded="false" />
+            <element signature="n#getGradsemester#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2450#2495#0#PHP" expanded="false" />
+            <element signature="n#setGradsemester#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2609#2641#0#PHP" expanded="false" />
+            <element signature="n#getGradyear#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2725#2766#0#PHP" expanded="false" />
+            <element signature="n#setGradyear#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2864#2896#0#PHP" expanded="false" />
+            <element signature="n#getIsactive#0;n#User#0;n#!!top" expanded="false" />
+            <element signature="e#2980#3021#0#PHP" expanded="false" />
+            <element signature="n#setIsactive#0;n#User#0;n#!!top" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Classes/controller.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="3" lean-forward="false" selection-start-line="3" selection-start-column="3" selection-end-line="3" selection-end-column="3" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Classes/mailman.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="13" column="59" lean-forward="false" selection-start-line="13" selection-start-column="59" selection-end-line="13" selection-end-column="59" />
+        <state relative-caret-position="187">
+          <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
           <folding>
             <element signature="e#6#186#0#PHP" expanded="true" />
           </folding>
@@ -429,16 +652,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Classes/authenticator.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="19" column="51" lean-forward="false" selection-start-line="19" selection-start-column="51" selection-end-line="19" selection-end-column="51" />
+        <state relative-caret-position="51">
+          <caret line="3" column="29" lean-forward="false" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Classes/controller.php">
+    <entry file="file://$PROJECT_DIR$/Classes/entities/dbc.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="2" column="2" lean-forward="false" selection-start-line="2" selection-start-column="2" selection-end-line="2" selection-end-column="2" />
+        <state relative-caret-position="150">
+          <caret line="20" column="24" lean-forward="false" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
           <folding />
         </state>
       </provider>

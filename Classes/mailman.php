@@ -10,13 +10,16 @@ class Mailman {
     //TODO: give this a meaningful value
     private $address = "noreply@example.com";
 
-    public function mailpasswordreset(string $user, string $email) {
+    public function mailpasswordreset($user, $email)
+    {
         //TODO: dependency on frontend password reset page?
-}
-    public function mailmeeting() {
+    }
+    public function mailmeeting()
+    {
         //TODO: dependency on iCal/timeanddate functionality
     }
-    public function confirmsubmission(string $title, string $user, string $email) {
+    public function confirmsubmission(string $title, string $user, string $email)
+    {
         $date = getdate();
         $formatteddate = $date["month"] . $date["mday"] . ", " . $date["year"];
         $formattedtime = $date["hours"] . ":" . $date["minutes"];

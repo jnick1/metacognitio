@@ -7,14 +7,16 @@
  */
 class Authenticator {
 
-    public function authenticate(string $email, string $password) {
+    public function authenticate($email, $password)
+    {
         $hashedpassword = ""; //TODO: SQL query for hashed password associated with $email
 
         $hasher = new Hasher();
         return $hasher->verify($password, $hashedpassword);
     }
 
-    public function register(string $email, string $password) {
+    public function register(string $email, string $password)
+    {
         $hasher = new Hasher();
         $hashedpassword = $hasher->hash($password);
         //TODO: SQL store email and hashed password

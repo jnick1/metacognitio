@@ -6,12 +6,48 @@
 
 class Hasher {
 
-    public function hash(string $password) {
-        return password_hash($password, PASSWORD_BCRYPT);
+    /**
+     * @return string
+     */
+    public function randomHash()
+    {
+        return hash("sha256",random_bytes(16));
     }
 
-    public function verify(string $password, string $storedhash) {
-        return password_verify($password, $storedhash);
+    /**
+     * @param $string
+     * @return array
+     */
+    public function cryptographicHash($string)
+    {
+        $salt = random_bytes(16);
+        $salt1 = substr($salt,0,strlen($salt)/2);
+        $salt2 = substr($salt,strlen($salt)/2,strlen($salt));
+        $hash = hash("sha256",$salt1.$string.$salt2);
+        return array("salt"=>$salt,"hash"=>$hash);
+    }
+
+    /**
+     * @param $string
+     * @param $hash
+     * @return bool
+     */
+    public function verifyHash($string, $hash)
+    {
+        return hash("sha256", $string)==$hash;
+    }
+
+    /**
+     * @param $string
+     * @param $salt
+     * @param $hash
+     * @return bool
+     */
+    public function verifySaltedHash($string, $salt, $hash)
+    {
+        $salt1 = substr($salt,0,strlen($salt)/2);
+        $salt2 = substr($salt,strlen($salt)/2,strlen($salt));
+        return hash("sha256", $salt1.$string.$salt2)==$hash;
     }
 
     /*

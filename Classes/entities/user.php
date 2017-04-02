@@ -11,6 +11,7 @@
 
 class User {
 
+    private $pkUserID;
     private $email;
     private $fname;
     private $lname;
@@ -21,6 +22,22 @@ class User {
     private $gradsemester;
     private $gradyear;
     private $isactive;
+
+    /**
+     * @return mixed
+     */
+    public function getpkUserID()
+    {
+        return $this->pkUserID;
+    }
+
+    /**
+     * @param mixed $pkUserID
+     */
+    public function setpkUserID($pkUserID)
+    {
+        $this->pkUserID = $pkUserID;
+    }
 
     /**
      * @return mixed
