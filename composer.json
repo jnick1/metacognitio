@@ -21,7 +21,8 @@
     }
   ],
   "require": {
-    "phpmailer/phpmailer": "v5.2.23"
+    "phpmailer/phpmailer": "v5.2.23",
+    "giggsey/libphonenumber-for-php": "8.4"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

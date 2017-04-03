@@ -14,6 +14,16 @@ class dbc {
     protected static $connection;
 
     /**
+     * Destructor for dbc
+     */
+    public function __destruct()
+    {
+        if(isset(self::$connection)) {
+            $this::$connection::close();
+        }
+    }
+
+    /**
      * Connect to the database
      *
      * @return bool false on failure / mysqli MySQLi object instance on success
@@ -65,6 +75,7 @@ class dbc {
         $type = strtolower($type);
 
         switch($type) {
+            case "select single":
             case "select":
 
                 if($stmt = $connection->prepare($query)) {

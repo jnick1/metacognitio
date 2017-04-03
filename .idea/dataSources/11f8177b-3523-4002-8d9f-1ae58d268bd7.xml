@@ -1,0 +1,1042 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataSource name="metacognitiodb@localhost">
+  <database-model serializer="dbm" rdbms="MYSQL" format-version="4.1">
+    <root id="1"/>
+    <schema id="2" parent="1" name="metacognitiodb">
+      <Current>1</Current>
+      <Visible>1</Visible>
+    </schema>
+    <schema id="3" parent="1" name="information_schema"/>
+    <schema id="4" parent="1" name="mesadb"/>
+    <schema id="5" parent="1" name="mysql"/>
+    <schema id="6" parent="1" name="performance_schema"/>
+    <schema id="7" parent="1" name="sys"/>
+    <table id="8" parent="2" name="anonymized"/>
+    <table id="9" parent="2" name="authorbiographies"/>
+    <table id="10" parent="2" name="contact"/>
+    <table id="11" parent="2" name="country"/>
+    <table id="12" parent="2" name="critique"/>
+    <table id="13" parent="2" name="editorforms"/>
+    <table id="14" parent="2" name="file"/>
+    <table id="15" parent="2" name="form"/>
+    <table id="16" parent="2" name="log"/>
+    <table id="17" parent="2" name="meeting"/>
+    <table id="18" parent="2" name="meetingeditors"/>
+    <table id="19" parent="2" name="meetingsubmissions"/>
+    <table id="20" parent="2" name="notification">
+      <Comment>Type of notification given to the user</Comment>
+    </table>
+    <table id="21" parent="2" name="permissions">
+      <Comment>List of Permissions that the user has, to make Editor, Author, etc</Comment>
+    </table>
+    <table id="22" parent="2" name="province"/>
+    <table id="23" parent="2" name="publication"/>
+    <table id="24" parent="2" name="publicationform"/>
+    <table id="25" parent="2" name="serial"/>
+    <table id="26" parent="2" name="submission"/>
+    <table id="27" parent="2" name="token"/>
+    <table id="28" parent="2" name="user">
+      <Comment>Table used to contain information important to the user profile</Comment>
+    </table>
+    <table id="29" parent="2" name="userpermissions">
+      <Comment>Bridge entity between PermissionID and UserID</Comment>
+    </table>
+    <column id="30" parent="8" name="pkAnonymizedID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="31" parent="8" name="fkRevisionName">
+      <Position>2</Position>
+      <DataType>varchar(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="32" parent="8" name="fkFilename">
+      <Position>3</Position>
+      <DataType>varchar(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="33" parent="8" name="Filename">
+      <ColNames>fkFilename</ColNames>
+    </index>
+    <index id="34" parent="8" name="RevisionName">
+      <ColNames>fkRevisionName</ColNames>
+    </index>
+    <key id="35" parent="8" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkAnonymizedID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="36" parent="8" name="Anonymized_ibfk_1">
+      <ColNames>fkRevisionName</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>file</RefTableName>
+      <RefColNames>pkFilename</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <foreign-key id="37" parent="8" name="Anonymized_ibfk_2">
+      <ColNames>fkFilename</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>file</RefTableName>
+      <RefColNames>pkFilename</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <column id="38" parent="9" name="fkAuthorID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="39" parent="9" name="fkPublicationID">
+      <Position>2</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="40" parent="9" name="txBiography">
+      <Position>3</Position>
+      <DataType>varchar(500)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="41" parent="9" name="AuthorID">
+      <ColNames>fkAuthorID</ColNames>
+    </index>
+    <index id="42" parent="9" name="PublicationID">
+      <ColNames>fkPublicationID</ColNames>
+    </index>
+    <key id="43" parent="9" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>fkAuthorID
+fkPublicationID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="44" parent="9" name="AuthorBiographies_ibfk_1">
+      <ColNames>fkAuthorID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>user</RefTableName>
+      <RefColNames>pkUserID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <foreign-key id="45" parent="9" name="AuthorBiographies_ibfk_2">
+      <ColNames>fkPublicationID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>publication</RefTableName>
+      <RefColNames>pkPublicationID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <column id="46" parent="10" name="pkContactID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="47" parent="10" name="nmName">
+      <Position>2</Position>
+      <DataType>varchar(40)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="48" parent="10" name="nmTitle">
+      <Position>3</Position>
+      <DataType>varchar(20)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="49" parent="10" name="txDescription">
+      <Position>4</Position>
+      <DataType>varchar(500)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="50" parent="10" name="txEmail">
+      <Position>5</Position>
+      <DataType>varchar(40)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <key id="51" parent="10" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkContactID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="52" parent="11" name="pkCountryID">
+      <Position>1</Position>
+      <DataType>int(3)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="53" parent="11" name="idISO">
+      <Position>2</Position>
+      <DataType>varchar(2)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="54" parent="11" name="nmName">
+      <Position>3</Position>
+      <DataType>varchar(80)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="55" parent="11" name="idPhoneCode">
+      <Position>4</Position>
+      <DataType>int(5)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <key id="56" parent="11" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkCountryID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="57" parent="12" name="pkCritiqueID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="58" parent="12" name="fkEditorID">
+      <Position>2</Position>
+      <DataType>int(10)|0</DataType>
+    </column>
+    <column id="59" parent="12" name="fkRevisionName">
+      <Position>3</Position>
+      <DataType>varchar(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="60" parent="12" name="nRating">
+      <Position>4</Position>
+      <DataType>int(1)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="61" parent="12" name="txSummary">
+      <Position>5</Position>
+      <DataType>varchar(500)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="62" parent="12" name="fkCritiqueFilename">
+      <Position>6</Position>
+      <DataType>varchar(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="63" parent="12" name="CritiqueFilename">
+      <ColNames>fkCritiqueFilename</ColNames>
+    </index>
+    <index id="64" parent="12" name="EditorID">
+      <ColNames>fkEditorID</ColNames>
+    </index>
+    <index id="65" parent="12" name="RevisionName">
+      <ColNames>fkRevisionName</ColNames>
+    </index>
+    <key id="66" parent="12" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkCritiqueID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="67" parent="12" name="Critique_ibfk_1">
+      <ColNames>fkEditorID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>user</RefTableName>
+      <RefColNames>pkUserID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <foreign-key id="68" parent="12" name="Critique_ibfk_2">
+      <ColNames>fkRevisionName</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>file</RefTableName>
+      <RefColNames>pkFilename</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <foreign-key id="69" parent="12" name="Critique_ibfk_3">
+      <ColNames>fkCritiqueFilename</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>file</RefTableName>
+      <RefColNames>pkFilename</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <column id="70" parent="13" name="fkUserID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="71" parent="13" name="fkFormID">
+      <Position>2</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="72" parent="13" name="FormID">
+      <ColNames>fkFormID</ColNames>
+    </index>
+    <index id="73" parent="13" name="UserID">
+      <ColNames>fkUserID</ColNames>
+    </index>
+    <foreign-key id="74" parent="13" name="EditorForms_ibfk_1">
+      <ColNames>fkUserID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>user</RefTableName>
+      <RefColNames>pkUserID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <foreign-key id="75" parent="13" name="EditorForms_ibfk_2">
+      <ColNames>fkFormID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>form</RefTableName>
+      <RefColNames>pkFormID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <column id="76" parent="14" name="pkFilename">
+      <Position>1</Position>
+      <DataType>varchar(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="77" parent="14" name="fkFilename">
+      <Position>2</Position>
+      <DataType>varchar(64)|0</DataType>
+    </column>
+    <column id="78" parent="14" name="nmTitle">
+      <Position>3</Position>
+      <DataType>varchar(40)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="79" parent="14" name="isActive">
+      <Position>4</Position>
+      <DataType>tinyint(1)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="80" parent="14" name="fkFilename">
+      <ColNames>fkFilename</ColNames>
+    </index>
+    <key id="81" parent="14" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkFilename</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="82" parent="14" name="File_ibfk_1">
+      <ColNames>fkFilename</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>file</RefTableName>
+      <RefColNames>pkFilename</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>set-null</OnDelete>
+    </foreign-key>
+    <column id="83" parent="15" name="pkFormID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="84" parent="15" name="nmTitle">
+      <Position>2</Position>
+      <DataType>varchar(20)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="85" parent="15" name="txDescription">
+      <Position>3</Position>
+      <DataType>varchar(100)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <key id="86" parent="15" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkFormID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="87" parent="16" name="pkLogID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="88" parent="16" name="nmTable">
+      <Position>2</Position>
+      <DataType>varchar(21)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="89" parent="16" name="fkIdentifier">
+      <Position>3</Position>
+      <DataType>int(10)|0</DataType>
+    </column>
+    <column id="90" parent="16" name="fkFilename">
+      <Position>4</Position>
+      <DataType>varchar(64)|0</DataType>
+    </column>
+    <column id="91" parent="16" name="fkUserID">
+      <Position>5</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="92" parent="16" name="enEventType">
+      <Position>6</Position>
+      <DataType>enum(&apos;USER_CREATE&apos;, &apos;USER_DELETE&apos;, &apos;USER_UPDATE&apos;, &apos;USER_LOGIN&apos;, &apos;USER_PASSWORD&apos;, &apos;USER_DEACTIVATE&apos;, &apos;USER_ACTIVATE&apos;, &apos;AUTHOR_SUBMIT&apos;, &apos;AUTHOR_CANCEL&apos;, &apos;AUTHOR_REVISION&apos;, &apos;AUTHOR_LICENSE&apos;, &apos;AUTHOR_BIOGRAPHY&apos;, &apos;SUBMISSION_CREATE&apos;)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="93" parent="16" name="dtTimestamp">
+      <Position>7</Position>
+      <DataType>date|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="94" parent="16" name="Filename">
+      <ColNames>fkFilename</ColNames>
+    </index>
+    <index id="95" parent="16" name="Filename_2">
+      <ColNames>fkFilename</ColNames>
+    </index>
+    <index id="96" parent="16" name="Filename_3">
+      <ColNames>fkFilename</ColNames>
+    </index>
+    <index id="97" parent="16" name="UserID">
+      <ColNames>fkUserID</ColNames>
+    </index>
+    <index id="98" parent="16" name="UserID_2">
+      <ColNames>fkUserID</ColNames>
+    </index>
+    <key id="99" parent="16" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkLogID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="100" parent="16" name="Log_ibfk_1">
+      <ColNames>fkFilename</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>file</RefTableName>
+      <RefColNames>pkFilename</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <foreign-key id="101" parent="16" name="Log_ibfk_2">
+      <ColNames>fkUserID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>user</RefTableName>
+      <RefColNames>pkUserID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <column id="102" parent="17" name="pkMeetingID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="103" parent="17" name="dtStart">
+      <Position>2</Position>
+      <DataType>date|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="104" parent="17" name="dtEnd">
+      <Position>3</Position>
+      <DataType>date|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="105" parent="17" name="txLocation">
+      <Position>4</Position>
+      <DataType>varchar(100)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="106" parent="17" name="fkAgendaFilename">
+      <Position>5</Position>
+      <DataType>varchar(64)|0</DataType>
+    </column>
+    <index id="107" parent="17" name="AgendaFilename">
+      <ColNames>fkAgendaFilename</ColNames>
+    </index>
+    <key id="108" parent="17" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkMeetingID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="109" parent="17" name="Meeting_ibfk_1">
+      <ColNames>fkAgendaFilename</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>file</RefTableName>
+      <RefColNames>pkFilename</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <column id="110" parent="18" name="fkMeetingID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="111" parent="18" name="fkEditorID">
+      <Position>2</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="112" parent="18" name="fkEditorID">
+      <ColNames>fkEditorID</ColNames>
+    </index>
+    <key id="113" parent="18" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>fkMeetingID
+fkEditorID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="114" parent="18" name="MeetingEditors_ibfk_1">
+      <ColNames>fkMeetingID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>meeting</RefTableName>
+      <RefColNames>pkMeetingID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <foreign-key id="115" parent="18" name="MeetingEditors_ibfk_2">
+      <ColNames>fkEditorID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>user</RefTableName>
+      <RefColNames>pkUserID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <column id="116" parent="19" name="fkMeetingID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="117" parent="19" name="fkAnonymizedID">
+      <Position>2</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="118" parent="19" name="nCopies">
+      <Position>3</Position>
+      <DataType>int(1)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="119" parent="19" name="AnonymizedID">
+      <ColNames>fkAnonymizedID</ColNames>
+    </index>
+    <index id="120" parent="19" name="MeetingID">
+      <ColNames>fkMeetingID</ColNames>
+    </index>
+    <key id="121" parent="19" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>fkMeetingID
+fkAnonymizedID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="122" parent="19" name="MeetingSubmissions_ibfk_1">
+      <ColNames>fkMeetingID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>meeting</RefTableName>
+      <RefColNames>pkMeetingID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <foreign-key id="123" parent="19" name="MeetingSubmissions_ibfk_2">
+      <ColNames>fkAnonymizedID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>anonymized</RefTableName>
+      <RefColNames>pkAnonymizedID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <column id="124" parent="20" name="pkNotificationID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="125" parent="20" name="enLevel">
+      <Position>2</Position>
+      <DataType>enum(&apos;Notification&apos;, &apos;Warning&apos;, &apos;Error&apos;)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="126" parent="20" name="txDescription">
+      <Position>3</Position>
+      <DataType>varchar(50)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="127" parent="20" name="fkUserID">
+      <Position>4</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="128" parent="20" name="UserID">
+      <ColNames>fkUserID</ColNames>
+    </index>
+    <index id="129" parent="20" name="UserID_2">
+      <ColNames>fkUserID</ColNames>
+    </index>
+    <key id="130" parent="20" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkNotificationID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="131" parent="20" name="Notification_ibfk_1">
+      <ColNames>fkUserID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>user</RefTableName>
+      <RefColNames>pkUserID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <column id="132" parent="21" name="pkPermissionID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="133" parent="21" name="nmName">
+      <Position>2</Position>
+      <DataType>varchar(20)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="134" parent="21" name="txDescription">
+      <Position>3</Position>
+      <DataType>varchar(200)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <key id="135" parent="21" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkPermissionID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="136" parent="22" name="pkStateID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="137" parent="22" name="idISO">
+      <Position>2</Position>
+      <DataType>varchar(2)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="138" parent="22" name="nmName">
+      <Position>3</Position>
+      <DataType>varchar(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="139" parent="22" name="fkCountryID">
+      <Position>4</Position>
+      <DataType>int(3)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="140" parent="22" name="CountryID">
+      <ColNames>fkCountryID</ColNames>
+    </index>
+    <key id="141" parent="22" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkStateID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="142" parent="22" name="province_ibfk_1">
+      <ColNames>fkCountryID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>country</RefTableName>
+      <RefColNames>pkCountryID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <column id="143" parent="23" name="pkPublicationID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="144" parent="23" name="idIteration">
+      <Position>2</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;1&apos;</DefaultExpression>
+    </column>
+    <column id="145" parent="23" name="idEdition">
+      <Position>3</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;1&apos;</DefaultExpression>
+    </column>
+    <column id="146" parent="23" name="fkSerialID">
+      <Position>4</Position>
+      <DataType>int(10)|0</DataType>
+    </column>
+    <column id="147" parent="23" name="nmTitle">
+      <Position>5</Position>
+      <DataType>varchar(20)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="148" parent="23" name="enStatus">
+      <Position>6</Position>
+      <DataType>enum(&apos;WIP&apos;, &apos;Published&apos;, &apos;Cancelled&apos;)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="149" parent="23" name="txDescription">
+      <Position>7</Position>
+      <DataType>varchar(500)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="150" parent="23" name="idISBN">
+      <Position>8</Position>
+      <DataType>int(13)|0</DataType>
+    </column>
+    <column id="151" parent="23" name="fkCoverFileID">
+      <Position>9</Position>
+      <DataType>varchar(64)|0</DataType>
+    </column>
+    <column id="152" parent="23" name="dtPublicationTarget">
+      <Position>10</Position>
+      <DataType>date|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="153" parent="23" name="dtPublished">
+      <Position>11</Position>
+      <DataType>date|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="154" parent="23" name="CoverFileID">
+      <ColNames>fkCoverFileID</ColNames>
+    </index>
+    <index id="155" parent="23" name="SerialID">
+      <ColNames>fkSerialID
+idISBN</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <index id="156" parent="23" name="SerialID_2">
+      <ColNames>fkSerialID</ColNames>
+    </index>
+    <key id="157" parent="23" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkPublicationID
+idIteration
+idEdition</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="158" parent="23" name="SerialID">
+      <ColNames>fkSerialID
+idISBN</ColNames>
+      <UnderlyingIndexName>SerialID</UnderlyingIndexName>
+    </key>
+    <foreign-key id="159" parent="23" name="Publication_ibfk_1">
+      <ColNames>fkSerialID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>serial</RefTableName>
+      <RefColNames>pkSerialID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <foreign-key id="160" parent="23" name="Publication_ibfk_2">
+      <ColNames>fkCoverFileID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>file</RefTableName>
+      <RefColNames>pkFilename</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <column id="161" parent="24" name="fkFormID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="162" parent="24" name="fkPublicationID">
+      <Position>2</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="163" parent="24" name="FormID">
+      <ColNames>fkFormID</ColNames>
+    </index>
+    <index id="164" parent="24" name="PublicationID">
+      <ColNames>fkPublicationID</ColNames>
+    </index>
+    <foreign-key id="165" parent="24" name="PublicationForm_ibfk_1">
+      <ColNames>fkFormID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>form</RefTableName>
+      <RefColNames>pkFormID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <foreign-key id="166" parent="24" name="PublicationForm_ibfk_2">
+      <ColNames>fkPublicationID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>publication</RefTableName>
+      <RefColNames>pkPublicationID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <column id="167" parent="25" name="pkSerialID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="168" parent="25" name="idISSN">
+      <Position>2</Position>
+      <DataType>int(8)|0</DataType>
+    </column>
+    <column id="169" parent="25" name="nmTitle">
+      <Position>3</Position>
+      <DataType>varchar(20)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="170" parent="25" name="enIterationName">
+      <Position>4</Position>
+      <DataType>enum(&apos;Volume&apos;, &apos;Issue&apos;)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="171" parent="25" name="idISSN">
+      <ColNames>idISSN</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="172" parent="25" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkSerialID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="173" parent="25" name="idISSN">
+      <ColNames>idISSN</ColNames>
+      <UnderlyingIndexName>idISSN</UnderlyingIndexName>
+    </key>
+    <column id="174" parent="26" name="pkSubmissionID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="175" parent="26" name="nmTitle">
+      <Position>2</Position>
+      <DataType>varchar(100)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="176" parent="26" name="fkAuthorID">
+      <Position>3</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="177" parent="26" name="fkFilename">
+      <Position>4</Position>
+      <DataType>varchar(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="178" parent="26" name="fkFormID">
+      <Position>5</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="179" parent="26" name="fkLicenseFile">
+      <Position>6</Position>
+      <DataType>varchar(64)|0</DataType>
+    </column>
+    <column id="180" parent="26" name="fkPublicationID">
+      <Position>7</Position>
+      <DataType>int(10)|0</DataType>
+    </column>
+    <column id="181" parent="26" name="nPageCount">
+      <Position>8</Position>
+      <DataType>int(2)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="182" parent="26" name="nRating">
+      <Position>9</Position>
+      <DataType>float|0</DataType>
+    </column>
+    <column id="183" parent="26" name="enStatus">
+      <Position>10</Position>
+      <DataType>enum(&apos;Initial Review&apos;, &apos;Revision Review&apos;, &apos;Apply Final Edits&apos;, &apos;Publish&apos;, &apos;Rejected&apos;, &apos;Cancelled&apos;)|0</DataType>
+    </column>
+    <column id="184" parent="26" name="txAditionalAuthors">
+      <Position>11</Position>
+      <DataType>varchar(500)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="185" parent="26" name="AuthorID">
+      <ColNames>fkAuthorID</ColNames>
+    </index>
+    <index id="186" parent="26" name="Filename">
+      <ColNames>fkFilename</ColNames>
+    </index>
+    <index id="187" parent="26" name="FormID">
+      <ColNames>fkFormID</ColNames>
+    </index>
+    <index id="188" parent="26" name="FormID_2">
+      <ColNames>fkFormID</ColNames>
+    </index>
+    <index id="189" parent="26" name="LicenseFile">
+      <ColNames>fkLicenseFile</ColNames>
+    </index>
+    <index id="190" parent="26" name="PublicationID">
+      <ColNames>fkPublicationID</ColNames>
+    </index>
+    <key id="191" parent="26" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkSubmissionID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="192" parent="26" name="Submission_ibfk_1">
+      <ColNames>fkAuthorID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>user</RefTableName>
+      <RefColNames>pkUserID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <foreign-key id="193" parent="26" name="Submission_ibfk_2">
+      <ColNames>fkFilename</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>file</RefTableName>
+      <RefColNames>pkFilename</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <foreign-key id="194" parent="26" name="Submission_ibfk_3">
+      <ColNames>fkFormID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>form</RefTableName>
+      <RefColNames>pkFormID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <foreign-key id="195" parent="26" name="Submission_ibfk_4">
+      <ColNames>fkLicenseFile</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>file</RefTableName>
+      <RefColNames>pkFilename</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <foreign-key id="196" parent="26" name="Submission_ibfk_5">
+      <ColNames>fkPublicationID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>publication</RefTableName>
+      <RefColNames>pkPublicationID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <column id="197" parent="27" name="pkTokenID">
+      <Position>1</Position>
+      <DataType>int(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="198" parent="27" name="blGet">
+      <Position>2</Position>
+      <DataType>blob|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="199" parent="27" name="dtExpire">
+      <Position>3</Position>
+      <DataType>timestamp|0</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+    </column>
+    <column id="200" parent="27" name="txEmail">
+      <Position>4</Position>
+      <DataType>varchar(40)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <key id="201" parent="27" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkTokenID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="202" parent="28" name="pkUserID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="203" parent="28" name="nmFirst">
+      <Position>2</Position>
+      <DataType>varchar(20)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="204" parent="28" name="nmLast">
+      <Position>3</Position>
+      <DataType>varchar(20)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="205" parent="28" name="txEmail">
+      <Position>4</Position>
+      <DataType>varchar(40)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="206" parent="28" name="txEmailAlt">
+      <Position>5</Position>
+      <DataType>varchar(40)|0</DataType>
+    </column>
+    <column id="207" parent="28" name="txStreetAddress">
+      <Position>6</Position>
+      <DataType>varchar(50)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="208" parent="28" name="txCity">
+      <Position>7</Position>
+      <DataType>varchar(20)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="209" parent="28" name="fkProvinceID">
+      <Position>8</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="210" parent="28" name="nZip">
+      <Position>9</Position>
+      <DataType>int(5)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="211" parent="28" name="nPhone">
+      <Position>10</Position>
+      <DataType>bigint(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="212" parent="28" name="enGradSemester">
+      <Position>11</Position>
+      <DataType>set(&apos;Winter&apos;, &apos;Fall&apos;, &apos;Summer&apos;)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="213" parent="28" name="dtGradYear">
+      <Position>12</Position>
+      <DataType>year(4)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="214" parent="28" name="blSalt">
+      <Position>13</Position>
+      <DataType>blob|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="215" parent="28" name="txHash">
+      <Position>14</Position>
+      <DataType>varchar(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="216" parent="28" name="isActive">
+      <Position>15</Position>
+      <DataType>tinyint(1)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="217" parent="28" name="fkProvinceID">
+      <ColNames>fkProvinceID</ColNames>
+    </index>
+    <key id="218" parent="28" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pkUserID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="219" parent="28" name="User_ibfk_1">
+      <ColNames>fkProvinceID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>province</RefTableName>
+      <RefColNames>pkStateID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+    </foreign-key>
+    <column id="220" parent="29" name="fkPermissionID">
+      <Position>1</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="221" parent="29" name="fkUserID">
+      <Position>2</Position>
+      <DataType>int(10)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="222" parent="29" name="PermissionID">
+      <ColNames>fkPermissionID</ColNames>
+    </index>
+    <index id="223" parent="29" name="PermissionID_2">
+      <ColNames>fkPermissionID</ColNames>
+    </index>
+    <index id="224" parent="29" name="PermissionID_3">
+      <ColNames>fkPermissionID</ColNames>
+    </index>
+    <index id="225" parent="29" name="UserID">
+      <ColNames>fkUserID</ColNames>
+    </index>
+    <foreign-key id="226" parent="29" name="UserPermissions_ibfk_1">
+      <ColNames>fkPermissionID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>permissions</RefTableName>
+      <RefColNames>pkPermissionID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+    <foreign-key id="227" parent="29" name="UserPermissions_ibfk_2">
+      <ColNames>fkUserID</ColNames>
+      <RefSchemaName>metacognitiodb</RefSchemaName>
+      <RefTableName>user</RefTableName>
+      <RefColNames>pkUserID</RefColNames>
+      <OnUpdate>cascade</OnUpdate>
+      <OnDelete>cascade</OnDelete>
+    </foreign-key>
+  </database-model>
+</dataSource>
