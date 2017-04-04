@@ -15,11 +15,9 @@ class Authenticator {
     public static function authenticate($email, $password)
     {
         $user = User::load($email);
-        if(isset($user))
-        {
+        if(isset($user)) {
             return Hasher::verifySaltedHash($password,$user->getSalt(),$user->getHash());
-        } else
-        {
+        } else {
             return false;
         }
     }
@@ -38,10 +36,14 @@ class Authenticator {
      * @param $gradYear
      * @param $password
      * @param $isActive
+     * @return bool
      */
     public static function register($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive)
     {
         $user = new User($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
-        $user->updateDatabase();
+        if(isset($user)) {
+            return $user->updateDatabase();;
+        }
+        return false;
     }
 }
