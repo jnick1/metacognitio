@@ -19,14 +19,14 @@ class dbc {
     public function __destruct()
     {
         if(isset(self::$connection)) {
-            $this::$connection::close();
+            $this::$connection->close();
         }
     }
 
     /**
      * Connect to the database
      *
-     * @return bool false on failure / mysqli MySQLi object instance on success
+     * @return bool|mysqli false on failure / mysqli MySQLi object instance on success
      */
     public function connect() {
         // Try and connect to the database

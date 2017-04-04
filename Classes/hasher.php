@@ -8,8 +8,10 @@ class Hasher {
 
     /**
      * @return string
+     *
+     * Generates a new random hash based on a cryptographically securely generated random string of bytes
      */
-    public function randomHash()
+    public static function randomHash()
     {
         return hash("sha256",random_bytes(16));
     }
@@ -17,8 +19,10 @@ class Hasher {
     /**
      * @param $string
      * @return array
+     *
+     * Generates a new salt and salted hash for a given string
      */
-    public function cryptographicHash($string)
+    public static function cryptographicHash($string)
     {
         $salt = random_bytes(16);
         $salt1 = substr($salt,0,strlen($salt)/2);
@@ -31,8 +35,10 @@ class Hasher {
      * @param $string
      * @param $hash
      * @return bool
+     *
+     * Verifies that $string hashed is equivalent to $hash via the SHA256 hashing algorithm
      */
-    public function verifyHash($string, $hash)
+    public static function verifyHash($string, $hash)
     {
         return hash("sha256", $string)==$hash;
     }
@@ -42,8 +48,10 @@ class Hasher {
      * @param $salt
      * @param $hash
      * @return bool
+     *
+     * Verifies that a salted $string is equivalent to $hash via the SHA256 hashing algorithm
      */
-    public function verifySaltedHash($string, $salt, $hash)
+    public static function verifySaltedHash($string, $salt, $hash)
     {
         $salt1 = substr($salt,0,strlen($salt)/2);
         $salt2 = substr($salt,strlen($salt)/2,strlen($salt));

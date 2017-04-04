@@ -7,18 +7,41 @@
  */
 class Authenticator {
 
-    public function authenticate($email, $password)
+    /**
+     * @param $email
+     * @param $password
+     * @return bool
+     */
+    public static function authenticate($email, $password)
     {
-        $hashedpassword = ""; //TODO: SQL query for hashed password associated with $email
-
-        $hasher = new Hasher();
-        return $hasher->verify($password, $hashedpassword);
+        $user = User::load($email);
+        if(isset($user))
+        {
+            return Hasher::verifySaltedHash($password,$user->getSalt(),$user->getHash());
+        } else
+        {
+            return false;
+        }
     }
 
-    public function register(string $email, string $password)
+    /**
+     * @param $fName
+     * @param $lName
+     * @param $email
+     * @param $altEmail
+     * @param $addr
+     * @param $city
+     * @param $province
+     * @param $zip
+     * @param $phone
+     * @param $gradSemester
+     * @param $gradYear
+     * @param $password
+     * @param $isActive
+     */
+    public static function register($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive)
     {
-        $hasher = new Hasher();
-        $hashedpassword = $hasher->hash($password);
-        //TODO: SQL store email and hashed password
+        $user = new User($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
+        $user->updateDatabase();
     }
 }
