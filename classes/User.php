@@ -1,14 +1,9 @@
 <?php
-/*
- * A user class to keep track of everything of importance regarding a
- * user's information.
- */
 
 /*
- * At the present moment this is just getters and setters for stuff in the
- * data dictionary.
- */
-
+* A user class to keep track of everything of importance regarding a
+* user's information.
+*/
 class User
 {
 
@@ -63,7 +58,7 @@ class User
      */
     public function __construct1($email)
     {
-        $dbc = new dbc();
+        $dbc = new Dbc();
         $params=[$email];
         $user = $dbc->query("select","SELECT * FROM `user` WHERE `txEmail`=?",$params);
 
@@ -74,8 +69,7 @@ class User
                 $params=[$province["fkCountryID"]];
                 $country = $dbc->query("select", "SELECT * FROM `country` WHERE `pkCountryID`=?", $params);
 
-                if($country)
-                {
+                if($country) {
                     $r1 = $this->setUserID($user["pkUserID"]);
                     $r2 = $this->setFName($user["nmFirstName"]);
                     $r3 = $this->setLName($user["nmLastName"]);
@@ -93,15 +87,12 @@ class User
                     $r15 = $this->setHash($user["txHash"]);
                     $r16 = $this->setIsActive($user["isActive"]);
                     $this->isInDatabase = true;
-                    if(!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14 and $r15 and $r16))
-                    {
+                    if(!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14 and $r15 and $r16)) {
                         throw new InvalidArgumentException();
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             throw new InvalidArgumentException("User not found");
         }
     }
@@ -123,13 +114,14 @@ class User
      */
     public function __construct13($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive)
     {
+        $dbc = new Dbc();
         $params=[$province];
         $province = $dbc->query("select", "SELECT * FROM `province` WHERE `idISO`=?", $params);
         if ($province) {
             $params = [$province["fkCountryID"]];
             $country = $dbc->query("select", "SELECT * FROM `country` WHERE `pkCountryID`=?", $params);
-            if($country)
-            {
+
+            if($country) {
                 $r1 = $this->setFName($fName);
                 $r2 = $this->setLName($lName);
                 $r3 = $this->setEmail($email);
@@ -145,8 +137,7 @@ class User
                 $r13 = $this->updatePassword($password);
                 $r14 = $this->setIsActive($isActive);
                 $r15 = $this->isInDatabase = false;
-                if(!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14 and $r15))
-                {
+                if(!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14 and $r15)) {
                     throw new InvalidArgumentException();
                 }
             }
@@ -159,7 +150,7 @@ class User
      */
     public function updateDatabase()
     {
-        $dbc = new dbc();
+        $dbc = new Dbc();
         $params=[
             $this->getFName(),
             $this->getLName(),
@@ -176,24 +167,21 @@ class User
             $this->getHash(),
             $this->getIsActive()
         ];
-        if($this->isInDatabase)
-        {
+        if($this->isInDatabase) {
             $dbc->query("update", "UPDATE `user` SET 
-                                          `nmFirst`=?,`nmLast`=?,`txEmail`=?,`txEmailAlt`=?,
-                                          `txStreetAddress`=?,`txCity`=?,`fkProvinceID`=?,`nZip`=?,
-                                          `nPhone`=?,`enGradSemester`=?,`dtGradYear`=?,`blSalt`=?,
-                                          `txHash`=?,`isActive`=?
-                                          WHERE `pkUserID`=?",$params);
-        }
-        else
-        {
+                                      `nmFirst`=?,`nmLast`=?,`txEmail`=?,`txEmailAlt`=?,
+                                      `txStreetAddress`=?,`txCity`=?,`fkProvinceID`=?,`nZip`=?,
+                                      `nPhone`=?,`enGradSemester`=?,`dtGradYear`=?,`blSalt`=?,
+                                      `txHash`=?,`isActive`=?
+                                      WHERE `pkUserID`=?",$params);
+        } else {
             $dbc->query("insert", "INSERT INTO `user` (`pkUserID`, 
-                                              `nmFirst`, `nmLast`, `txEmail`, `txEmailAlt`, 
-                                              `txStreetAddress`, `txCity`, `fkProvinceID`, `nZip`, 
-                                              `nPhone`, `enGradSemester`, `dtGradYear`, `blSalt`, 
-                                              `txHash`, `isActive`) 
-                                              VALUES 
-                                              (null,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",$params);
+                                          `nmFirst`, `nmLast`, `txEmail`, `txEmailAlt`, 
+                                          `txStreetAddress`, `txCity`, `fkProvinceID`, `nZip`, 
+                                          `nPhone`, `enGradSemester`, `dtGradYear`, `blSalt`, 
+                                          `txHash`, `isActive`) 
+                                          VALUES 
+                                          (null,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",$params);
             $this->isInDatabase = $dbc;
         }
 
@@ -207,8 +195,7 @@ class User
     public function updatePassword($password)
     {
         $saltedHash = Hasher::cryptographicHash($password);
-        if(is_array($saltedHash))
-        {
+        if(is_array($saltedHash)) {
             $r1 = $this->setSalt($saltedHash["salt"]);
             $r2 = $this->setHash($saltedHash["hash"]);
             return $r1 and $r2;
@@ -235,8 +222,7 @@ class User
                 "max_range"=>pow(2,31)-1
             ]
         ];
-        if($filtered = filter_var($userID,FILTER_VALIDATE_INT,$options))
-        {
+        if($filtered = filter_var($userID,FILTER_VALIDATE_INT,$options)) {
             $this->userID = $filtered;
             return true;
         }
@@ -256,8 +242,7 @@ class User
      */
     public function setFName($fName)
     {
-        if(strlen((string) $fName)<=20 and $filtered = filter_var($fName,FILTER_SANITIZE_STRING))
-        {
+        if(strlen((string) $fName)<=20 and $filtered = filter_var($fName,FILTER_SANITIZE_STRING)) {
             $this->fName = $filtered;
             return true;
         }
@@ -277,8 +262,7 @@ class User
      */
     public function setLName($lName)
     {
-        if(strlen((string) $lName)<=20 and $filtered = filter_var($lName,FILTER_SANITIZE_STRING))
-        {
+        if(strlen((string) $lName)<=20 and $filtered = filter_var($lName,FILTER_SANITIZE_STRING)) {
             $this->lName = $filtered;
             return true;
         }
@@ -298,14 +282,10 @@ class User
      */
     public function setEmail($email)
     {
-        if($filtered = filter_var($email,FILTER_VALIDATE_EMAIL) or $email === null)
-        {
-            if($email === null)
-            {
+        if($filtered = filter_var($email,FILTER_VALIDATE_EMAIL) or $email === null) {
+            if($email === null) {
                 $this->email = null;
-            }
-            else
-            {
+            } else {
                 $this->email = filter_var($filtered, FILTER_SANITIZE_EMAIL);
             }
             return true;
@@ -326,8 +306,7 @@ class User
      */
     public function setAltEmail($email)
     {
-        if($filtered = filter_var($email,FILTER_VALIDATE_EMAIL))
-        {
+        if($filtered = filter_var($email,FILTER_VALIDATE_EMAIL)) {
             $this->altEmail = filter_var($filtered, FILTER_SANITIZE_EMAIL);
             return true;
         }
@@ -347,8 +326,7 @@ class User
      */
     public function setAddr($addr)
     {
-        if(strlen((string) $addr)<=50 and $filtered = filter_var($addr,FILTER_SANITIZE_STRING))
-        {
+        if(strlen((string) $addr)<=50 and $filtered = filter_var($addr,FILTER_SANITIZE_STRING)) {
             $this->addr = $filtered;
             return true;
         }
@@ -368,8 +346,7 @@ class User
      */
     public function setCity($city)
     {
-        if(strlen((string) $city)<=50 and $filtered = filter_var($city,FILTER_SANITIZE_STRING))
-        {
+        if(strlen((string) $city)<=50 and $filtered = filter_var($city,FILTER_SANITIZE_STRING)) {
             $this->city = $filtered;
             return true;
         }
@@ -382,8 +359,7 @@ class User
     public function getProvince($identifier)
     {
         $identifier = strtolower($identifier);
-        switch ($identifier)
-        {
+        switch ($identifier) {
             case "iso":
             case "idiso":
                 return $this->province["idISO"];
@@ -402,24 +378,18 @@ class User
      * @return bool
      */
     public function setProvince($province) {
-        if(gettype($province)=="string")
-        {
+        if(gettype($province)=="string") {
             $province = strtoupper($province);
-            $dbc = new dbc();
+            $dbc = new Dbc();
             $params=[$province];
-            if(strlen($province)==2)
-            {
+            if(strlen($province)==2) {
                 $result = $dbc->query("select", "SELECT * FROM `province` WHERE `idISO`=?",$params);
-            }
-            else
-            {
+            } else {
                 $result = $dbc->query("select", "SELECT * FROM `province` WHERE UPPER(`nmName`)=?",$params);
             }
 
-            if($result)
-            {
-                if(isset($this->country) and $this->country["pkCountryID"] != $result["fkCountryID"])
-                {
+            if($result) {
+                if(isset($this->country) and $this->country["pkCountryID"] != $result["fkCountryID"]) {
                     $this->setCountry($result["fkCountryID"]);
                 }
                 $this->province["pkStateID"] = $result["pkStateID"];
@@ -437,8 +407,7 @@ class User
     public function getCountry($identifier)
     {
         $identifier = strtolower($identifier);
-        switch ($identifier)
-        {
+        switch ($identifier) {
             case "iso":
             case "idiso":
                 return $this->country["idISO"];
@@ -457,40 +426,29 @@ class User
      */
     public function setCountry($country)
     {
-        if(gettype($country)=="string" or gettype($country)=="integer")
-        {
-            $dbc = new dbc();
+        if(gettype($country)=="string" or gettype($country)=="integer") {
+            $dbc = new Dbc();
             $params=[$country];
             if(gettype($country)=="string") {
                 $country = strtoupper($country);
-                if(strlen($country)==2)
-                {
+                if(strlen($country)==2) {
                     $result = $dbc->query("select", "SELECT * FROM `country` WHERE `idISO`=?",$params);
-                }
-                else
-                {
+                } else {
                     $result = $dbc->query("select", "SELECT * FROM `country` WHERE UPPER(`nmName`)=?",$params);
                 }
-            }
-            else
-            {
+            } else {
                 $result = $dbc->query("select", "SELECT * FROM `country` WHERE `pkCountryID`=?",$params);
             }
 
-            if($result)
-            {
-                if(isset($this->province))
-                {
+            if($result) {
+                if(isset($this->province)) {
                     $params=[$this->province["idISO"]];
                     $result2 = $dbc->query("select","SELECT * FROM `province` WHERE `idISO`=?",$params);
-                    if($result2)
-                    {
+                    if($result2) {
                         $params=$result2["fkCountryID"];
                         $result3 = $dbc->query("select","SELECT * FROM `country` WHERE `pkCountryID`=?",$params);
-                        if($result3)
-                        {
-                            if($result3["pkCountryID"] != $result["pkCountryID"])
-                            {
+                        if($result3) {
+                            if($result3["pkCountryID"] != $result["pkCountryID"]) {
                                 unset($this->province);
                             }
                         }
@@ -525,8 +483,7 @@ class User
                 "max_range"=>99999
             ]
         ];
-        if($filtered = filter_var($zip,FILTER_VALIDATE_INT,$options))
-        {
+        if($filtered = filter_var($zip,FILTER_VALIDATE_INT,$options)) {
             $this->zip = $filtered;
             return true;
         }
@@ -550,8 +507,7 @@ class User
         $phoneNumberObject = $phoneNumberUtil->parse($phone, $this->getCountry("ISO"));
         $isvalid = $phoneNumberUtil->isValidNumberForRegion($phoneNumberObject, $this->getCountry("ISO"));
 
-        if($isvalid)
-        {
+        if($isvalid) {
             $this->phone = $phoneNumberUtil->format($phoneNumberObject, PhoneNumberFormat::E164);
             return true;
         }
@@ -572,13 +528,10 @@ class User
     public function setGradSemester($gradSemester)
     {
         $values=array("Fall","Summer","Winter");
-        if(in_array($gradSemester, $values))
-        {
+        if(in_array($gradSemester, $values)) {
             $this->gradSemester = $gradSemester;
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
 
@@ -603,8 +556,7 @@ class User
                 "max_range"=>3000
             ]
         ];
-        if($filtered = filter_var($gradYear,FILTER_VALIDATE_INT,$options))
-        {
+        if($filtered = filter_var($gradYear,FILTER_VALIDATE_INT,$options)) {
             $this->gradYear = $filtered;
             return true;
         }
@@ -625,8 +577,7 @@ class User
      */
     private function setSalt($salt)
     {
-        if(strlen($salt)==16)
-        {
+        if(strlen($salt)==16) {
             $this->salt = $salt;
             return true;
         }
@@ -646,8 +597,7 @@ class User
      */
     private function setHash($hash)
     {
-        if(strlen($hash) == 64)
-        {
+        if(strlen($hash) == 64) {
             $this->hash = $hash;
         }
     }
@@ -665,8 +615,7 @@ class User
      */
     public function setIsActive($isActive)
     {
-        if($filtered = filter_var($isActive,FILTER_VALIDATE_BOOLEAN))
-        {
+        if($filtered = filter_var($isActive,FILTER_VALIDATE_BOOLEAN)) {
             $this->isActive = $filtered;
             return true;
         }
