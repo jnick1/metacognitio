@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../cse345project/.idea/cse345project.iml" filepath="$PROJECT_DIR$/../cse345project/.idea/cse345project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../mc/.idea/mesa.iml" filepath="$PROJECT_DIR$/../mc/.idea/mesa.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/metacognitio.iml" filepath="$PROJECT_DIR$/.idea/metacognitio.iml" />
     </modules>
   </component>
