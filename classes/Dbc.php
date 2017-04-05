@@ -7,7 +7,8 @@
  *
  * Modified to suit needs of the project.
  */
-class Dbc {
+class Dbc
+{
     /**
      * @var The database connection
      */
@@ -18,7 +19,7 @@ class Dbc {
      */
     public function __destruct()
     {
-        if(isset(self::$connection)) {
+        if (isset(self::$connection)) {
             $this::$connection->close();
         }
     }
@@ -28,20 +29,32 @@ class Dbc {
      *
      * @return bool|mysqli false on failure / mysqli MySQLi object instance on success
      */
-    public function connect() {
+    public function connect()
+    {
         // Try and connect to the database
-        if(!isset(self::$connection)) {
+        if (!isset(self::$connection)) {
             // Load configuration as an array. Use the actual location of your configuration file
             $config = parse_ini_file("../../../../secure/metacognitio/config.ini");
-            self::$connection = mysqli_connect($config["host"],$config["username"],$config["password"],$config["database"]);
+            self::$connection = mysqli_connect($config["host"], $config["username"], $config["password"], $config["database"]);
         }
 
         // If connection was not successful, handle the error
-        if(self::$connection->connect_error !== null) {
+        if (self::$connection->connect_error !== null) {
             // Handle error - notify administrator, log to a file, show an error screen, etc.
             return false;
         }
         return self::$connection;
+    }
+
+    /**
+     * Fetch the last error from the database
+     *
+     * @return string Database error message
+     */
+    public function error()
+    {
+        $connection = $this->connect();
+        return $connection->error;
     }
 
     /**
@@ -70,16 +83,17 @@ class Dbc {
      * array, where each element is an associative array, like in a result returned
      * from when $type is "select single". These arrays are indexed numerically.
      */
-    function query($type, $query, &$parameters = NULL) {
-        $connection = $this -> connect();
+    function query($type, $query, &$parameters = NULL)
+    {
+        $connection = $this->connect();
         $type = strtolower($type);
 
-        switch($type) {
+        switch ($type) {
             case "select single":
             case "select":
 
-                if($stmt = $connection->prepare($query)) {
-                    if(!is_null($parameters)) {
+                if ($stmt = $connection->prepare($query)) {
+                    if (!is_null($parameters)) {
                         call_user_func_array(array($stmt, "bind_param"), $parameters);
                     }
                     $stmt->execute();
@@ -92,19 +106,19 @@ class Dbc {
             case "select multiple":
 
                 $result = [];
-                if($stmt = $connection->prepare($query)) {
-                    if(!is_null($parameters)) {
+                if ($stmt = $connection->prepare($query)) {
+                    if (!is_null($parameters)) {
                         call_user_func_array(array($stmt, "bind_param"), $parameters);
                     }
                     $stmt->execute();
                     $res = $stmt->get_result();
-                    while($row = $res->fetch_assoc()) {
+                    while ($row = $res->fetch_assoc()) {
                         $result[] = $row;
                     }
                     $stmt->free_result();
                     $stmt->close();
                 }
-                if(empty($result)) {
+                if (empty($result)) {
                     return false;
                 } else {
                     return $result;
@@ -115,8 +129,8 @@ class Dbc {
             case "update" :
             case "delete" :
 
-                if($stmt = $connection->prepare($query)) {
-                    if(!is_null($parameters)) {
+                if ($stmt = $connection->prepare($query)) {
+                    if (!is_null($parameters)) {
                         call_user_func_array(array($stmt, "bind_param"), $parameters);
                     }
                     $result = $stmt->execute();
@@ -127,8 +141,8 @@ class Dbc {
             case "exist":
             case "exists":
 
-                if($stmt = $connection->prepare($query)) {
-                    if(!is_null($parameters)) {
+                if ($stmt = $connection->prepare($query)) {
+                    if (!is_null($parameters)) {
                         call_user_func_array(array($stmt, "bind_param"), $parameters);
                     }
                     $stmt->execute();
@@ -136,20 +150,10 @@ class Dbc {
                     $stmt->free_result();
                     $stmt->close();
                 }
-                return (bool) $result;
+                return (bool)$result;
             default:
                 return false;
         }
-    }
-
-    /**
-     * Fetch the last error from the database
-     *
-     * @return string Database error message
-     */
-    public function error() {
-        $connection = $this -> connect();
-        return $connection -> error;
     }
 
     /**
@@ -158,8 +162,9 @@ class Dbc {
      * @param string $value The value to be quoted and escaped
      * @return string The quoted and escaped string
      */
-    public function quote($value) {
-        $connection = $this -> connect();
-        return "'" . $connection -> real_escape_string($value) . "'";
+    public function quote($value)
+    {
+        $connection = $this->connect();
+        return "'" . $connection->real_escape_string($value) . "'";
     }
 }

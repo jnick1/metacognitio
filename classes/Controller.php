@@ -1,35 +1,32 @@
 <?php
 
-define("MODULE_DIR","pages");
-define("HEADER_FILE","/pages/pageassembly/header.php");
-define("FOOTER_FILE","/pages/pageassembly/footer.php");
+define("MODULE_DIR", "pages");
+define("HEADER_FILE", "pages/pageassembly/header.php");
+define("FOOTER_FILE", "/pages/pageassembly/footer.php");
 
 /*
  *
  */
+
 class Controller
 {
 
     /**
-     * @var string
-     */
-    private $homeDir;
-    /**
-     * @var string
-     */
-    private $moduleDir;
-    /**
-     * @var int
-     */
-    private $tabIncrement;
-    /**
-     * @var array
-     */
-    private $scrubbed;
-    /**
      * @var array file paths from site root to css needed by the page
      */
     private $CSS;
+    /**
+     * @var Dbc Page-wide connection to the database
+     */
+    private $dbc;
+    /**
+     * @var string
+     */
+    private $favicon;
+    /**
+     * @var string
+     */
+    private $homeDir;
     /**
      * @var array file paths from site root to javascript needed by the page
      */
@@ -37,15 +34,35 @@ class Controller
     /**
      * @var string
      */
-    private $pageTitle;
+    private $moduleDir;
     /**
      * @var string
      */
-    private $favicon;
+    private $pageTitle;
     /**
-     * @var Dbc Page-wide connection to the database
+     * @var array
      */
-    private $dbc;
+    private $scrubbed;
+    /**
+     * @var int
+     */
+    private $tabIncrement;
+
+    /**
+     * Controller constructor.
+     */
+    public function __construct($pageTitle)
+    {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $this->scrubbed = array_map(array($this, "spamScrubber"), $_POST);
+        $this->dbc = new Dbc();
+        $this->tabIncrement = 1;
+        $this->pageTitle = $pageTitle;
+        $this->setHomeDir();
+    }
 
     /**
      * @param $value
@@ -73,19 +90,35 @@ class Controller
     }
 
     /**
-     * Controller constructor.
+     * @return string
      */
-    public function __construct($pageTitle)
+    public function getAbsoluteHomeDir()
     {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        return $_SERVER["DOCUMENT_ROOT"] . $this->homeDir;
+    }
 
-        $this->scrubbed = array_map(array($this, "spamScrubber"), $_POST);
-        $this->dbc = new Dbc();
-        $this->tabIncrement = 1;
-        $this->pageTitle = $pageTitle;
-        $this->setHomeDir();
+    /**
+     * @return mixed
+     */
+    public function getHomeDir()
+    {
+        return $this->homeDir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModuleDir()
+    {
+        return $this->moduleDir;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPageTitle()
+    {
+        return $this->pageTitle;
     }
 
     /**
@@ -94,6 +127,144 @@ class Controller
     public function getTabIncrement()
     {
         return $this->tabIncrement;
+    }
+
+    /**
+     * @return bool
+     */
+    public function initModuleDir()
+    {
+        $stack = debug_backtrace();
+        $pathToCaller = $stack[0]['file'];
+        if (stripos($pathToCaller, MODULE_DIR)) {
+            $pathArr = explode(DIRECTORY_SEPARATOR, $pathToCaller);
+            $nextDir = array_search(MODULE_DIR, $pathArr) + 1;
+            $this->moduleDir = MODULE_DIR . "/" . $pathArr[$nextDir] . "/";
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     */
+    public function printCSS()
+    {
+        if (isset($this->CSS)) {
+            foreach ($this->CSS as $CSS) {
+                echo "<link rel='stylesheet' type='text/css' href='" . $this->homeDir . $CSS . "'>";
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    public function printFavicon()
+    {
+        if (isset($this->favicon)) {
+            echo "<link rel='icon' type='" . mime_content_type($this->favicon) . "' href='" . $this->getHomeDir() . $this->favicon . "' sizes='128x128'>";
+        }
+    }
+
+    /**
+     *
+     */
+    public function printHead()
+    {
+        echo "<meta charset='UTF-8'>";
+        $this->printFavicon();
+        $this->printCSS();
+        $this->printJavaScript();
+        $this->printPageTitle();
+    }
+
+    /**
+     *
+     */
+    public function printJavaScript()
+    {
+        if (isset($this->javaScript)) {
+            foreach ($this->javaScript as $javaScript) {
+                echo "<script type='text/javascript' src='" . $this->homeDir . $javaScript . "'></script>";
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    public function printPageTitle()
+    {
+        if (isset($this->pageTitle)) {
+            echo "<title>" . $this->getPageTitle() . "</title>";
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function processPOST()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->scrubbed = array_map(array("Controller", "spamScrubber"), $_POST);
+            var_dump($this->scrubbed);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param $CSS
+     * @return bool
+     */
+    public function setCSS($CSS)
+    {
+        if (is_array($CSS)) {
+            $this->CSS = $CSS;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param $favicon
+     * @return bool
+     */
+    public function setFavicon($favicon)
+    {
+        if ($filtered = filter_var($favicon, FILTER_SANITIZE_STRING)) {
+            $this->favicon = $filtered;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param $javaScript
+     * @return bool
+     */
+    public function setJavaScript($javaScript)
+    {
+        if (is_array($javaScript)) {
+            $this->javaScript = $javaScript;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param $pageTitle
+     * @return bool
+     */
+    public function setPageTitle($pageTitle)
+    {
+        if ($filtered = filter_var($pageTitle, FILTER_SANITIZE_STRING)) {
+            $this->pageTitle = $filtered;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -118,174 +289,18 @@ class Controller
     }
 
     /**
-     * @return mixed
-     */
-    public function getPageTitle()
-    {
-        return $this->pageTitle;
-    }
-
-    /**
-     * @param $pageTitle
-     * @return bool
-     */
-    public function setPageTitle($pageTitle)
-    {
-        if ($filtered = filter_var($pageTitle, FILTER_SANITIZE_STRING)) {
-            $this->pageTitle = $filtered;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     *
-     */
-    public function printPageTitle()
-    {
-        if (isset($this->pageTitle)) {
-            echo "<title>" . $this->getPageTitle() . "</title>";
-        }
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getHomeDir()
-    {
-        return $this->homeDir;
-    }
-
-    /**
      * @return bool
      */
     private function setHomeDir()
     {
-        $path = explode("/",dirname($_SERVER["SCRIPT_NAME"]));
+        $path = explode("/", dirname($_SERVER["SCRIPT_NAME"]));
         $homeDir = "";
         foreach ($path as $dir) {
-            if($dir != "metacognitio" and $dir !="") {
-                $homeDir.="..".DIRECTORY_SEPARATOR;
+            if ($dir != "metacognitio" and $dir != "") {
+                $homeDir .= ".." . DIRECTORY_SEPARATOR;
             }
         }
         $this->homeDir = $homeDir;
         return true;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAbsoluteHomeDir()
-    {
-        return $_SERVER["DOCUMENT_ROOT"].$this->homeDir;
-    }
-
-    /**
-     * @return string
-     */
-    public function getModuleDir()
-    {
-        return $this->moduleDir;
-    }
-
-    /**
-     * @return bool
-     */
-    public function initModuleDir()
-    {
-        $stack = debug_backtrace();
-        $pathToCaller = $stack[0]['file'];
-        if(stripos($pathToCaller,MODULE_DIR)) {
-            $pathArr = explode(DIRECTORY_SEPARATOR, $pathToCaller);
-            $nextDir = array_search(MODULE_DIR, $pathArr)+1;
-            $this->moduleDir = MODULE_DIR."/".$pathArr[$nextDir]."/";
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @param $CSS
-     * @return bool
-     */
-    public function setCSS($CSS)
-    {
-        if(is_array($CSS)) {
-            $this->CSS = $CSS;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     *
-     */
-    public function printCSS()
-    {
-        if(isset($this->CSS)) {
-            foreach($this->CSS as $CSS) {
-                echo "<link rel='stylesheet' type='text/css' href='".$this->homeDir.$CSS."'>";
-            }
-        }
-    }
-
-    /**
-     * @param $javaScript
-     * @return bool
-     */
-    public function setJavaScript($javaScript)
-    {
-        if(is_array($javaScript)) {
-            $this->javaScript = $javaScript;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     *
-     */
-    public function printJavaScript()
-    {
-        if(isset($this->javaScript)) {
-            foreach($this->javaScript as $javaScript) {
-                echo "<script type='text/javascript' src='".$this->homeDir.$javaScript."'></script>";
-            }
-        }
-    }
-
-    /**
-     * @param $favicon
-     * @return bool
-     */
-    public function setFavicon($favicon)
-    {
-        if($filtered = filter_var($favicon, FILTER_SANITIZE_STRING)) {
-            $this->favicon = $filtered;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     *
-     */
-    public function printFavicon()
-    {
-        if (isset($this->favicon)) {
-            echo "<link rel='icon' type='".mime_content_type($this->favicon)."' href='".$this->getHomeDir().$this->favicon."' sizes='128x128'>";
-        }
-    }
-
-    /**
-     *
-     */
-    public function printHead()
-    {
-        echo "<meta charset='UTF-8'>";
-        $this->printFavicon();
-        $this->printCSS();
-        $this->printJavaScript();
-        $this->printPageTitle();
     }
 }

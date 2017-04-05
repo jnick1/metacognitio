@@ -1,11 +1,14 @@
 <?php
+
 /*
  * This class handles activities related to authentication and registration
  * of users. It will interact with the hasher and communicate with the user
  * credential-related portions of the database to allow users to log in and
  * accounts to be created.
  */
-class Authenticator {
+
+class Authenticator
+{
 
     /**
      * @param $email
@@ -15,8 +18,8 @@ class Authenticator {
     public static function authenticate($email, $password)
     {
         $user = User::load($email);
-        if(isset($user)) {
-            return Hasher::verifySaltedHash($password,$user->getSalt(),$user->getHash());
+        if (isset($user)) {
+            return Hasher::verifySaltedHash($password, $user->getSalt(), $user->getHash());
         } else {
             return false;
         }
@@ -41,7 +44,7 @@ class Authenticator {
     public static function register($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive)
     {
         $user = new User($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
-        if(isset($user)) {
+        if (isset($user)) {
             return $user->updateDatabase();;
         }
         return false;

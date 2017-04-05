@@ -11,7 +11,7 @@ include "../../autoload.php";
 $controller = new Controller("My Dashboard");
 $controller->initModuleDir();
 $css = [
-    $controller->getModuleDir()."/css/dashboard.min.css",
+    $controller->getModuleDir() . "/css/dashboard.min.css",
     "java/lib/jquery-ui/jquery-ui.css",
     "java/lib/jquery-dropdown/jquery.dropdown.min.css"
 ];
@@ -33,7 +33,7 @@ unset($css);
     </head>
     <body>
         <div id="page" class="hfeed site">
-            <?php include $controller->getHomeDir().HEADER_FILE; ?>
+            <?php include $controller->getHomeDir() . HEADER_FILE; ?>
             <div id="content" class="site-content">
                 <h2> Welcome to your Dashboard! </h2>
             </div>

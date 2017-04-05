@@ -11,7 +11,7 @@ include "autoload.php";
 $controller = new Controller("MetaCognitio");
 $controller->initModuleDir();
 $css = [
-    $controller->getModuleDir()."/css/index.min.css",
+    $controller->getModuleDir() . "/css/index.min.css",
     "java/lib/jquery-ui/jquery-ui.css",
     "java/lib/jquery-dropdown/jquery.dropdown.min.css"
 ];
@@ -34,7 +34,7 @@ unset($css);
     </head>
     <body>
         <div id="page" class="hfeed site">
-            <?php include $controller->getHomeDir().HEADER_FILE; ?>
+            <?php include $controller->getHomeDir() . HEADER_FILE; ?>
             <div id="content" class="site-content">
                 <article id="post-8" class="single-post post-8 page type-page status-publish hentry">
                     <div class="entry-content">
@@ -46,13 +46,18 @@ unset($css);
                                         <b>Login</b></div>
                                     <div style="margin: 30px">
                                         <form action="" method="post">
-                                            <label style="font-size: large">Email</label><br />
-                                            <input class="tbox" name="username" style="width: 238px; height: 25px; padding-left: 5px;" type="text" /><br>
-                                            <br />
-                                            <label style="font-size: large">Password</label><br />
-                                            <input class="tbox" name="password" style="width: 238px; height: 25px; padding-left: 5px;" type="password" /><br>
-                                            <br />
-                                            <input style="width: 80px; height: 40px" type="submit" value=" Login " /><br />
+                                            <label style="font-size: large">Email</label><br/>
+                                            <input class="tbox" name="username"
+                                                   style="width: 238px; height: 25px; padding-left: 5px;"
+                                                   type="text"/><br>
+                                            <br/>
+                                            <label style="font-size: large">Password</label><br/>
+                                            <input class="tbox" name="password"
+                                                   style="width: 238px; height: 25px; padding-left: 5px;"
+                                                   type="password"/><br>
+                                            <br/>
+                                            <input style="width: 80px; height: 40px" type="submit"
+                                                   value=" Login "/><br/>
                                         </form>
                                         <div style="font-size: 11px; color: #cc0000; margin-top: 10px">
                                         </div>

@@ -8,6 +8,14 @@
 
 define("CLASSES_DIR",$_SERVER["DOCUMENT_ROOT"]."/metacognitio/classes/");
 
+/**
+ * Originally written by ircmaxell (2010/07/21)
+ * http://stackoverflow.com/a/3300138
+ *
+ * Modified for project use.
+ *
+ * Class AutoLoader
+ */
 class AutoLoader {
     protected static $paths = array(
         CLASSES_DIR,
@@ -30,11 +38,3 @@ class AutoLoader {
 }
 
 spl_autoload_register(array("AutoLoader", "load"));
-
-//set_include_path(get_include_path().PATH_SEPARATOR."classes/");
-//
-//// You can use this trick to make autoloader look for commonly used "My.class.php" type filenames
-//spl_autoload_extensions('.php');
-//
-//// Use default autoload implementation
-//spl_autoload_register();

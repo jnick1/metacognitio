@@ -1,20 +1,12 @@
 <?php
+
 /*
  * A class with the purpose of hashing a given input. Implementation details
  * consist of calls to a hashing library.
  */
 
-class Hasher {
-
-    /**
-     * @return string
-     *
-     * Generates a new random hash based on a cryptographically securely generated random string of bytes
-     */
-    public static function randomHash()
-    {
-        return hash("sha256",random_bytes(16));
-    }
+class Hasher
+{
 
     /**
      * @param $string
@@ -25,10 +17,20 @@ class Hasher {
     public static function cryptographicHash($string)
     {
         $salt = random_bytes(16);
-        $salt1 = substr($salt,0,strlen($salt)/2);
-        $salt2 = substr($salt,strlen($salt)/2,strlen($salt));
-        $hash = hash("sha256",$salt1.$string.$salt2);
-        return array("salt"=>$salt,"hash"=>$hash);
+        $salt1 = substr($salt, 0, strlen($salt) / 2);
+        $salt2 = substr($salt, strlen($salt) / 2, strlen($salt));
+        $hash = hash("sha256", $salt1 . $string . $salt2);
+        return array("salt" => $salt, "hash" => $hash);
+    }
+
+    /**
+     * @return string
+     *
+     * Generates a new random hash based on a cryptographically securely generated random string of bytes
+     */
+    public static function randomHash()
+    {
+        return hash("sha256", random_bytes(16));
     }
 
     /**
@@ -40,7 +42,7 @@ class Hasher {
      */
     public static function verifyHash($string, $hash)
     {
-        return hash("sha256", $string)==$hash;
+        return hash("sha256", $string) == $hash;
     }
 
     /**
@@ -53,9 +55,9 @@ class Hasher {
      */
     public static function verifySaltedHash($string, $salt, $hash)
     {
-        $salt1 = substr($salt,0,strlen($salt)/2);
-        $salt2 = substr($salt,strlen($salt)/2,strlen($salt));
-        return hash("sha256", $salt1.$string.$salt2)==$hash;
+        $salt1 = substr($salt, 0, strlen($salt) / 2);
+        $salt2 = substr($salt, strlen($salt) / 2, strlen($salt));
+        return hash("sha256", $salt1 . $string . $salt2) == $hash;
     }
 
     /*
