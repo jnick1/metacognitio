@@ -6,10 +6,35 @@
  * Time: 2:18 PM
  */
 
-set_include_path(get_include_path().PATH_SEPARATOR."classes/");
+define("CLASSES_DIR",$_SERVER["DOCUMENT_ROOT"]."/metacognitio/classes/");
 
-// You can use this trick to make autoloader look for commonly used "My.class.php" type filenames
-spl_autoload_extensions('.php');
+class AutoLoader {
+    protected static $paths = array(
+        CLASSES_DIR,
+    );
+    public static function addPath($path) {
+        $path = realpath($path);
+        if ($path) {
+            self::$paths[] = $path;
+        }
+    }
+    public static function load($class) {
+        $classPath = $class.".php"; // Do whatever logic here
+        foreach (self::$paths as $path) {
+            if (is_file($path . $classPath)) {
+                require_once $path . $classPath;
+                return;
+            }
+        }
+    }
+}
 
-// Use default autoload implementation
-spl_autoload_register();
+spl_autoload_register(array("AutoLoader", "load"));
+
+//set_include_path(get_include_path().PATH_SEPARATOR."classes/");
+//
+//// You can use this trick to make autoloader look for commonly used "My.class.php" type filenames
+//spl_autoload_extensions('.php');
+//
+//// Use default autoload implementation
+//spl_autoload_register();

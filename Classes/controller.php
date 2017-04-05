@@ -1,4 +1,9 @@
 <?php
+
+define("MODULE_DIR","pages");
+define("HEADER_FILE","/pages/pageassembly/header.php");
+define("FOOTER_FILE","/pages/pageassembly/footer.php");
+
 /*
  *
  */
@@ -9,6 +14,10 @@ class Controller
      * @var string
      */
     private $homeDir;
+    /**
+     * @var string
+     */
+    private $moduleDir;
     /**
      * @var int
      */
@@ -42,14 +51,15 @@ class Controller
      * @param $value
      * @return string
      */
-    private static function spamScrubber($value) {
+    private static function spamScrubber($value)
+    {
         // This function is useful for preventing spam in form results.  Should be used on all $_POST arrays.
         // To Use:  $scrubbed=array_map('spam_scrubber',ARRAY_NAME);  Where ARRAY_NAME might be equal to an array such as $_POST
         // Then refer to the item in the array as $scrubbed['item_name']
 
         // List of very bad values:
 
-        $very_bad=array('to:', 'cc:', 'bcc:', 'content-type:', 'mime-version:', 'multipart-mixed:', 'content-transfer-encoding:');
+        $very_bad = array('to:', 'cc:', 'bcc:', 'content-type:', 'mime-version:', 'multipart-mixed:', 'content-transfer-encoding:');
         // IF any of the very bad strings are in the submitted value, return an empty string:
         foreach ($very_bad as $v) {
             if (stripos($value, $v) !== false) {
@@ -58,7 +68,7 @@ class Controller
         }
         // Replace any newline characters with spaces:
         //strip_tags() will remove all HTML and PHP tags. Safe, but remove if HTML formatting required.
-        $value =strip_tags(str_replace(array( "\r", "\n","%0a", "%0d"), ' ', $value));
+        $value = strip_tags(str_replace(array("\r", "\n", "%0a", "%0d"), ' ', $value));
         return trim($value);
     }
 
@@ -72,10 +82,10 @@ class Controller
         }
 
         $this->scrubbed = array_map(array($this, "spamScrubber"), $_POST);
-        $this->homedir = dirname($_SERVER["SCRIPT_NAME"]);
         $this->dbc = new Dbc();
         $this->tabIncrement = 1;
         $this->pageTitle = $pageTitle;
+        $this->setHomeDir();
     }
 
     /**
@@ -92,7 +102,7 @@ class Controller
      */
     public function setTabIncrement($tabIncrement)
     {
-        if($filtered = filter_var($tabIncrement,FILTER_VALIDATE_INT)) {
+        if ($filtered = filter_var($tabIncrement, FILTER_VALIDATE_INT)) {
             $this->tabIncrement = $filtered;
             return true;
         }
@@ -121,7 +131,7 @@ class Controller
      */
     public function setPageTitle($pageTitle)
     {
-        if($filtered = filter_var($pageTitle, FILTER_SANITIZE_STRING)) {
+        if ($filtered = filter_var($pageTitle, FILTER_SANITIZE_STRING)) {
             $this->pageTitle = $filtered;
             return true;
         }
@@ -133,8 +143,8 @@ class Controller
      */
     public function printPageTitle()
     {
-        if(isset($this->pageTitle)) {
-            echo "<title>".$this->getPageTitle()."</title>";
+        if (isset($this->pageTitle)) {
+            echo "<title>" . $this->getPageTitle() . "</title>";
         }
     }
 
@@ -144,6 +154,54 @@ class Controller
     public function getHomeDir()
     {
         return $this->homeDir;
+    }
+
+    /**
+     * @return bool
+     */
+    private function setHomeDir()
+    {
+        $path = explode("/",dirname($_SERVER["SCRIPT_NAME"]));
+        $homeDir = "";
+        foreach ($path as $dir) {
+            if($dir != "metacognitio" and $dir !="") {
+                $homeDir.="..".DIRECTORY_SEPARATOR;
+            }
+        }
+        $this->homeDir = $homeDir;
+        return true;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAbsoluteHomeDir()
+    {
+        return $_SERVER["DOCUMENT_ROOT"].$this->homeDir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModuleDir()
+    {
+        return $this->moduleDir;
+    }
+
+    /**
+     * @return bool
+     */
+    public function initModuleDir()
+    {
+        $stack = debug_backtrace();
+        $pathToCaller = $stack[0]['file'];
+        if(stripos($pathToCaller,MODULE_DIR)) {
+            $pathArr = explode(DIRECTORY_SEPARATOR, $pathToCaller);
+            $nextDir = array_search(MODULE_DIR, $pathArr)+1;
+            $this->moduleDir = MODULE_DIR."/".$pathArr[$nextDir]."/";
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -166,7 +224,7 @@ class Controller
     {
         if(isset($this->CSS)) {
             foreach($this->CSS as $CSS) {
-                echo "<link rel='stylesheet' type='text/css' href='".$this->homedir.$CSS."'>";
+                echo "<link rel='stylesheet' type='text/css' href='".$this->homeDir.$CSS."'>";
             }
         }
     }
@@ -191,7 +249,7 @@ class Controller
     {
         if(isset($this->javaScript)) {
             foreach($this->javaScript as $javaScript) {
-                echo "<script type='text/javascript' src='".$this->homedir.$javaScript."'></script>";
+                echo "<script type='text/javascript' src='".$this->homeDir.$javaScript."'></script>";
             }
         }
     }
