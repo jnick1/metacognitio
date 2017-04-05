@@ -7,7 +7,7 @@
  *
  * Modified to suit needs of the project.
  */
-class dbc {
+class Dbc {
     /**
      * @var The database connection
      */

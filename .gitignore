@@ -1,3 +1,6 @@
-vendor
-composer.lock
-java/packages
+/node_modules/
+/java/lib/
+/vendor/
+/composer.lock
+/.idea/
+/pages/**/css/
