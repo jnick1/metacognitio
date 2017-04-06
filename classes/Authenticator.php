@@ -11,11 +11,11 @@ class Authenticator
 {
 
     /**
-     * @param $email
-     * @param $password
+     * @param string $email
+     * @param string $password
      * @return bool
      */
-    public static function authenticate($email, $password)
+    public static function authenticate(string $email, string $password)
     {
         $user = User::load($email);
         if (isset($user)) {
@@ -26,22 +26,22 @@ class Authenticator
     }
 
     /**
-     * @param $fName
-     * @param $lName
-     * @param $email
-     * @param $altEmail
-     * @param $addr
-     * @param $city
-     * @param $province
-     * @param $zip
-     * @param $phone
-     * @param $gradSemester
-     * @param $gradYear
-     * @param $password
-     * @param $isActive
+     * @param string $fName
+     * @param string $lName
+     * @param string $email
+     * @param string $altEmail
+     * @param string $addr
+     * @param string $city
+     * @param string $province
+     * @param int $zip
+     * @param int $phone
+     * @param string $gradSemester
+     * @param int $gradYear
+     * @param string $password
+     * @param bool $isActive
      * @return bool
      */
-    public static function register($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive)
+    public static function register(string $fName, string $lName, string $email, string $altEmail, string $addr, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
     {
         $user = new User($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
         if (isset($user)) {

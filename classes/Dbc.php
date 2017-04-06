@@ -58,17 +58,17 @@ class Dbc
     }
 
     /**
-     * @param $type
-     * @param $query
-     * @param null $parameters
+     * @param string $type
+     * @param string $query
+     * @param array|null $parameters
      * @return array|bool
      *
      * This is a helper function to speed up the process of continually coding
      * prepared statements for queries. It accepts three arguments:
-     * $type : a string indicating what type of query should be executed. It may
-     *         have any one of the following values: "select single", "select
-     *         multiple", "update", "insert", or "delete"
-     * $query : a string containing an SQL query
+     *       $type : a string indicating what type of query should be executed. It may
+     *               have any one of the following values: "select single", "select
+     *               multiple", "update", "insert", or "delete"
+     *      $query : a string containing an SQL query
      * $parameters : an array of parameters to be bound to any "?" (question marks)
      *               found in $query
      *
@@ -83,7 +83,7 @@ class Dbc
      * array, where each element is an associative array, like in a result returned
      * from when $type is "select single". These arrays are indexed numerically.
      */
-    function query($type, $query, &$parameters = NULL)
+    function query(string $type, string $query, array &$parameters = NULL)
     {
         $connection = $this->connect();
         $type = strtolower($type);
@@ -162,7 +162,7 @@ class Dbc
      * @param string $value The value to be quoted and escaped
      * @return string The quoted and escaped string
      */
-    public function quote($value)
+    public function quote(string $value)
     {
         $connection = $this->connect();
         return "'" . $connection->real_escape_string($value) . "'";

@@ -10,7 +10,10 @@ class Mailman {
     //TODO: give this a meaningful value
     private $address = "noreply@example.com";
 
-    public function mailpasswordreset($user, $email)
+    /**
+     * @param User $user
+     */
+    public function mailpasswordreset(User $user)
     {
         //TODO: dependency on frontend password reset page?
     }

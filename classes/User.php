@@ -11,17 +11,17 @@ class User
     private $addr;
     private $altEmail;
     private $city;
-private $country;
+    private $country;
     private $email;
     private $fName;
     private $gradSemester;
-        private $gradYear;  //array("pkStateID"=>000,   "idISO"=>"",    "nmName"=>"")
-        private $hash;   //array("pkCountryID"=>000, "idISO"=>"",    "nmName"=>"",   "idPhoneCode"=>000)
+    private $gradYear;  //array("pkStateID"=>000,   "idISO"=>"",    "nmName"=>"")
+    private $hash;   //array("pkCountryID"=>000, "idISO"=>"",    "nmName"=>"",   "idPhoneCode"=>000)
     private $isActive;
     private $isInDatabase;
     private $lName;
     private $phone;
-private $province;
+    private $province;
     private $salt;
     private $userID;
     private $zip;
@@ -41,10 +41,10 @@ private $province;
     }
 
     /**
-     * @param $email
+     * @param string $email
      * @return null|User
      */
-    public static function load($email)
+    public static function load(string $email)
     {
         try {
             return new User($email);
@@ -54,10 +54,9 @@ private $province;
     }
 
     /**
-     * @param $email
-     * @return bool
+     * @param string $email
      */
-    public function __construct1($email)
+    public function __construct1(string $email)
     {
         $dbc = new Dbc();
         $params = [$email];
@@ -99,21 +98,21 @@ private $province;
     }
 
     /**
-     * @param $fName
-     * @param $lName
-     * @param $email
-     * @param $altEmail
-     * @param $addr
-     * @param $city
-     * @param $province
-     * @param $zip
-     * @param $phone
-     * @param $gradSemester
-     * @param $gradYear
-     * @param $password
-     * @param $isActive
+     * @param string $fName
+     * @param string $lName
+     * @param string $email
+     * @param string $altEmail
+     * @param string $addr
+     * @param string $city
+     * @param string $province
+     * @param int $zip
+     * @param int $phone
+     * @param string $gradSemester
+     * @param int $gradYear
+     * @param string $password
+     * @param bool $isActive
      */
-    public function __construct13($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive)
+    public function __construct13(string $fName, string $lName, string $email, string $altEmail, string $addr, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
     {
         $dbc = new Dbc();
         $params = [$province];
@@ -171,9 +170,10 @@ private $province;
     }
 
     /**
+     * @param string $identifier
      * @return mixed
      */
-    public function getCountry($identifier)
+    public function getCountry(string $identifier)
     {
         $identifier = strtolower($identifier);
         switch ($identifier) {
@@ -254,9 +254,10 @@ private $province;
     }
 
     /**
+     * @param string $identifier
      * @return mixed
      */
-    public function getProvince($identifier)
+    public function getProvince(string $identifier)
     {
         $identifier = strtolower($identifier);
         switch ($identifier) {
@@ -298,9 +299,10 @@ private $province;
     }
 
     /**
-     * @param mixed $addr
+     * @param string $addr
+     * @return bool
      */
-    public function setAddr($addr)
+    public function setAddr(string $addr)
     {
         if (strlen((string)$addr) <= 50 and $filtered = filter_var($addr, FILTER_SANITIZE_STRING)) {
             $this->addr = $filtered;
@@ -310,9 +312,10 @@ private $province;
     }
 
     /**
-     * @param mixed $email
+     * @param string $email
+     * @return bool
      */
-    public function setAltEmail($email)
+    public function setAltEmail(string $email)
     {
         if ($filtered = filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->altEmail = filter_var($filtered, FILTER_SANITIZE_EMAIL);
@@ -322,9 +325,10 @@ private $province;
     }
 
     /**
-     * @param mixed $city
+     * @param string $city
+     * @return bool
      */
-    public function setCity($city)
+    public function setCity(string $city)
     {
         if (strlen((string)$city) <= 50 and $filtered = filter_var($city, FILTER_SANITIZE_STRING)) {
             $this->city = $filtered;
@@ -334,10 +338,10 @@ private $province;
     }
 
     /**
-     * @param $country ISO code, country name, or primary key in database
+     * @param mixed $country ISO code, country name, or primary key in database
      * @return bool true if successfully set, false otherwise
      */
-    public function setCountry($country)
+    public function setCountry(mixed $country)
     {
         if (gettype($country) == "string" or gettype($country) == "integer") {
             $dbc = new Dbc();
@@ -378,9 +382,10 @@ private $province;
     }
 
     /**
-     * @param mixed $email
+     * @param string $email
+     * @return bool
      */
-    public function setEmail($email)
+    public function setEmail(string $email)
     {
         if ($filtered = filter_var($email, FILTER_VALIDATE_EMAIL) or $email === null) {
             if ($email === null) {
@@ -394,9 +399,10 @@ private $province;
     }
 
     /**
-     * @param mixed $fName
+     * @param string $fName
+     * @return bool
      */
-    public function setFName($fName)
+    public function setFName(string $fName)
     {
         if (strlen((string)$fName) <= 20 and $filtered = filter_var($fName, FILTER_SANITIZE_STRING)) {
             $this->fName = $filtered;
@@ -406,9 +412,10 @@ private $province;
     }
 
     /**
-     * @param mixed $gradsemester
+     * @param string $gradsemester
+     * @return bool
      */
-    public function setGradSemester($gradSemester)
+    public function setGradSemester(string $gradSemester)
     {
         $values = array("Fall", "Summer", "Winter");
         if (in_array($gradSemester, $values)) {
@@ -421,9 +428,10 @@ private $province;
     }
 
     /**
-     * @param mixed $gradYear
+     * @param int $gradYear
+     * @return bool
      */
-    public function setGradYear($gradYear)
+    public function setGradYear(int $gradYear)
     {
         $options = [
             "options" => [
@@ -439,9 +447,10 @@ private $province;
     }
 
     /**
-     * @param mixed $isActive
+     * @param bool $isActive
+     * @return bool
      */
-    public function setIsActive($isActive)
+    public function setIsActive(bool $isActive)
     {
         if ($filtered = filter_var($isActive, FILTER_VALIDATE_BOOLEAN)) {
             $this->isActive = $filtered;
@@ -453,7 +462,7 @@ private $province;
     /**
      * @param mixed $lName
      */
-    public function setLName($lName)
+    public function setLName(string $lName)
     {
         if (strlen((string)$lName) <= 20 and $filtered = filter_var($lName, FILTER_SANITIZE_STRING)) {
             $this->lName = $filtered;
@@ -463,9 +472,10 @@ private $province;
     }
 
     /**
-     * @param mixed $phone
+     * @param int $phone
+     * @return bool
      */
-    public function setPhone($phone)
+    public function setPhone(int $phone)
     {
         $phoneNumberUtil = \libphonenumber\PhoneNumberUtil::getInstance();
         $phoneNumberObject = $phoneNumberUtil->parse($phone, $this->getCountry("ISO"));
@@ -479,10 +489,10 @@ private $province;
     }
 
     /**
-     * @param $province ISO code or province name
+     * @param string $province ISO code or province name
      * @return bool
      */
-    public function setProvince($province)
+    public function setProvince(string $province)
     {
         if (gettype($province) == "string") {
             $province = strtoupper($province);
@@ -508,9 +518,10 @@ private $province;
     }
 
     /**
-     * @param mixed $zip
+     * @param int $zip
+     * @return bool
      */
-    public function setZip($zip)
+    public function setZip(int $zip)
     {
         $options = [
             "options" => [
@@ -569,10 +580,10 @@ private $province;
     }
 
     /**
-     * @param $password
+     * @param string $password
      * @return bool
      */
-    public function updatePassword($password)
+    public function updatePassword(string $password)
     {
         $saltedHash = Hasher::cryptographicHash($password);
         if (is_array($saltedHash)) {
@@ -584,9 +595,9 @@ private $province;
     }
 
     /**
-     * @param $hash
+     * @param string $hash
      */
-    private function setHash($hash)
+    private function setHash(string $hash)
     {
         if (strlen($hash) == 64) {
             $this->hash = $hash;
@@ -594,10 +605,10 @@ private $province;
     }
 
     /**
-     * @param $salt
+     * @param string $salt
      * @return bool
      */
-    private function setSalt($salt)
+    private function setSalt(string $salt)
     {
         if (strlen($salt) == 16) {
             $this->salt = $salt;
@@ -607,10 +618,10 @@ private $province;
     }
 
     /**
-     * @param $userID
+     * @param int $userID
      * @return bool
      */
-    private function setUserID($userID)
+    private function setUserID(int $userID)
     {
         $options = [
             "options" => [

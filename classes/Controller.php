@@ -50,8 +50,9 @@ class Controller
 
     /**
      * Controller constructor.
+     * @param string $pageTitle
      */
-    public function __construct($pageTitle)
+    public function __construct(string $pageTitle)
     {
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
@@ -68,7 +69,7 @@ class Controller
      * @param $value
      * @return string
      */
-    private static function spamScrubber($value)
+    private static function spamScrubber(string $value)
     {
         // This function is useful for preventing spam in form results.  Should be used on all $_POST arrays.
         // To Use:  $scrubbed=array_map('spam_scrubber',ARRAY_NAME);  Where ARRAY_NAME might be equal to an array such as $_POST
@@ -204,22 +205,25 @@ class Controller
     /**
      * @return bool
      */
-    public function processPOST()
+    public function processREQUEST()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->scrubbed = array_map(array("Controller", "spamScrubber"), $_POST);
-            var_dump($this->scrubbed);
-            return true;
-        } else {
-            return false;
+        switch(strtoupper($_SERVER["REQUEST_METHOD"])) {
+            case "POST":
+                return $this->processPOST();
+                break;
+            case "GET":
+                return $this->processGET();
+                break;
+            default:
+                return false;
         }
     }
 
     /**
-     * @param $CSS
+     * @param array $CSS
      * @return bool
      */
-    public function setCSS($CSS)
+    public function setCSS(array $CSS)
     {
         if (is_array($CSS)) {
             $this->CSS = $CSS;
@@ -229,10 +233,10 @@ class Controller
     }
 
     /**
-     * @param $favicon
+     * @param string $favicon
      * @return bool
      */
-    public function setFavicon($favicon)
+    public function setFavicon(string $favicon)
     {
         if ($filtered = filter_var($favicon, FILTER_SANITIZE_STRING)) {
             $this->favicon = $filtered;
@@ -242,10 +246,10 @@ class Controller
     }
 
     /**
-     * @param $javaScript
+     * @param array $javaScript
      * @return bool
      */
-    public function setJavaScript($javaScript)
+    public function setJavaScript(array $javaScript)
     {
         if (is_array($javaScript)) {
             $this->javaScript = $javaScript;
@@ -255,10 +259,10 @@ class Controller
     }
 
     /**
-     * @param $pageTitle
+     * @param string $pageTitle
      * @return bool
      */
-    public function setPageTitle($pageTitle)
+    public function setPageTitle(string $pageTitle)
     {
         if ($filtered = filter_var($pageTitle, FILTER_SANITIZE_STRING)) {
             $this->pageTitle = $filtered;
@@ -268,10 +272,10 @@ class Controller
     }
 
     /**
-     * @param $tabIncrement
+     * @param int $tabIncrement
      * @return bool
      */
-    public function setTabIncrement($tabIncrement)
+    public function setTabIncrement(int $tabIncrement)
     {
         if ($filtered = filter_var($tabIncrement, FILTER_VALIDATE_INT)) {
             $this->tabIncrement = $filtered;
@@ -286,6 +290,26 @@ class Controller
     public function useTabIncrement()
     {
         return $this->tabIncrement++;
+    }
+
+    /**
+     * @return bool
+     */
+    private function processGET()
+    {
+        $this->scrubbed = array_map(array("Controller", "spamScrubber"), $_GET);
+        //TODO: Finish implementation via switch-case for various GET submit types.
+        return true; //temporary return value
+    }
+
+    /**
+     * @return bool
+     */
+    private function processPOST()
+    {
+        $this->scrubbed = array_map(array("Controller", "spamScrubber"), $_POST);
+        //TODO: Finish implementation via switch-case for various POST submit types.
+        return true; //temporary return value
     }
 
     /**
