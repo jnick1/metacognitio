@@ -10,20 +10,12 @@ include "../../autoload.php";
 
 $controller = new Controller("My Dashboard");
 $controller->initModuleDir();
-$css = [
-    $controller->getModuleDir() . "/css/dashboard.min.css",
-    "java/lib/jquery-ui/jquery-ui.css",
-    "java/lib/jquery-dropdown/jquery.dropdown.min.css"
-];
-$controller->setCSS($css);
-$java = [
-    "java/lib/jquery/jQuery.min.js",
-    "java/lib/jquery-ui/jquery-ui.min.js",
-    "java/lib/jquery-dropdown/jquery.dropdown.min.js",
-];
-$controller->setJavaScript($java);
-unset($java);
-unset($css);
+$controller->addCSS($controller->getModuleDir() . "/css/dashboard.min.css");
+$controller->addCSS("java/lib/jquery-ui/jquery-ui.css");
+$controller->addCSS("java/lib/jquery-dropdown/jquery.dropdown.min.css");
+$controller->addJavaScript("java/lib/jquery/jQuery.min.js");
+$controller->addJavaScript("java/lib/jquery-ui/jquery-ui.min.js");
+$controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
 
 ?>
 <!DOCTYPE html>
@@ -37,6 +29,7 @@ unset($css);
             <div id="content" class="site-content">
                 <h2> Welcome to your Dashboard! </h2>
             </div>
+            <?php include $controller->getHomeDir() . FOOTER_FILE; ?>
         </div>
     </body>
 </html>

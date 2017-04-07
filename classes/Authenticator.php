@@ -40,13 +40,42 @@ class Authenticator
      * @param string $password
      * @param bool $isActive
      * @return bool
+     * @throws Exception
      */
     public static function register(string $fName, string $lName, string $email, string $altEmail, string $addr, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
     {
-        $user = new User($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
-        if (isset($user)) {
-            return $user->updateDatabase();;
+        if (isset($_SESSION["user"])) {
+            throw new Exception("Cannot create account when already signed in");
+        } else {
+            try {
+                $user = new User($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
+                $user->addPermission(new Permission(Permission::PERMISSION_AUTHOR));
+            } catch (InvalidArgumentException $exception) {
+                return false;
+            }
+            if (!self::userExists($user)) {
+                $success = $user->updateDatabase();
+                if ($success) {
+                    $_SESSION["user"] = $user;
+                    return true;
+                }
+            }
+            return false;
         }
-        return false;
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     * @throws TypeError
+     */
+    public static function userExists(User $user)
+    {
+        if ($user instanceof User) {
+            $loadedUser = User::load($user->getEmail());
+            return isset($loadedUser);
+        } else {
+            throw new TypeError("expected User: got " . (gettype($user) == "object" ? get_class($user) : gettype($user)));
+        }
     }
 }

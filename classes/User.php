@@ -8,21 +8,22 @@
 class User
 {
 
-    private $addr;
     private $altEmail;
     private $city;
     private $country;
     private $email;
     private $fName;
     private $gradSemester;
-    private $gradYear;  //array("pkStateID"=>000,   "idISO"=>"",    "nmName"=>"")
-    private $hash;   //array("pkCountryID"=>000, "idISO"=>"",    "nmName"=>"",   "idPhoneCode"=>000)
-    private $isActive;
+    private $gradYear;
+    private $hash;  //array("pkStateID"=>000,   "idISO"=>"",    "nmName"=>"")
+    private $isActive;   //array("pkCountryID"=>000, "idISO"=>"",    "nmName"=>"",   "idPhoneCode"=>000)
     private $isInDatabase;
     private $lName;
+    private $permissions;
     private $phone;
     private $province;
     private $salt;
+    private $streetAddress;
     private $userID;
     private $zip;
 
@@ -75,7 +76,7 @@ class User
                     $r3 = $this->setLName($user["nmLastName"]);
                     $r4 = $this->setEmail($user["txEmail"]);
                     $r5 = $this->setAltEmail($user["txAltEmail"]);
-                    $r6 = $this->setAddr($user["txStreetAddress"]);
+                    $r6 = $this->setStreetAddress($user["txStreetAddress"]);
                     $r7 = $this->setCity($user["txCity"]);
                     $r8 = $this->setProvince($province["idISO"]);
                     $r9 = $this->setCountry($country["idISO"]);
@@ -92,6 +93,13 @@ class User
                     }
                 }
             }
+            $params = [$this->$user["pkUserID"]];
+            $permissions = $dbc->query("select multiple", "SELECT `fkPermissionID` FROM `userpermissions` WHERE `fkUserID` = ?", $params);
+
+            foreach ($permissions as $permission) {
+                $this->addPermission(new Permission($permission["fkPermissionID"]));
+            }
+
         } else {
             throw new InvalidArgumentException("User not found");
         }
@@ -126,7 +134,7 @@ class User
                 $r2 = $this->setLName($lName);
                 $r3 = $this->setEmail($email);
                 $r4 = $this->setAltEmail($altEmail);
-                $r5 = $this->setAddr($addr);
+                $r5 = $this->setStreetAddress($addr);
                 $r6 = $this->setCity($city);
                 $r7 = $this->setProvince($province["idISO"]);
                 $r8 = $this->setCountry($country["idISO"]);
@@ -146,11 +154,21 @@ class User
     }
 
     /**
-     * @return mixed
+     * @param Permission $permission
+     * @return bool|int
+     * @throws InvalidArgumentException()
      */
-    public function getAddr()
+    public function addPermission(Permission $permission)
     {
-        return $this->addr;
+        if ($permission instanceof Permission) {
+            if (in_array($permission, $this->getPermissions())) {
+                return false;
+            } else {
+                return array_push($this->permissions, $permission);
+            }
+        } else {
+            throw new InvalidArgumentException("expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
+        }
     }
 
     /**
@@ -246,6 +264,14 @@ class User
     }
 
     /**
+     * @return Permission[]
+     */
+    public function getPermissions()
+    {
+        return $this->permissions;
+    }
+
+    /**
      * @return mixed
      */
     public function getPhone()
@@ -285,6 +311,14 @@ class User
     /**
      * @return mixed
      */
+    public function getStreetAddress()
+    {
+        return $this->streetAddress;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getUserID()
     {
         return $this->userID;
@@ -299,16 +333,43 @@ class User
     }
 
     /**
-     * @param string $addr
+     * @param Permission $permission
+     * @return bool
+     * @throws InvalidArgumentException()
+     */
+    public function hasPermission(Permission $permission)
+    {
+        if ($permission instanceof Permission) {
+            return in_array($permission, $this->getPermissions());
+        } else {
+            throw new InvalidArgumentException("expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
+        }
+    }
+
+    /**
      * @return bool
      */
-    public function setAddr(string $addr)
+    public function isInDatabase()
     {
-        if (strlen((string)$addr) <= 50 and $filtered = filter_var($addr, FILTER_SANITIZE_STRING)) {
-            $this->addr = $filtered;
-            return true;
+        return $this->isInDatabase;
+    }
+
+    /**
+     * @param Permission $permission
+     * @return bool
+     * @throws InvalidArgumentException()
+     */
+    public function removePermission(Permission $permission)
+    {
+        if ($permission instanceof Permission) {
+            if (($key = array_search($permission, $this->getPermissions(), true)) !== false) {
+                unset($this->permissions[$key]);
+            } else {
+                return false;
+            }
+        } else {
+            throw new InvalidArgumentException("expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
         }
-        return false;
     }
 
     /**
@@ -412,7 +473,7 @@ class User
     }
 
     /**
-     * @param string $gradsemester
+     * @param string $gradSemester
      * @return bool
      */
     public function setGradSemester(string $gradSemester)
@@ -460,7 +521,8 @@ class User
     }
 
     /**
-     * @param mixed $lName
+     * @param string $lName
+     * @return bool
      */
     public function setLName(string $lName)
     {
@@ -518,6 +580,19 @@ class User
     }
 
     /**
+     * @param string $streetAddress
+     * @return bool
+     */
+    public function setStreetAddress(string $streetAddress)
+    {
+        if (strlen((string)$streetAddress) <= 50 and $filtered = filter_var($streetAddress, FILTER_SANITIZE_STRING)) {
+            $this->streetAddress = $filtered;
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * @param int $zip
      * @return bool
      */
@@ -547,7 +622,7 @@ class User
             $this->getLName(),
             $this->getEmail(),
             $this->getAltEmail(),
-            $this->getAddr(),
+            $this->getStreetAddress(),
             $this->getCity(),
             $this->getProvince("stateID"),
             $this->getZip(),
@@ -558,25 +633,45 @@ class User
             $this->getHash(),
             $this->getIsActive()
         ];
+
         if ($this->isInDatabase) {
-            $dbc->query("update", "UPDATE `user` SET 
+            $result = $dbc->query("update", "UPDATE `user` SET 
                                       `nmFirst`=?,`nmLast`=?,`txEmail`=?,`txEmailAlt`=?,
                                       `txStreetAddress`=?,`txCity`=?,`fkProvinceID`=?,`nZip`=?,
                                       `nPhone`=?,`enGradSemester`=?,`dtGradYear`=?,`blSalt`=?,
                                       `txHash`=?,`isActive`=?
                                       WHERE `pkUserID`=?", $params);
+
+            $params = [$this->getUserID()];
+            $result = ($result and $dbc->query("delete", "DELETE FROM `userpermissions` WHERE `fkUserID`=?", $params));
+
+            foreach ($this->getPermissions() as $permission) {
+                $params = array($permission->getPermissionID(), $this->getUserID());
+                $result = ($result and $dbc->query("insert", "INSERT INTO `userpermissions` (`fkPermissionID`,`fkUserID`) VALUES (?,?)", $params));
+            }
         } else {
-            $dbc->query("insert", "INSERT INTO `user` (`pkUserID`, 
+            $result = $dbc->query("insert", "INSERT INTO `user` (`pkUserID`, 
                                           `nmFirst`, `nmLast`, `txEmail`, `txEmailAlt`, 
                                           `txStreetAddress`, `txCity`, `fkProvinceID`, `nZip`, 
                                           `nPhone`, `enGradSemester`, `dtGradYear`, `blSalt`, 
                                           `txHash`, `isActive`) 
                                           VALUES 
                                           (NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", $params);
-            $this->isInDatabase = $dbc;
+
+            $params = array($this->getEmail());
+            $result2 = $dbc->query("select", "SELECT `pkUserID` FROM `user` WHERE `txEmail`=?", $params);
+
+            $this->setUserID($result2["pkUserID"]);
+
+            foreach ($this->getPermissions() as $permission) {
+                $params = array($permission->getPermissionID(), $this->getUserID());
+                $result = ($result and $dbc->query("insert", "INSERT INTO `userpermissions` (`fkPermissionID`,`fkUserID`) VALUES (?,?)", $params));
+            }
+
+            $this->isInDatabase = $result;
         }
 
-        return (bool)$dbc;
+        return $result;
     }
 
     /**
@@ -596,12 +691,15 @@ class User
 
     /**
      * @param string $hash
+     * @return bool
      */
     private function setHash(string $hash)
     {
         if (strlen($hash) == 64) {
             $this->hash = $hash;
+            return true;
         }
+        return false;
     }
 
     /**

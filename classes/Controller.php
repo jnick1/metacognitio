@@ -91,6 +91,32 @@ class Controller
     }
 
     /**
+     * @param string $CSS
+     * @return int
+     */
+    public function addCSS(string $CSS)
+    {
+        if ($filtered = filter_var($CSS, FILTER_SANITIZE_STRING)) {
+            if (!in_array($filtered, $this->CSS)) {
+                return array_push($this->CSS, $filtered);
+            }
+        }
+    }
+
+    /**
+     * @param string $javaScript
+     * @return int
+     */
+    public function addJavaScript(string $javaScript)
+    {
+        if ($filtered = filter_var($javaScript, FILTER_SANITIZE_STRING)) {
+            if (!in_array($filtered, $this->javaScript)) {
+                return array_push($this->javaScript, $filtered);
+            }
+        }
+    }
+
+    /**
      * @return string
      */
     public function getAbsoluteHomeDir()
@@ -207,7 +233,7 @@ class Controller
      */
     public function processREQUEST()
     {
-        switch(strtoupper($_SERVER["REQUEST_METHOD"])) {
+        switch (strtoupper($_SERVER["REQUEST_METHOD"])) {
             case "POST":
                 return $this->processPOST();
                 break;
@@ -220,19 +246,6 @@ class Controller
     }
 
     /**
-     * @param array $CSS
-     * @return bool
-     */
-    public function setCSS(array $CSS)
-    {
-        if (is_array($CSS)) {
-            $this->CSS = $CSS;
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * @param string $favicon
      * @return bool
      */
@@ -240,19 +253,6 @@ class Controller
     {
         if ($filtered = filter_var($favicon, FILTER_SANITIZE_STRING)) {
             $this->favicon = $filtered;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @param array $javaScript
-     * @return bool
-     */
-    public function setJavaScript(array $javaScript)
-    {
-        if (is_array($javaScript)) {
-            $this->javaScript = $javaScript;
             return true;
         }
         return false;
@@ -308,7 +308,17 @@ class Controller
     private function processPOST()
     {
         $this->scrubbed = array_map(array("Controller", "spamScrubber"), $_POST);
-        //TODO: Finish implementation via switch-case for various POST submit types.
+        switch ($this->scrubbed["requestType"]) {
+            case "createAccount":
+                //TODO: Finish implementation via Authenticator class, and also HTML POST return values
+                break;
+            case "login":
+                //TODO: Finish implementation via Authenticator class, and also HTML POST return values
+                break;
+            case "logout":
+                //TODO: Finish implementation via Authenticator class, and also HTML POST return values
+                break;
+        }
         return true; //temporary return value
     }
 

@@ -13,6 +13,7 @@ class Dbc
      * @var The database connection
      */
     protected static $connection;
+    private static $inTransaction;
 
     /**
      * Destructor for dbc
@@ -83,7 +84,7 @@ class Dbc
      * array, where each element is an associative array, like in a result returned
      * from when $type is "select single". These arrays are indexed numerically.
      */
-    function query(string $type, string $query, array &$parameters = NULL)
+    public function query(string $type, string $query, array &$parameters = NULL)
     {
         $connection = $this->connect();
         $type = strtolower($type);
@@ -166,5 +167,50 @@ class Dbc
     {
         $connection = $this->connect();
         return "'" . $connection->real_escape_string($value) . "'";
+    }
+
+    /**
+     * @return bool
+     * @throws Exception
+     */
+    public function startTransaction()
+    {
+        $connection = $this->connect();
+        if ($stmt = $connection->prepare("SET autocommit = 0; START TRANSACTION;")) {
+            $result = $stmt->execute();
+            $stmt->close();
+            return $this::$inTransaction = $result;
+        }
+        throw new Exception("Unable to connect to database");
+    }
+
+    /**
+     * @return bool
+     * @throws Exception
+     */
+    public function commitTransaction()
+    {
+        $connection = $this->connect();
+        if ($stmt = $connection->prepare("COMMIT;")) {
+            $result = $stmt->execute();
+            $stmt->close();
+            return $this::$inTransaction = !$result;
+        }
+        throw new Exception("Unable to connect to database");
+    }
+
+    /**
+     * @return bool
+     * @throws Exception
+     */
+    public function rollbackTransaction()
+    {
+        $connection = $this->connect();
+        if ($stmt = $connection->prepare("ROLLBACK;")) {
+            $result = $stmt->execute();
+            $stmt->close();
+            return $result;
+        }
+        throw new Exception("Unable to connect to database");
     }
 }
