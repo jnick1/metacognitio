@@ -1,7 +1,7 @@
 {
-  "name": "vendor_name/package_name",
-  "description": "description_text",
-  "minimum-stability": "stable",
+  "name": "jnick1/metacognitio",
+  "description": "HCCCS Enterprise Information System",
+  "minimum-stability": "dev",
   "license": "proprietary",
   "authors": [
     {
@@ -21,9 +21,15 @@
     }
   ],
   "require": {
-    "phpmailer/phpmailer": "v5.2.23",
-    "giggsey/libphonenumber-for-php": "8.4"
+    "php" : "^7.0",
+    "phpmailer/phpmailer": "^5.2.23",
+    "giggsey/libphonenumber-for-php": "^8.4",
+    "phpunit/phpunit": "^6.0"
   },
-  "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "config": {
+      "platform": {
+        "php": "7.0.0"
+      }
+  }
 }

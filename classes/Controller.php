@@ -1,35 +1,32 @@
 <?php
 
-define("MODULE_DIR","pages");
-define("HEADER_FILE","/pages/pageassembly/header.php");
-define("FOOTER_FILE","/pages/pageassembly/footer.php");
+define("MODULE_DIR", "pages");
+define("HEADER_FILE", "pages/pageassembly/header.php");
+define("FOOTER_FILE", "pages/pageassembly/footer.php");
 
 /*
  *
  */
+
 class Controller
 {
 
     /**
-     * @var string
-     */
-    private $homeDir;
-    /**
-     * @var string
-     */
-    private $moduleDir;
-    /**
-     * @var int
-     */
-    private $tabIncrement;
-    /**
-     * @var array
-     */
-    private $scrubbed;
-    /**
      * @var array file paths from site root to css needed by the page
      */
     private $CSS;
+    /**
+     * @var DatabaseConnection Page-wide connection to the database
+     */
+    private $dbc;
+    /**
+     * @var string
+     */
+    private $favicon;
+    /**
+     * @var string
+     */
+    private $homeDir;
     /**
      * @var array file paths from site root to javascript needed by the page
      */
@@ -37,21 +34,44 @@ class Controller
     /**
      * @var string
      */
-    private $pageTitle;
+    private $moduleDir;
     /**
      * @var string
      */
-    private $favicon;
+    private $pageTitle;
     /**
-     * @var Dbc Page-wide connection to the database
+     * @var array
      */
-    private $dbc;
+    private $scrubbed;
+    /**
+     * @var int
+     */
+    private $tabIncrement;
+
+    /**
+     * Controller constructor.
+     * @param string $pageTitle
+     */
+    public function __construct(string $pageTitle)
+    {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $this->scrubbed = array_map(array($this, "spamScrubber"), $_POST);
+        $this->dbc = new DatabaseConnection();
+        $this->tabIncrement = 1;
+        $this->pageTitle = $pageTitle;
+        $this->setHomeDir();
+        $this->CSS = array();
+        $this->javaScript = array();
+    }
 
     /**
      * @param $value
      * @return string
      */
-    private static function spamScrubber($value)
+    private static function spamScrubber(string $value)
     {
         // This function is useful for preventing spam in form results.  Should be used on all $_POST arrays.
         // To Use:  $scrubbed=array_map('spam_scrubber',ARRAY_NAME);  Where ARRAY_NAME might be equal to an array such as $_POST
@@ -73,19 +93,63 @@ class Controller
     }
 
     /**
-     * Controller constructor.
+     * @param string $CSS
+     * @return int|bool
      */
-    public function __construct($pageTitle)
+    public function addCSS(string $CSS)
     {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
+        if ($filtered = filter_var($CSS, FILTER_SANITIZE_STRING)) {
+            if (!in_array($filtered, $this->CSS)) {
+                return array_push($this->CSS, $filtered);
+            }
         }
+        return false;
+    }
 
-        $this->scrubbed = array_map(array($this, "spamScrubber"), $_POST);
-        $this->dbc = new Dbc();
-        $this->tabIncrement = 1;
-        $this->pageTitle = $pageTitle;
-        $this->setHomeDir();
+    /**
+     * @param string $javaScript
+     * @return int|bool
+     */
+    public function addJavaScript(string $javaScript)
+    {
+        if ($filtered = filter_var($javaScript, FILTER_SANITIZE_STRING)) {
+            if (!in_array($filtered, $this->javaScript)) {
+                return array_push($this->javaScript, $filtered);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAbsoluteHomeDir()
+    {
+        return $_SERVER["DOCUMENT_ROOT"] . $this->homeDir;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHomeDir()
+    {
+        return $this->homeDir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModuleDir()
+    {
+        return $this->moduleDir;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPageTitle()
+    {
+        return $this->pageTitle;
     }
 
     /**
@@ -97,10 +161,110 @@ class Controller
     }
 
     /**
-     * @param $tabIncrement
      * @return bool
      */
-    public function setTabIncrement($tabIncrement)
+    public function initModuleDir()
+    {
+        $stack = debug_backtrace();
+        $pathToCaller = $stack[0]['file'];
+        if (stripos($pathToCaller, MODULE_DIR)) {
+            $pathArr = explode(DIRECTORY_SEPARATOR, $pathToCaller);
+            $nextDir = array_search(MODULE_DIR, $pathArr) + 1;
+            $this->moduleDir = MODULE_DIR . "/" . $pathArr[$nextDir] . "/";
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     */
+    public function printHead()
+    {
+        /**
+         * The four sections of this function used to be separate, but their only instance of use was to be called in
+         * this function, so they were eliminated and recombined here to reduce overcrowding of functions in the
+         * Controller class.
+         */
+        echo "<meta charset='UTF-8'>";
+        /**
+         * Print out the Favicon for the site (the little image in the browser tab)
+         */
+        if (isset($this->favicon)) {
+            echo "<link rel='icon' type='" . mime_content_type($this->favicon) . "' href='" . $this->getHomeDir() . $this->favicon . "' sizes='128x128'>";
+        }
+        /**
+         * Print out links to all CSS files needed by the page (CSS, not SCSS; browsers can't handle SCSS)
+         */
+        if (isset($this->CSS)) {
+            foreach ($this->CSS as $CSS) {
+                echo "<link rel='stylesheet' type='text/css' href='" . $this->homeDir . $CSS . "'>";
+            }
+        }
+        /**
+         * Print out the links to all JavaScript files needed by the page
+         */
+        if (isset($this->javaScript)) {
+            foreach ($this->javaScript as $javaScript) {
+                echo "<script type='text/javascript' src='" . $this->homeDir . $javaScript . "'></script>";
+            }
+        }
+        /**
+         * Finally, print out the title of the page in an HTML <title> tag
+         */
+        if (isset($this->pageTitle)) {
+            echo "<title>" . $this->getPageTitle() . "</title>";
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function processREQUEST()
+    {
+        switch (strtoupper($_SERVER["REQUEST_METHOD"])) {
+            case "POST":
+                return $this->processPOST();
+                break;
+            case "GET":
+                return $this->processGET();
+                break;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * @param string $favicon
+     * @return bool
+     */
+    public function setFavicon(string $favicon)
+    {
+        if ($filtered = filter_var($favicon, FILTER_SANITIZE_STRING)) {
+            $this->favicon = $filtered;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param string $pageTitle
+     * @return bool
+     */
+    public function setPageTitle(string $pageTitle)
+    {
+        if ($filtered = filter_var($pageTitle, FILTER_SANITIZE_STRING)) {
+            $this->pageTitle = $filtered;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param int $tabIncrement
+     * @return bool
+     */
+    public function setTabIncrement(int $tabIncrement)
     {
         if ($filtered = filter_var($tabIncrement, FILTER_VALIDATE_INT)) {
             $this->tabIncrement = $filtered;
@@ -118,42 +282,64 @@ class Controller
     }
 
     /**
-     * @return mixed
-     */
-    public function getPageTitle()
-    {
-        return $this->pageTitle;
-    }
-
-    /**
-     * @param $pageTitle
      * @return bool
      */
-    public function setPageTitle($pageTitle)
+    private function processGET()
     {
-        if ($filtered = filter_var($pageTitle, FILTER_SANITIZE_STRING)) {
-            $this->pageTitle = $filtered;
-            return true;
-        }
-        return false;
+        $this->scrubbed = array_map(array("Controller", "spamScrubber"), $_GET);
+        //TODO: Finish implementation via switch-case for various GET submit types.
+        return true; //temporary return value
     }
 
     /**
-     *
+     * @return bool
      */
-    public function printPageTitle()
+    private function processPOST()
     {
-        if (isset($this->pageTitle)) {
-            echo "<title>" . $this->getPageTitle() . "</title>";
+        $this->scrubbed = array_map(array("Controller", "spamScrubber"), $_POST);
+        switch ($this->scrubbed["requestType"]) {
+            /**
+             * Required POST variables for this case:
+             *      requestType : "createAccount"
+             *            fName : string
+             *            lName : string
+             *            email : string (email format)
+             *         altEmail : string (email format)
+             *    streetAddress : string
+             *             city : string
+             *         province : string (ISO code)
+             *              zip : int 5 digits in length
+             *            phone : int 9 digits in length
+             *     gradSemester : "Winter", "Summer", or "Fall"
+             *         gradYear : int 4 digits in length
+             *         password : string
+             */
+            case "createAccount":
+                $args = array(
+                    $this->scrubbed["fName"],
+                    $this->scrubbed["lName"],
+                    $this->scrubbed["email"],
+                    $this->scrubbed["altEmail"],
+                    $this->scrubbed["streetAddress"],
+                    $this->scrubbed["city"],
+                    $this->scrubbed["province"],
+                    $this->scrubbed["zip"],
+                    $this->scrubbed["phone"],
+                    $this->scrubbed["gradSemester"],
+                    $this->scrubbed["gradYear"],
+                    $this->scrubbed["password"],
+                    true
+                );
+                call_user_func_array("Authenticator::register", $args);
+                break;
+            case "login":
+                //TODO: Finish implementation via Authenticator class, and also HTML POST return values
+                break;
+            case "logout":
+                //TODO: Finish implementation via Authenticator class, and also HTML POST return values
+                break;
         }
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getHomeDir()
-    {
-        return $this->homeDir;
+        return true; //temporary return value
     }
 
     /**
@@ -161,131 +347,14 @@ class Controller
      */
     private function setHomeDir()
     {
-        $path = explode("/",dirname($_SERVER["SCRIPT_NAME"]));
+        $path = explode("/", dirname($_SERVER["SCRIPT_NAME"]));
         $homeDir = "";
         foreach ($path as $dir) {
-            if($dir != "metacognitio" and $dir !="") {
-                $homeDir.="..".DIRECTORY_SEPARATOR;
+            if ($dir != "metacognitio" and $dir != "") {
+                $homeDir .= ".." . DIRECTORY_SEPARATOR;
             }
         }
         $this->homeDir = $homeDir;
         return true;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAbsoluteHomeDir()
-    {
-        return $_SERVER["DOCUMENT_ROOT"].$this->homeDir;
-    }
-
-    /**
-     * @return string
-     */
-    public function getModuleDir()
-    {
-        return $this->moduleDir;
-    }
-
-    /**
-     * @return bool
-     */
-    public function initModuleDir()
-    {
-        $stack = debug_backtrace();
-        $pathToCaller = $stack[0]['file'];
-        if(stripos($pathToCaller,MODULE_DIR)) {
-            $pathArr = explode(DIRECTORY_SEPARATOR, $pathToCaller);
-            $nextDir = array_search(MODULE_DIR, $pathArr)+1;
-            $this->moduleDir = MODULE_DIR."/".$pathArr[$nextDir]."/";
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @param $CSS
-     * @return bool
-     */
-    public function setCSS($CSS)
-    {
-        if(is_array($CSS)) {
-            $this->CSS = $CSS;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     *
-     */
-    public function printCSS()
-    {
-        if(isset($this->CSS)) {
-            foreach($this->CSS as $CSS) {
-                echo "<link rel='stylesheet' type='text/css' href='".$this->homeDir.$CSS."'>";
-            }
-        }
-    }
-
-    /**
-     * @param $javaScript
-     * @return bool
-     */
-    public function setJavaScript($javaScript)
-    {
-        if(is_array($javaScript)) {
-            $this->javaScript = $javaScript;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     *
-     */
-    public function printJavaScript()
-    {
-        if(isset($this->javaScript)) {
-            foreach($this->javaScript as $javaScript) {
-                echo "<script type='text/javascript' src='".$this->homeDir.$javaScript."'></script>";
-            }
-        }
-    }
-
-    /**
-     * @param $favicon
-     * @return bool
-     */
-    public function setFavicon($favicon)
-    {
-        if($filtered = filter_var($favicon, FILTER_SANITIZE_STRING)) {
-            $this->favicon = $filtered;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     *
-     */
-    public function printFavicon()
-    {
-        if (isset($this->favicon)) {
-            echo "<link rel='icon' type='".mime_content_type($this->favicon)."' href='".$this->getHomeDir().$this->favicon."' sizes='128x128'>";
-        }
-    }
-
-    /**
-     *
-     */
-    public function printHead()
-    {
-        echo "<meta charset='UTF-8'>";
-        $this->printFavicon();
-        $this->printCSS();
-        $this->printJavaScript();
-        $this->printPageTitle();
     }
 }
