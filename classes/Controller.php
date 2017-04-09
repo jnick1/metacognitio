@@ -2,7 +2,7 @@
 
 define("MODULE_DIR", "pages");
 define("HEADER_FILE", "pages/pageassembly/header.php");
-define("FOOTER_FILE", "/pages/pageassembly/footer.php");
+define("FOOTER_FILE", "pages/pageassembly/footer.php");
 
 /*
  *
@@ -16,7 +16,7 @@ class Controller
      */
     private $CSS;
     /**
-     * @var Dbc Page-wide connection to the database
+     * @var DatabaseConnection Page-wide connection to the database
      */
     private $dbc;
     /**
@@ -59,10 +59,12 @@ class Controller
         }
 
         $this->scrubbed = array_map(array($this, "spamScrubber"), $_POST);
-        $this->dbc = new Dbc();
+        $this->dbc = new DatabaseConnection();
         $this->tabIncrement = 1;
         $this->pageTitle = $pageTitle;
         $this->setHomeDir();
+        $this->CSS = array();
+        $this->javaScript = array();
     }
 
     /**
@@ -92,7 +94,7 @@ class Controller
 
     /**
      * @param string $CSS
-     * @return int
+     * @return int|bool
      */
     public function addCSS(string $CSS)
     {
@@ -101,11 +103,12 @@ class Controller
                 return array_push($this->CSS, $filtered);
             }
         }
+        return false;
     }
 
     /**
      * @param string $javaScript
-     * @return int
+     * @return int|bool
      */
     public function addJavaScript(string $javaScript)
     {
@@ -114,6 +117,7 @@ class Controller
                 return array_push($this->javaScript, $filtered);
             }
         }
+        return false;
     }
 
     /**
@@ -175,54 +179,39 @@ class Controller
     /**
      *
      */
-    public function printCSS()
+    public function printHead()
     {
+        /**
+         * The four sections of this function used to be separate, but their only instance of use was to be called in
+         * this function, so they were eliminated and recombined here to reduce overcrowding of functions in the
+         * Controller class.
+         */
+        echo "<meta charset='UTF-8'>";
+        /**
+         * Print out the Favicon for the site (the little image in the browser tab)
+         */
+        if (isset($this->favicon)) {
+            echo "<link rel='icon' type='" . mime_content_type($this->favicon) . "' href='" . $this->getHomeDir() . $this->favicon . "' sizes='128x128'>";
+        }
+        /**
+         * Print out links to all CSS files needed by the page (CSS, not SCSS; browsers can't handle SCSS)
+         */
         if (isset($this->CSS)) {
             foreach ($this->CSS as $CSS) {
                 echo "<link rel='stylesheet' type='text/css' href='" . $this->homeDir . $CSS . "'>";
             }
         }
-    }
-
-    /**
-     *
-     */
-    public function printFavicon()
-    {
-        if (isset($this->favicon)) {
-            echo "<link rel='icon' type='" . mime_content_type($this->favicon) . "' href='" . $this->getHomeDir() . $this->favicon . "' sizes='128x128'>";
-        }
-    }
-
-    /**
-     *
-     */
-    public function printHead()
-    {
-        echo "<meta charset='UTF-8'>";
-        $this->printFavicon();
-        $this->printCSS();
-        $this->printJavaScript();
-        $this->printPageTitle();
-    }
-
-    /**
-     *
-     */
-    public function printJavaScript()
-    {
+        /**
+         * Print out the links to all JavaScript files needed by the page
+         */
         if (isset($this->javaScript)) {
             foreach ($this->javaScript as $javaScript) {
                 echo "<script type='text/javascript' src='" . $this->homeDir . $javaScript . "'></script>";
             }
         }
-    }
-
-    /**
-     *
-     */
-    public function printPageTitle()
-    {
+        /**
+         * Finally, print out the title of the page in an HTML <title> tag
+         */
         if (isset($this->pageTitle)) {
             echo "<title>" . $this->getPageTitle() . "</title>";
         }
@@ -309,8 +298,39 @@ class Controller
     {
         $this->scrubbed = array_map(array("Controller", "spamScrubber"), $_POST);
         switch ($this->scrubbed["requestType"]) {
+            /**
+             * Required POST variables for this case:
+             *      requestType : "createAccount"
+             *            fName : string
+             *            lName : string
+             *            email : string (email format)
+             *         altEmail : string (email format)
+             *    streetAddress : string
+             *             city : string
+             *         province : string (ISO code)
+             *              zip : int 5 digits in length
+             *            phone : int 9 digits in length
+             *     gradSemester : "Winter", "Summer", or "Fall"
+             *         gradYear : int 4 digits in length
+             *         password : string
+             */
             case "createAccount":
-                //TODO: Finish implementation via Authenticator class, and also HTML POST return values
+                $args = array(
+                    $this->scrubbed["fName"],
+                    $this->scrubbed["lName"],
+                    $this->scrubbed["email"],
+                    $this->scrubbed["altEmail"],
+                    $this->scrubbed["streetAddress"],
+                    $this->scrubbed["city"],
+                    $this->scrubbed["province"],
+                    $this->scrubbed["zip"],
+                    $this->scrubbed["phone"],
+                    $this->scrubbed["gradSemester"],
+                    $this->scrubbed["gradYear"],
+                    $this->scrubbed["password"],
+                    true
+                );
+                call_user_func_array("Authenticator::register", $args);
                 break;
             case "login":
                 //TODO: Finish implementation via Authenticator class, and also HTML POST return values

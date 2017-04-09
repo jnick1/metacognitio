@@ -38,18 +38,18 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                                         <b>Login</b></div>
                                     <div style="margin: 30px">
                                         <form action="" method="post">
-                                            <label style="font-size: large">Email</label><br/>
+                                            <label style="font-size: large">Email</label><br>
                                             <input class="tbox" name="username"
                                                    style="width: 238px; height: 25px; padding-left: 5px;"
-                                                   type="text"/><br>
-                                            <br/>
-                                            <label style="font-size: large">Password</label><br/>
+                                                   type="text"><br>
+                                            <br>
+                                            <label style="font-size: large">Password</label><br>
                                             <input class="tbox" name="password"
                                                    style="width: 238px; height: 25px; padding-left: 5px;"
-                                                   type="password"/><br>
-                                            <br/>
+                                                   type="password"><br>
+                                            <br>
                                             <input style="width: 80px; height: 40px" type="submit"
-                                                   value=" Login "/><br/>
+                                                   value=" Login "><br>
                                         </form>
                                         <div style="font-size: 11px; color: #cc0000; margin-top: 10px">
                                         </div>
@@ -60,7 +60,7 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                     </div>
                 </article>
             </div>
-            <? $controller->getHomeDir() . FOOTER_FILE; ?>
+            <?php include $controller->getHomeDir() . FOOTER_FILE; ?>
         </div>
     </body>
 </html>

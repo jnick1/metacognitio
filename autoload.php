@@ -38,3 +38,5 @@ class AutoLoader {
 }
 
 spl_autoload_register(array("AutoLoader", "load"));
+
+require $_SERVER["DOCUMENT_ROOT"]."/metacognitio/vendor/autoload.php";

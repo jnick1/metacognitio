@@ -32,18 +32,18 @@ class Permission
             ]
         ];
         if ($filtered = filter_var($permissionID, FILTER_VALIDATE_INT, $options)) {
-            $dbc = new Dbc();
-            $params = [$filtered];
+            $dbc = new DatabaseConnection();
+            $params = ["i", $filtered];
             $result = $dbc->query("select", "SELECT * FROM `permission` WHERE `pkPermissionID`=?", $params);
             if ($result) {
                 $this->permissionID = $filtered;
                 $this->name = $result["nmName"];
                 $this->description = $result["txDescription"];
             } else {
-                throw new Exception("Unable to select from database");
+                throw new Exception("Permission->__construct -  Unable to select from database");
             }
         } else {
-            throw new InvalidArgumentException("Not a recognized permission");
+            throw new InvalidArgumentException("Permission->__construct -  Not a recognized permission");
         }
     }
 

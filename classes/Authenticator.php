@@ -30,7 +30,7 @@ class Authenticator
      * @param string $lName
      * @param string $email
      * @param string $altEmail
-     * @param string $addr
+     * @param string $streetAddress
      * @param string $city
      * @param string $province
      * @param int $zip
@@ -42,19 +42,19 @@ class Authenticator
      * @return bool
      * @throws Exception
      */
-    public static function register(string $fName, string $lName, string $email, string $altEmail, string $addr, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
+    public static function register(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
     {
         if (isset($_SESSION["user"])) {
-            throw new Exception("Cannot create account when already signed in");
+            throw new Exception("Authenticator::register($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Cannot create account when already signed in");
         } else {
             try {
-                $user = new User($fName, $lName, $email, $altEmail, $addr, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
+                $user = new User($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
                 $user->addPermission(new Permission(Permission::PERMISSION_AUTHOR));
-            } catch (InvalidArgumentException $exception) {
-                return false;
+            } catch (Exception $exception) {
+                return $exception->getMessage();
             }
             if (!self::userExists($user)) {
-                $success = $user->updateDatabase();
+                $success = $user->updateToDatabase();
                 if ($success) {
                     $_SESSION["user"] = $user;
                     return true;

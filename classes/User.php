@@ -8,6 +8,13 @@
 class User
 {
 
+    /**
+     * Constants used during setProvince and setCountry to increase input identification speed and accuracy
+     */
+    const MODE_ISO = 1;
+    const MODE_NAME = 2;
+    const MODE_DBID = 3;
+
     private $altEmail;
     private $city;
     private $country;
@@ -59,15 +66,15 @@ class User
      */
     public function __construct1(string $email)
     {
-        $dbc = new Dbc();
-        $params = [$email];
+        $dbc = new DatabaseConnection();
+        $params = ["s", $email];
         $user = $dbc->query("select", "SELECT * FROM `user` WHERE `txEmail`=?", $params);
 
         if ($user) {
-            $params = [$user["fkProvinceID"]];
+            $params = ["i", $user["fkProvinceID"]];
             $province = $dbc->query("select", "SELECT * FROM `province` WHERE `pkStateID`=?", $params);
             if ($province) {
-                $params = [$province["fkCountryID"]];
+                $params = ["i", $province["fkCountryID"]];
                 $country = $dbc->query("select", "SELECT * FROM `country` WHERE `pkCountryID`=?", $params);
 
                 if ($country) {
@@ -78,8 +85,8 @@ class User
                     $r5 = $this->setAltEmail($user["txAltEmail"]);
                     $r6 = $this->setStreetAddress($user["txStreetAddress"]);
                     $r7 = $this->setCity($user["txCity"]);
-                    $r8 = $this->setProvince($province["idISO"]);
-                    $r9 = $this->setCountry($country["idISO"]);
+                    $r8 = $this->setProvince($province["idISO"], self::MODE_ISO);
+                    $r9 = $this->setCountry($country["idISO"], self::MODE_ISO);
                     $r10 = $this->setZip($user["nZip"]);
                     $r11 = $this->setPhone($user["nPhone"]);
                     $r12 = $this->setGradsemester($user["enGradSemester"]);
@@ -93,7 +100,7 @@ class User
                     }
                 }
             }
-            $params = [$this->$user["pkUserID"]];
+            $params = ["i", $this->$user["pkUserID"]];
             $permissions = $dbc->query("select multiple", "SELECT `fkPermissionID` FROM `userpermissions` WHERE `fkUserID` = ?", $params);
 
             foreach ($permissions as $permission) {
@@ -110,7 +117,7 @@ class User
      * @param string $lName
      * @param string $email
      * @param string $altEmail
-     * @param string $addr
+     * @param string $streetAddress
      * @param string $city
      * @param string $province
      * @param int $zip
@@ -120,13 +127,13 @@ class User
      * @param string $password
      * @param bool $isActive
      */
-    public function __construct13(string $fName, string $lName, string $email, string $altEmail, string $addr, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
+    public function __construct13(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
     {
-        $dbc = new Dbc();
-        $params = [$province];
-        $province = $dbc->query("select", "SELECT * FROM `province` WHERE `idISO`=?", $params);
-        if ($province) {
-            $params = [$province["fkCountryID"]];
+        $dbc = new DatabaseConnection();
+        $params = ["s", $province];
+        $provinceResult = $dbc->query("select", "SELECT * FROM `province` WHERE `idISO`=?", $params);
+        if ($provinceResult) {
+            $params = ["i", $provinceResult["fkCountryID"]];
             $country = $dbc->query("select", "SELECT * FROM `country` WHERE `pkCountryID`=?", $params);
 
             if ($country) {
@@ -134,23 +141,25 @@ class User
                 $r2 = $this->setLName($lName);
                 $r3 = $this->setEmail($email);
                 $r4 = $this->setAltEmail($altEmail);
-                $r5 = $this->setStreetAddress($addr);
+                $r5 = $this->setStreetAddress($streetAddress);
                 $r6 = $this->setCity($city);
-                $r7 = $this->setProvince($province["idISO"]);
-                $r8 = $this->setCountry($country["idISO"]);
+                $r7 = $this->setProvince($provinceResult["idISO"],self::MODE_ISO);
+                $r8 = $this->setCountry($country["idISO"], self::MODE_ISO);
                 $r9 = $this->setZip($zip);
                 $r10 = $this->setPhone($phone);
                 $r11 = $this->setGradsemester($gradSemester);
                 $r12 = $this->setGradYear($gradYear);
                 $r13 = $this->updatePassword($password);
                 $r14 = $this->setIsActive($isActive);
-                $r15 = $this->isInDatabase = false;
-                if (!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14 and $r15)) {
-                    throw new InvalidArgumentException();
+                $this->permissions = [];
+                $this->isInDatabase = false;
+                if (!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14)) {
+                    throw new InvalidArgumentException($r4);
                 }
             }
+        } else {
+            throw new InvalidArgumentException("Invalid province");
         }
-        throw new InvalidArgumentException("Invalid province");
     }
 
     /**
@@ -167,7 +176,7 @@ class User
                 return array_push($this->permissions, $permission);
             }
         } else {
-            throw new InvalidArgumentException("expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
+            throw new InvalidArgumentException("User->addPermission(".$permission.") - expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
         }
     }
 
@@ -342,7 +351,7 @@ class User
         if ($permission instanceof Permission) {
             return in_array($permission, $this->getPermissions());
         } else {
-            throw new InvalidArgumentException("expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
+            throw new InvalidArgumentException("User->hasPermission(".$permission.") - expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
         }
     }
 
@@ -352,6 +361,12 @@ class User
     public function isInDatabase()
     {
         return $this->isInDatabase;
+    }
+
+    public function removeAllPermissions()
+    {
+        $this->permissions = [];
+        return true;
     }
 
     /**
@@ -368,7 +383,7 @@ class User
                 return false;
             }
         } else {
-            throw new InvalidArgumentException("expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
+            throw new InvalidArgumentException("User->removePermission(".$permission.") - expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
         }
     }
 
@@ -378,6 +393,10 @@ class User
      */
     public function setAltEmail(string $email)
     {
+        if($email === "") {
+            $this->altEmail = "";
+            return true;
+        }
         if ($filtered = filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->altEmail = filter_var($filtered, FILTER_SANITIZE_EMAIL);
             return true;
@@ -400,30 +419,32 @@ class User
 
     /**
      * @param mixed $country ISO code, country name, or primary key in database
+     * @param int $mode one of MODE_ISO, MODE_NAME, or MODE_DBID
      * @return bool true if successfully set, false otherwise
      */
-    public function setCountry(mixed $country)
+    public function setCountry($country, int $mode)
     {
         if (gettype($country) == "string" or gettype($country) == "integer") {
-            $dbc = new Dbc();
-            $params = [$country];
-            if (gettype($country) == "string") {
+            $dbc = new DatabaseConnection();
+            if ($mode === self::MODE_NAME or $mode === self::MODE_ISO) {
                 $country = strtoupper($country);
-                if (strlen($country) == 2) {
+                $params = ["s", $country];
+                if ($mode === self::MODE_ISO) {
                     $result = $dbc->query("select", "SELECT * FROM `country` WHERE `idISO`=?", $params);
                 } else {
                     $result = $dbc->query("select", "SELECT * FROM `country` WHERE UPPER(`nmName`)=?", $params);
                 }
             } else {
+                $params = ["i", $country];
                 $result = $dbc->query("select", "SELECT * FROM `country` WHERE `pkCountryID`=?", $params);
             }
 
             if ($result) {
                 if (isset($this->province)) {
-                    $params = [$this->province["idISO"]];
+                    $params = ["s", $this->getProvince("idISO")];
                     $result2 = $dbc->query("select", "SELECT * FROM `province` WHERE `idISO`=?", $params);
                     if ($result2) {
-                        $params = $result2["fkCountryID"];
+                        $params = ["i", $result2["fkCountryID"]];
                         $result3 = $dbc->query("select", "SELECT * FROM `country` WHERE `pkCountryID`=?", $params);
                         if ($result3) {
                             if ($result3["pkCountryID"] != $result["pkCountryID"]) {
@@ -539,12 +560,12 @@ class User
      */
     public function setPhone(int $phone)
     {
-        $phoneNumberUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+        $phoneNumberUtil = libphonenumber\PhoneNumberUtil::getInstance();
         $phoneNumberObject = $phoneNumberUtil->parse($phone, $this->getCountry("ISO"));
-        $isvalid = $phoneNumberUtil->isValidNumberForRegion($phoneNumberObject, $this->getCountry("ISO"));
+        $isValid = $phoneNumberUtil->isValidNumberForRegion($phoneNumberObject, $this->getCountry("ISO"));
 
-        if ($isvalid) {
-            $this->phone = $phoneNumberUtil->format($phoneNumberObject, PhoneNumberFormat::E164);
+        if ($isValid) {
+            $this->phone = $phoneNumberUtil->format($phoneNumberObject, \libphonenumber\PhoneNumberFormat::E164);
             return true;
         }
         return false;
@@ -552,24 +573,23 @@ class User
 
     /**
      * @param string $province ISO code or province name
+     * @param int $mode Indicates input types, and must be either MODE_ISO or MODE_NAME
      * @return bool
      */
-    public function setProvince(string $province)
+    public function setProvince(string $province, int $mode)
     {
         if (gettype($province) == "string") {
             $province = strtoupper($province);
-            $dbc = new Dbc();
-            $params = [$province];
-            if (strlen($province) == 2) {
+            $dbc = new DatabaseConnection();
+            $params = ["s", $province];
+            if ($mode === self::MODE_ISO) {
                 $result = $dbc->query("select", "SELECT * FROM `province` WHERE `idISO`=?", $params);
             } else {
                 $result = $dbc->query("select", "SELECT * FROM `province` WHERE UPPER(`nmName`)=?", $params);
             }
 
             if ($result) {
-                if (isset($this->country) and $this->country["pkCountryID"] != $result["fkCountryID"]) {
-                    $this->setCountry($result["fkCountryID"]);
-                }
+                $this->setCountry($result["fkCountryID"], self::MODE_DBID);
                 $this->province["pkStateID"] = $result["pkStateID"];
                 $this->province["idISO"] = $result["idISO"];
                 $this->province["nmName"] = $result["nmName"];
@@ -612,12 +632,58 @@ class User
     }
 
     /**
-     * @return bool indicates if the update was completed successfully
+     * @return bool
+     * @throws Exception
+     *
+     * Pulls data stored in the database to the current User instance.
      */
-    public function updateDatabase()
+    public function updateFromDatabase()
     {
-        $dbc = new Dbc();
+        if(!$this->isInDatabase()) {
+            throw new LogicException("User->updateFromDatabase() - Unable to pull from database when User instance is not stored in database");
+        } else {
+            $dbc = new DatabaseConnection();
+
+            $params = ["i", $this->getUserID()];
+            $user = $dbc->query("select", "SELECT * FROM `user` WHERE `pkUserID` = ?", $params);
+            $permissions = $dbc->query("select multiple", "SELECT `fkPermissionID` FROM `userpermissions` WHERE `fkUserID` = ?", $params);
+
+            if($user and $permissions) {
+                $this->setFName($user["nmFirstName"]);
+                $this->setLName($user["nmLastName"]);
+                $this->setEmail($user["txEmail"]);
+                $this->setAltEmail($user["txAltEmail"]);
+                $this->setStreetAddress($user["txStreetAddress"]);
+                $this->setCity($user["txCity"]);
+                $this->setProvince($user["fkProvinceID"], self::MODE_DBID);
+                $this->setZip($user["nZip"]);
+                $this->setPhone($user["nPhone"]);
+                $this->setGradsemester($user["enGradSemester"]);
+                $this->setGradYear($user["dtGradYear"]);
+                $this->setSalt($user["blSalt"]);
+                $this->setHash($user["txHash"]);
+                $this->setIsActive($user["isActive"]);
+                $this->removeAllPermissions();
+                foreach($permissions as $permission) {
+                    $this->addPermission(new Permission($permission["fkPermissionID"]));
+                }
+                return true;
+            } else {
+                throw new Exception("User->updateFromDatabase() - Unable to select from database; pkUserID for User instance may have been changed, or permissions may not be set");
+            }
+        }
+    }
+
+    /**
+     * @return bool indicates if the update was completed successfully
+     *
+     * Pushes data stored in current User instance to the database.
+     */
+    public function updateToDatabase()
+    {
+        $dbc = new DatabaseConnection();
         $params = [
+            "ssssssiiisissi",
             $this->getFName(),
             $this->getLName(),
             $this->getEmail(),
@@ -642,11 +708,11 @@ class User
                                       `txHash`=?,`isActive`=?
                                       WHERE `pkUserID`=?", $params);
 
-            $params = [$this->getUserID()];
+            $params = ["i", $this->getUserID()];
             $result = ($result and $dbc->query("delete", "DELETE FROM `userpermissions` WHERE `fkUserID`=?", $params));
 
             foreach ($this->getPermissions() as $permission) {
-                $params = array($permission->getPermissionID(), $this->getUserID());
+                $params = ["ii", $permission->getPermissionID(), $this->getUserID()];
                 $result = ($result and $dbc->query("insert", "INSERT INTO `userpermissions` (`fkPermissionID`,`fkUserID`) VALUES (?,?)", $params));
             }
         } else {
@@ -658,13 +724,13 @@ class User
                                           VALUES 
                                           (NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", $params);
 
-            $params = array($this->getEmail());
+            $params = ["s", $this->getEmail()];
             $result2 = $dbc->query("select", "SELECT `pkUserID` FROM `user` WHERE `txEmail`=?", $params);
 
             $this->setUserID($result2["pkUserID"]);
 
             foreach ($this->getPermissions() as $permission) {
-                $params = array($permission->getPermissionID(), $this->getUserID());
+                $params = ["ii", $permission->getPermissionID(), $this->getUserID()];
                 $result = ($result and $dbc->query("insert", "INSERT INTO `userpermissions` (`fkPermissionID`,`fkUserID`) VALUES (?,?)", $params));
             }
 
