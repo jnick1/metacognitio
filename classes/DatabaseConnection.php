@@ -16,6 +16,21 @@ class DatabaseConnection
     private static $inTransaction;
 
     /**
+     * @return bool
+     * @throws Exception
+     */
+    public function commitTransaction()
+    {
+        $connection = $this->connect();
+        if ($stmt = $connection->prepare("COMMIT;")) {
+            $result = $stmt->execute();
+            $stmt->close();
+            return $this::$inTransaction = !$result;
+        }
+        throw new Exception("Unable to connect to database");
+    }
+
+    /**
      * Connect to the database
      *
      * @return bool|mysqli false on failure / mysqli MySQLi object instance on success
@@ -25,7 +40,7 @@ class DatabaseConnection
         // Try and connect to the database
         if (!isset(self::$connection)) {
             // Load configuration as an array. Use the actual location of your configuration file
-            $config = parse_ini_file("../../../../secure/metacognitio/config.ini");
+            $config = parse_ini_file("C:/wamp64/secure/metacognitio/config.ini");
             self::$connection = new mysqli($config["host"], $config["username"], $config["password"], $config["database"]);
         }
 
@@ -170,36 +185,6 @@ class DatabaseConnection
      * @return bool
      * @throws Exception
      */
-    public function startTransaction()
-    {
-        $connection = $this->connect();
-        if ($stmt = $connection->prepare("SET autocommit = 0; START TRANSACTION;")) {
-            $result = $stmt->execute();
-            $stmt->close();
-            return $this::$inTransaction = $result;
-        }
-        throw new Exception("Unable to connect to database");
-    }
-
-    /**
-     * @return bool
-     * @throws Exception
-     */
-    public function commitTransaction()
-    {
-        $connection = $this->connect();
-        if ($stmt = $connection->prepare("COMMIT;")) {
-            $result = $stmt->execute();
-            $stmt->close();
-            return $this::$inTransaction = !$result;
-        }
-        throw new Exception("Unable to connect to database");
-    }
-
-    /**
-     * @return bool
-     * @throws Exception
-     */
     public function rollbackTransaction()
     {
         $connection = $this->connect();
@@ -212,17 +197,33 @@ class DatabaseConnection
     }
 
     /**
+     * @return bool
+     * @throws Exception
+     */
+    public function startTransaction()
+    {
+        $connection = $this->connect();
+        if ($stmt = $connection->prepare("SET autocommit = 0; START TRANSACTION;")) {
+            $result = $stmt->execute();
+            $stmt->close();
+            return $this::$inTransaction = $result;
+        }
+        throw new Exception("Unable to connect to database");
+    }
+
+    /**
      * @param $arr
      * @return array
      *
      * Originally created by bitWorking, April 20, 2013
      * http://stackoverflow.com/a/16120923
      */
-    private function refValues($params){
-        if (strnatcmp(phpversion(),'5.3') >= 0) //Reference is required for PHP 5.3+
+    private function refValues($params)
+    {
+        if (strnatcmp(phpversion(), '5.3') >= 0) //Reference is required for PHP 5.3+
         {
             $refs = array();
-            foreach($params as $key => $value)
+            foreach ($params as $key => $value)
                 $refs[$key] = &$params[$key];
             return $refs;
         }

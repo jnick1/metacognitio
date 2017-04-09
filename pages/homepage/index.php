@@ -10,6 +10,7 @@ include "autoload.php";
 
 $controller = new Controller("MetaCognitio");
 $controller->initModuleDir();
+$controller->processREQUEST();
 $controller->addCSS($controller->getModuleDir() . "/css/index.min.css");
 $controller->addCSS("java/lib/jquery-ui/jquery-ui.css");
 $controller->addCSS("java/lib/jquery-dropdown/jquery.dropdown.min.css");
@@ -38,18 +39,18 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                                         <b>Login</b></div>
                                     <div style="margin: 30px">
                                         <form action="" method="post">
-                                            <label style="font-size: large">Email</label><br>
-                                            <input class="tbox" name="username"
-                                                   style="width: 238px; height: 25px; padding-left: 5px;"
-                                                   type="text"><br>
+                                            <label style="font-size: large">
+                                                Email
+                                                <input class="tbox" name="email" style="width: 238px; height: 25px; padding-left: 5px;" type="email">
+                                            </label>
                                             <br>
-                                            <label style="font-size: large">Password</label><br>
-                                            <input class="tbox" name="password"
-                                                   style="width: 238px; height: 25px; padding-left: 5px;"
-                                                   type="password"><br>
+                                            <label style="font-size: large">
+                                                Password
+                                                <input class="tbox" name="password" style="width: 238px; height: 25px; padding-left: 5px;" type="password">
+                                            </label>
                                             <br>
-                                            <input style="width: 80px; height: 40px" type="submit"
-                                                   value=" Login "><br>
+                                            <input type="hidden" name="requestType" value="login">
+                                            <input style="width: 80px; height: 40px" type="submit" value=" Login "><br>
                                         </form>
                                         <div style="font-size: 11px; color: #cc0000; margin-top: 10px">
                                         </div>

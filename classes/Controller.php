@@ -68,6 +68,48 @@ class Controller
     }
 
     /**
+     * @return User|null
+     */
+    public static function getLoggedInUser()
+    {
+        if(self::isUserLoggedIn()) {
+            return $_SESSION["user"];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isUserLoggedIn()
+    {
+        return isset($_SESSION["user"]);
+    }
+
+    /**
+     * @param User|null $user
+     * @return bool
+     */
+    public static function setLoggedInUser(User $user=null)
+    {
+        if($user === null) {
+            unset($_SESSION["user"]);
+            return true;
+        }
+        if($user instanceof User) {
+            if($user->isInDatabase()) {
+                $_SESSION["user"] = $user;
+                return true;
+            } else {
+                throw new LogicException("Controller:setLoggedInUser($user) - Unable to set non-database-saved user as logged-in user");
+            }
+        } else {
+            throw new InvalidArgumentException("Controller::setLoggedInUser($user) -  Expected User: got " . (gettype($user) == "object" ? get_class($user) : gettype($user)));
+        }
+    }
+
+    /**
      * @param $value
      * @return string
      */
@@ -315,7 +357,7 @@ class Controller
              *         password : string
              */
             case "createAccount":
-                $args = array(
+                $args = [
                     $this->scrubbed["fName"],
                     $this->scrubbed["lName"],
                     $this->scrubbed["email"],
@@ -329,14 +371,18 @@ class Controller
                     $this->scrubbed["gradYear"],
                     $this->scrubbed["password"],
                     true
-                );
+                ];
                 call_user_func_array("Authenticator::register", $args);
                 break;
             case "login":
-                //TODO: Finish implementation via Authenticator class, and also HTML POST return values
+                $args = [
+                    $this->scrubbed["email"],
+                    $this->scrubbed["password"]
+                ];
+                call_user_func_array("Authenticator::authenticate", $args);
                 break;
             case "logout":
-                //TODO: Finish implementation via Authenticator class, and also HTML POST return values
+                Authenticator::logout();
                 break;
         }
         return true; //temporary return value

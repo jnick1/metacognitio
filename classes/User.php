@@ -7,14 +7,12 @@
 
 class User
 {
-
     /**
      * Constants used during setProvince and setCountry to increase input identification speed and accuracy
      */
-    const MODE_ISO = 1;
-    const MODE_NAME = 2;
-    const MODE_DBID = 3;
-
+    const MODE_DBID = 1;
+    const MODE_ISO = 2;
+    const MODE_NAME = 3;
     private $altEmail;
     private $city;
     private $country;
@@ -79,10 +77,10 @@ class User
 
                 if ($country) {
                     $r1 = $this->setUserID($user["pkUserID"]);
-                    $r2 = $this->setFName($user["nmFirstName"]);
-                    $r3 = $this->setLName($user["nmLastName"]);
+                    $r2 = $this->setFName($user["nmFirst"]);
+                    $r3 = $this->setLName($user["nmLast"]);
                     $r4 = $this->setEmail($user["txEmail"]);
-                    $r5 = $this->setAltEmail($user["txAltEmail"]);
+                    $r5 = $this->setAltEmail($user["txEmailAlt"]);
                     $r6 = $this->setStreetAddress($user["txStreetAddress"]);
                     $r7 = $this->setCity($user["txCity"]);
                     $r8 = $this->setProvince($province["idISO"], self::MODE_ISO);
@@ -95,12 +93,13 @@ class User
                     $r15 = $this->setHash($user["txHash"]);
                     $r16 = $this->setIsActive($user["isActive"]);
                     $this->isInDatabase = true;
+                    $this->permissions = [];
                     if (!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14 and $r15 and $r16)) {
                         throw new InvalidArgumentException();
                     }
                 }
             }
-            $params = ["i", $this->$user["pkUserID"]];
+            $params = ["i", $user["pkUserID"]];
             $permissions = $dbc->query("select multiple", "SELECT `fkPermissionID` FROM `userpermissions` WHERE `fkUserID` = ?", $params);
 
             foreach ($permissions as $permission) {
@@ -143,7 +142,7 @@ class User
                 $r4 = $this->setAltEmail($altEmail);
                 $r5 = $this->setStreetAddress($streetAddress);
                 $r6 = $this->setCity($city);
-                $r7 = $this->setProvince($provinceResult["idISO"],self::MODE_ISO);
+                $r7 = $this->setProvince($provinceResult["idISO"], self::MODE_ISO);
                 $r8 = $this->setCountry($country["idISO"], self::MODE_ISO);
                 $r9 = $this->setZip($zip);
                 $r10 = $this->setPhone($phone);
@@ -176,7 +175,7 @@ class User
                 return array_push($this->permissions, $permission);
             }
         } else {
-            throw new InvalidArgumentException("User->addPermission(".$permission.") - expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
+            throw new InvalidArgumentException("User->addPermission($permission) - expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
         }
     }
 
@@ -351,7 +350,7 @@ class User
         if ($permission instanceof Permission) {
             return in_array($permission, $this->getPermissions());
         } else {
-            throw new InvalidArgumentException("User->hasPermission(".$permission.") - expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
+            throw new InvalidArgumentException("User->hasPermission(" . $permission . ") - expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
         }
     }
 
@@ -383,7 +382,7 @@ class User
                 return false;
             }
         } else {
-            throw new InvalidArgumentException("User->removePermission(".$permission.") - expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
+            throw new InvalidArgumentException("User->removePermission(" . $permission . ") - expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
         }
     }
 
@@ -393,7 +392,7 @@ class User
      */
     public function setAltEmail(string $email)
     {
-        if($email === "") {
+        if ($email === "") {
             $this->altEmail = "";
             return true;
         }
@@ -639,7 +638,7 @@ class User
      */
     public function updateFromDatabase()
     {
-        if(!$this->isInDatabase()) {
+        if (!$this->isInDatabase()) {
             throw new LogicException("User->updateFromDatabase() - Unable to pull from database when User instance is not stored in database");
         } else {
             $dbc = new DatabaseConnection();
@@ -648,11 +647,11 @@ class User
             $user = $dbc->query("select", "SELECT * FROM `user` WHERE `pkUserID` = ?", $params);
             $permissions = $dbc->query("select multiple", "SELECT `fkPermissionID` FROM `userpermissions` WHERE `fkUserID` = ?", $params);
 
-            if($user and $permissions) {
-                $this->setFName($user["nmFirstName"]);
-                $this->setLName($user["nmLastName"]);
+            if ($user and $permissions) {
+                $this->setFName($user["nmFirst"]);
+                $this->setLName($user["nmLast"]);
                 $this->setEmail($user["txEmail"]);
-                $this->setAltEmail($user["txAltEmail"]);
+                $this->setAltEmail($user["txEmailAlt"]);
                 $this->setStreetAddress($user["txStreetAddress"]);
                 $this->setCity($user["txCity"]);
                 $this->setProvince($user["fkProvinceID"], self::MODE_DBID);
@@ -664,7 +663,7 @@ class User
                 $this->setHash($user["txHash"]);
                 $this->setIsActive($user["isActive"]);
                 $this->removeAllPermissions();
-                foreach($permissions as $permission) {
+                foreach ($permissions as $permission) {
                     $this->addPermission(new Permission($permission["fkPermissionID"]));
                 }
                 return true;
@@ -672,6 +671,21 @@ class User
                 throw new Exception("User->updateFromDatabase() - Unable to select from database; pkUserID for User instance may have been changed, or permissions may not be set");
             }
         }
+    }
+
+    /**
+     * @param string $password
+     * @return bool
+     */
+    public function updatePassword(string $password)
+    {
+        $saltedHash = Hasher::cryptographicHash($password);
+        if (is_array($saltedHash)) {
+            $r1 = $this->setSalt($saltedHash["salt"]);
+            $r2 = $this->setHash($saltedHash["hash"]);
+            return $r1 and $r2;
+        }
+        return false;
     }
 
     /**
@@ -700,7 +714,7 @@ class User
             $this->getIsActive()
         ];
 
-        if ($this->isInDatabase) {
+        if ($this->isInDatabase()) {
             $result = $dbc->query("update", "UPDATE `user` SET 
                                       `nmFirst`=?,`nmLast`=?,`txEmail`=?,`txEmailAlt`=?,
                                       `txStreetAddress`=?,`txCity`=?,`fkProvinceID`=?,`nZip`=?,
@@ -738,21 +752,6 @@ class User
         }
 
         return $result;
-    }
-
-    /**
-     * @param string $password
-     * @return bool
-     */
-    public function updatePassword(string $password)
-    {
-        $saltedHash = Hasher::cryptographicHash($password);
-        if (is_array($saltedHash)) {
-            $r1 = $this->setSalt($saltedHash["salt"]);
-            $r2 = $this->setHash($saltedHash["hash"]);
-            return $r1 and $r2;
-        }
-        return false;
     }
 
     /**

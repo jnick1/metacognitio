@@ -14,12 +14,60 @@ class Authenticator
      * @param string $email
      * @param string $password
      * @return bool
+     * @throws Exception
      */
     public static function authenticate(string $email, string $password)
     {
+        if(Controller::isUserLoggedIn()) {
+            throw new LogicException("Authenticator::authenticate($email, $password) - Unable to log in multiple times");
+        }
+        if(isset($_SESSION["loginLockout"])) {
+            if(time()-$_SESSION["loginLockout"]>=60) {
+                unset($_SESSION["loginLockout"]);
+                unset($_SESSION["loginFails"]);
+            } else {
+                throw new Exception("Authenticator::authenticate($email,$password) - Login failed too many times; wait 60 seconds to try again");
+            }
+        }
         $user = User::load($email);
         if (isset($user)) {
-            return Hasher::verifySaltedHash($password, $user->getSalt(), $user->getHash());
+            $goodPass = Hasher::verifySaltedHash($password, $user->getSalt(), $user->getHash());
+
+            if ($goodPass) {
+                try{
+                    Controller::setLoggedInUser($user);
+                } catch (Exception $exception) {
+                    return $exception->getMessage();
+                }
+                unset($_SESSION["loginFails"]);
+                unset($_SESSION["loginLockout"]);
+                return true;
+            } else {
+                if(isset($_SESSION["loginFails"])) {
+                    if($_SESSION["loginFails"]>=3) {
+                        $_SESSION["loginLockout"] = time();
+                    } else {
+                        $_SESSION["loginFails"]++;
+                    }
+                } else {
+                    $_SESSION["loginFails"] = 1;
+                }
+
+                throw new Exception("Authenticator:authenticate($email,$password) - User credentials incorrect; bad password");
+            }
+        } else {
+            throw new Exception("Authenticator::authenticate($email,$password) - User credentials incorrect; unable to find email address");
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public static function logout()
+    {
+        if(Controller::isUserLoggedIn()) {
+            Controller::setLoggedInUser();
+            return true;
         } else {
             return false;
         }
@@ -44,7 +92,7 @@ class Authenticator
      */
     public static function register(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
     {
-        if (isset($_SESSION["user"])) {
+        if (Controller::isUserLoggedIn()) {
             throw new Exception("Authenticator::register($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Cannot create account when already signed in");
         } else {
             try {
@@ -56,11 +104,11 @@ class Authenticator
             if (!self::userExists($user)) {
                 $success = $user->updateToDatabase();
                 if ($success) {
-                    $_SESSION["user"] = $user;
+                    Controller::setLoggedInUser($user);
                     return true;
                 }
             }
-            return false;
+            throw new Exception("Authenticator::register($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - User already exists in database; unable to re-register");
         }
     }
 
@@ -75,7 +123,7 @@ class Authenticator
             $loadedUser = User::load($user->getEmail());
             return isset($loadedUser);
         } else {
-            throw new TypeError("expected User: got " . (gettype($user) == "object" ? get_class($user) : gettype($user)));
+            throw new InvalidArgumentException("Authenticator::userExists($user) - expected User: got " . (gettype($user) == "object" ? get_class($user) : gettype($user)));
         }
     }
 }

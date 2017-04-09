@@ -13,6 +13,18 @@
                         Account</a></li>
             </ul>
         </div>
+        <?php
+        if(Controller::isUserLoggedIn()) {
+            ?>
+            <div class="menu-main-menu-container">
+                <form action="<?php echo $controller->getHomeDir(); ?>" method="post">
+                    <input type="hidden" name="requestType" value="logout">
+                    <input style="width: 80px; height: 40px" type="submit" value=" Logout ">
+                </form>
+            </div>
+            <?php
+        }
+        ?>
     </nav>
     <div class="site-logo">
         <h1 class="site-title">

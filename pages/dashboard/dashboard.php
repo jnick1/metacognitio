@@ -10,6 +10,7 @@ include "../../autoload.php";
 
 $controller = new Controller("My Dashboard");
 $controller->initModuleDir();
+$controller->processREQUEST();
 $controller->addCSS($controller->getModuleDir() . "/css/dashboard.min.css");
 $controller->addCSS("java/lib/jquery-ui/jquery-ui.css");
 $controller->addCSS("java/lib/jquery-dropdown/jquery.dropdown.min.css");
