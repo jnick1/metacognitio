@@ -16,7 +16,7 @@ class Authenticator
      * @return bool
      * @throws Exception
      */
-    public static function authenticate(string $email, string $password)
+    public static function authenticate(string $email, string $password): bool
     {
         if(Controller::isUserLoggedIn()) {
             throw new LogicException("Authenticator::authenticate($email, $password) - Unable to log in multiple times");
@@ -63,7 +63,7 @@ class Authenticator
     /**
      * @return bool
      */
-    public static function logout()
+    public static function logout(): bool
     {
         if(Controller::isUserLoggedIn()) {
             Controller::setLoggedInUser();
@@ -90,7 +90,7 @@ class Authenticator
      * @return bool
      * @throws Exception
      */
-    public static function register(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
+    public static function register(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive): bool
     {
         if (Controller::isUserLoggedIn()) {
             throw new Exception("Authenticator::register($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Cannot create account when already signed in");
@@ -117,7 +117,7 @@ class Authenticator
      * @return bool
      * @throws TypeError
      */
-    public static function userExists(User $user)
+    public static function userExists(User $user): bool
     {
         if ($user instanceof User) {
             $loadedUser = User::load($user->getEmail());

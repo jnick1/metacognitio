@@ -1,15 +1,15 @@
 <?php
 
-define("MODULE_DIR", "pages");
-define("HEADER_FILE", "pages/pageassembly/header.php");
-define("FOOTER_FILE", "pages/pageassembly/footer.php");
-
 /*
  *
  */
 
 class Controller
 {
+
+    const MODULE_DIR = "pages";
+    const HEADER_FILE = "pages/pageassembly/header.php";
+    const FOOTER_FILE = "pages/pageassembly/footer.php";
 
     /**
      * @var array file paths from site root to css needed by the page
@@ -72,7 +72,7 @@ class Controller
      */
     public static function getLoggedInUser()
     {
-        if(self::isUserLoggedIn()) {
+        if (self::isUserLoggedIn()) {
             return $_SESSION["user"];
         } else {
             return null;
@@ -91,14 +91,14 @@ class Controller
      * @param User|null $user
      * @return bool
      */
-    public static function setLoggedInUser(User $user=null)
+    public static function setLoggedInUser(User $user = null)
     {
-        if($user === null) {
+        if ($user === null) {
             unset($_SESSION["user"]);
             return true;
         }
-        if($user instanceof User) {
-            if($user->isInDatabase()) {
+        if ($user instanceof User) {
+            if ($user->isInDatabase()) {
                 $_SESSION["user"] = $user;
                 return true;
             } else {
@@ -209,10 +209,10 @@ class Controller
     {
         $stack = debug_backtrace();
         $pathToCaller = $stack[0]['file'];
-        if (stripos($pathToCaller, MODULE_DIR)) {
+        if (stripos($pathToCaller, Controller::MODULE_DIR)) {
             $pathArr = explode(DIRECTORY_SEPARATOR, $pathToCaller);
-            $nextDir = array_search(MODULE_DIR, $pathArr) + 1;
-            $this->moduleDir = MODULE_DIR . "/" . $pathArr[$nextDir] . "/";
+            $nextDir = array_search(Controller::MODULE_DIR, $pathArr) + 1;
+            $this->moduleDir = Controller::MODULE_DIR . "/" . $pathArr[$nextDir] . "/";
             return true;
         }
         return false;

@@ -13,6 +13,7 @@ class User
     const MODE_DBID = 1;
     const MODE_ISO = 2;
     const MODE_NAME = 3;
+
     private $altEmail;
     private $city;
     private $country;
@@ -206,7 +207,6 @@ class User
             case "iso":
             case "idiso":
                 return $this->country["idISO"];
-                break;
             case "phone":
             case "idphonecode":
                 return $this->country["idPhoneCode"];
@@ -298,7 +298,6 @@ class User
             case "iso":
             case "idiso":
                 return $this->province["idISO"];
-                break;
             case "pkstateid":
             case "stateid":
             case "internalid":

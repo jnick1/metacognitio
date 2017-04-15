@@ -24,7 +24,7 @@
     "php" : "^7.0",
     "phpmailer/phpmailer": "^5.2.23",
     "giggsey/libphonenumber-for-php": "^8.4",
-    "phpunit/phpunit": "^6.0"
+    "phpunit/phpunit": "6.1.0"
   },
   "prefer-stable": true,
   "config": {

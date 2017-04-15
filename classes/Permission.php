@@ -19,6 +19,7 @@ class Permission
     const PERMISSION_SECRETARY = 8;
     const PERMISSION_TREASURER = 9;
     const PERMISSION_VICE_PRESIDENT = 10;
+
     private $description;
     private $name;
     private $permissionID;

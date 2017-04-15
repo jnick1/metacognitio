@@ -26,11 +26,11 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
     </head>
     <body>
         <div id="page" class="hfeed site">
-            <?php include $controller->getHomeDir() . HEADER_FILE; ?>
+            <?php include $controller->getHomeDir() . Controller::HEADER_FILE; ?>
             <div id="content" class="site-content">
                 <h2> Welcome to your Dashboard! </h2>
             </div>
-            <?php include $controller->getHomeDir() . FOOTER_FILE; ?>
+            <?php include $controller->getHomeDir() . Controller::FOOTER_FILE; ?>
         </div>
     </body>
 </html>
