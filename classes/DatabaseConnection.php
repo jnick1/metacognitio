@@ -64,6 +64,96 @@ class DatabaseConnection
     }
 
     /**
+     * Returns the maximum allowed length of a field from a particular table.
+     * In essence, returns either CHARACTER_MAXIMUM_LENGTH, DATETIME_PRECISION, or NUMERIC_PRECISION
+     * from the information_schema table. For decimal, float, and double types, it will
+     * return an array of the form, ["NUMERIC_PRECISION"=>int, "NUMERIC_SCALE"=>int] where
+     * NUMERIC_PRECISION is the number of digits in the number, and NUMERIC_SCALE is how many
+     * of those digits can be after the decimal point. Also, the function will return
+     * DATETIME_PRECISION for valid datetime fields as well.
+     *
+     * Returns false if the specified column cannot be found in the specified table, or if
+     * the DATA_TYPE of the specified column is neither numeric, a string, nor a datetime.
+     *
+     * @param string $table
+     * @param string $column
+     * @return int|array|bool
+     */
+    public function getMaximumLength(string $table, string $column)
+    {
+        $connection = $this->connect();
+
+        $params = ["sss", $this->getTableSchema(), $table, $column];
+        $type = $connection->query("select", "SELECT `DATA_TYPE` 
+                                                              FROM `information_schema`.`COLUMNS` 
+                                                              WHERE `TABLE_SCHEMA` = ? 
+                                                                AND `TABLE_NAME` = ?
+                                                                AND `COLUMN_NAME` = ?", $params);
+        if($type) {
+            switch($type["DATE_TYPE"]) {
+                case "tinyint":
+                case "smallint":
+                case "mediumint":
+                case "int":
+                case "bigint":
+                case "bit":
+                    $length = $connection->query("select", "SELECT `NUMERIC_PRECISION`
+                                                                            FROM `information_schema`.`COLUMNS`
+                                                                            WHERE `TABLE_SCHEMA` = ?
+                                                                              AND `TABLE_NAME` = ?
+                                                                              AND `COLUMN_NAME` = ?", $params);
+                    return $length["NUMERIC_PRECISION"];
+                    break;
+                case "decimal":
+                case "float":
+                case "double":
+                    $length = $connection->query("select", "SELECT `NUMERIC_PRECISION`, `NUMERIC_SCALE`
+                                                                            FROM `information_schema`.`COLUMNS`
+                                                                            WHERE `TABLE_SCHEMA` = ?
+                                                                              AND `TABLE_NAME` = ?
+                                                                              AND `COLUMN_NAME` = ?", $params);
+                    return $length;
+                    break;
+                case "char":
+                case "varchar":
+                case "tinytext":
+                case "text":
+                case "mediumtext":
+                case "longtext":
+                case "binary":
+                case "varbinary":
+                case "tinyblob":
+                case "mediumblob":
+                case "blob":
+                case "longblob":
+                case "enum":
+                case "set":
+                    $length = $connection->query("select", "SELECT `CHARACTER_MAXIMUM_LENGTH`
+                                                                            FROM `information_schema`.`COLUMNS`
+                                                                            WHERE `TABLE_SCHEMA` = ?
+                                                                              AND `TABLE_NAME` = ?
+                                                                              AND `COLUMN_NAME` = ?", $params);
+                    return $length["CHARACTER_MAXIMUM_LENGTH"];
+                    break;
+                case "datetime":
+                case "timestamp":
+                case "time":
+                    $length = $connection->query("select", "SELECT `DATETIME_PRECISION`
+                                                                            FROM `information_schema`.`COLUMNS`
+                                                                            WHERE `TABLE_SCHEMA` = ?
+                                                                              AND `TABLE_NAME` = ?
+                                                                              AND `COLUMN_NAME` = ?", $params);
+                return $length["DATETIME_PRECISION"];
+                    break;
+                default:
+                    return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Returns the name of the database that the current connection is established with.
      *
      * @return string
