@@ -57,10 +57,28 @@ class DatabaseConnection
      *
      * @return string Database error message
      */
-    public function error()
+    public function error(): string
     {
         $connection = $this->connect();
         return $connection->error;
+    }
+
+    /**
+     * Returns the name of the database that the current connection is established with.
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function getTableSchema(): string
+    {
+        $connection = $this->connect();
+
+        $db = $connection->query("select", "SELECT database() AS `db`");
+        if($db) {
+            return $db["db"];
+        } else {
+            throw new Exception("DatabaseConnection->getTableSchema() - Unable to select from database");
+        }
     }
 
     /**
@@ -167,18 +185,6 @@ class DatabaseConnection
             default:
                 return false;
         }
-    }
-
-    /**
-     * Quote and escape value for use in a database query
-     *
-     * @param string $value The value to be quoted and escaped
-     * @return string The quoted and escaped string
-     */
-    public function quote(string $value)
-    {
-        $connection = $this->connect();
-        return "'" . $connection->real_escape_string($value) . "'";
     }
 
     /**

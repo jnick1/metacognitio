@@ -12,19 +12,39 @@ class File
     private const DEFAULT_PATH = "C:/wamp64/www/metacognitio/files";
 
     /**
-     * @var bool
-     */
-    private $active;
-    /**
-     * @var string bytes that make up the file stored as a string
+     * Bytes that make up the file stored as a string.
+     *
+     * @var string
      */
     private $contents;
     /**
+     * Stores the internally-used, hashed, filename of the file.
+     *
+     * @var string
+     */
+    private $internalName;
+    /**
+     * Allow read and write access to file data? (bool)
+     *
+     * @var bool
+     */
+    private $isActive;
+    /**
+     * Indicates if the file is stored in the database
+     *
+     * @var bool
+     */
+    private $isInDatabase;
+    /**
+     * Stores the externally-used, human-readable, filename of the file.
+     *
      * @var string
      */
     private $name;
     /**
-     * @var File
+     * The parent file of this file.
+     *
+     * @var File|null
      */
     private $parent;
 
@@ -37,7 +57,6 @@ class File
         if (method_exists($this, $f = '__construct' . $i)) {
             call_user_func_array(array($this, $f), $a);
         }
-        //TODO: finish implementation of constructors for this class (should probably leave database connectivity to the FileMaster
     }
 
     /**
@@ -47,7 +66,8 @@ class File
      * @param $filename
      * @return string
      */
-    private static function beautify_filename(string $filename): string {
+    private static function beautify_filename(string $filename): string
+    {
         // reduce consecutive characters
         $filename = preg_replace(array(
             // "file   name.zip" becomes "file-name.zip"
@@ -78,7 +98,8 @@ class File
      * @param bool $beautify
      * @return mixed|string
      */
-    private static function filter_filename($filename, $beautify=true): string {
+    private static function filter_filename($filename, $beautify = true): string
+    {
         // sanitize filename
         $filename = preg_replace(
             '~
@@ -100,11 +121,87 @@ class File
     }
 
     /**
+     * Constructor for retrieving existing files from the database.
+     *
+     * @param string $internalName
+     */
+    public function __construct1(string $internalName)
+    {
+        $dbc = new DatabaseConnection();
+        $params = ["s", $internalName];
+        $file = $dbc->query("select", "SELECT * FROM `file` WHERE `pkFilename`=?", $params);
+
+        if ($file) {
+            $this->internalName = $file["pkFilename"];
+            $this->fetchContents();
+            $this->setName($file["nmTitle"]);
+            $this->setIsActive($file["isActive"]);
+            $this->isInDatabase = true;
+            if (isset($file["fkFilename"])) {
+                $this->setParent(new File($file["fkFilename"]));
+            }
+        } else {
+            throw new InvalidArgumentException("File->__construct1($internalName) - Unable to select from database");
+        }
+    }
+
+    /**
+     * Constructor for new files added by user/via interface. Leave $parent as null as desired.
+     *
+     * @param string $name
+     * @param string $contents
+     * @param File|null $parent
+     */
+    public function __construct3(string $name, string $contents, File $parent)
+    {
+        $this->setName($name);
+        $this->setIsActive(true);
+        $this->newInternalName();
+        $this->isInDatabase = false;
+        $this->setParent($parent);
+        $this->setContents($contents);
+    }
+
+    /**
+     * @return bool
+     */
+    public function fetchContents(): bool
+    {
+        if ($this->isActive()) {
+            $this->setContents(file_get_contents(self::DEFAULT_PATH . $this->getInternalName()));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @return string|bool
+     */
+    public function getContents()
+    {
+        if ($this->isActive()) {
+            return $this->contents;
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
      * @return string
      */
-    public function getContents(): string
+    public function getInternalName(): string
     {
-        return $this->contents;
+        return $this->internalName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMimeType(): string
+    {
+        return mime_content_type($this->getName());
     }
 
     /**
@@ -124,27 +221,68 @@ class File
     }
 
     /**
+     * @return File
+     */
+    public function getRootParent(): File
+    {
+        $file = $this;
+        while ($file->getParent() !== null) {
+            $file = $file->getParent();
+        }
+        return $file;
+    }
+
+    /**
      * @return bool
      */
     public function isActive(): bool
     {
-        return $this->active;
+        return $this->isActive;
     }
 
     /**
-     * @param bool $active
+     * @return bool
      */
-    public function setActive(bool $active)
+    public function isInDatabase(): bool
     {
-        $this->active = $active;
+        return $this->isInDatabase;
+    }
+
+    /**
+     * @return bool
+     */
+    public function newInternalName(): bool
+    {
+        if (!$this->isInDatabase()) {
+            $this->internalName = Hasher::randomHash() . substr(strrchr($this->getName(), "."), 1);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * @param string $contents
      */
-    public function setContents(string $contents)
+    public function saveContents(): void
+    {
+        file_put_contents(self::DEFAULT_PATH . $this->getInternalName(), $this->getContents());
+    }
+
+    /**
+     * @param string $contents
+     */
+    public function setContents(string $contents): void
     {
         $this->contents = $contents;
+    }
+
+    /**
+     * @param bool $isActive
+     */
+    public function setIsActive(bool $isActive): void
+    {
+        $this->isActive = $isActive;
     }
 
     /**
@@ -160,17 +298,56 @@ class File
      * @return bool
      * @throws LogicException|InvalidArgumentException
      */
-    public function setParent(File $parent=null): bool
+    public function setParent(File $parent = null): bool
     {
-        if ($parent instanceof File or $parent === null) {
-            if($this != $parent) {
-                $this->parent = $parent;
-                return true;
-            } else {
-                throw new LogicException("File->setParent($parent) - Unable to set File as parent of itself");
-            }
+        if ($this != $parent) {
+            $this->parent = $parent;
+            return true;
         } else {
-            throw new InvalidArgumentException("File->setParent($parent) - Expected User|null: got " . (gettype($parent) == "object" ? get_class($parent) : gettype($parent)));
+            throw new LogicException("File->setParent($parent) - Unable to set File as parent of itself");
+        }
+    }
+
+    /**
+     * @return bool
+     * @throws LogicException
+     */
+    public function updateFromDatabase(): bool
+    {
+        if (!$this->isInDatabase()) {
+            throw new LogicException("File->updateFromDatabase() - Unable to pull from database when File instance is not stored in database");
+        } else {
+            $this->__construct1($this->getInternalName());
+            return true;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function updateToDatabase(): bool
+    {
+        $dbc = new DatabaseConnection();
+        if($this->isInDatabase()) {
+            if($this->getParent() !== null) {
+                $parent = $this->getParent()->getInternalName();
+            } else {
+                $parent = null;
+            }
+            $params = ["ssis", $parent, $this->getName(), $this->isActive(), $this->getInternalName()];
+            $result = $dbc->query("update", "UPDATE `file` SET `fkFilename`=?, `nmTitle`=?, `isActive`=? WHERE `pkFilename` = ?", $params);
+            $this->saveContents();
+            return (bool) $result;
+        } else {
+            if($this->getParent() !== null) {
+                $parent = $this->getParent()->getInternalName();
+            } else {
+                $parent = null;
+            }
+            $params = ["sssi", $this->getInternalName(), $parent, $this->getName(), $this->isActive()];
+            $result = $dbc->query("insert", "INSERT INTO `file`(`pkFilename`, `fkFilename`, `nmTitle`, `isActive`) VALUES (?,?,?,?)", $params);
+            $this->saveContents();
+            return (bool) $result;
         }
     }
 }

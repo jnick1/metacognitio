@@ -7,10 +7,14 @@
 class Controller
 {
 
-    const MODULE_DIR = "pages";
-    const HEADER_FILE = "pages/pageassembly/header.php";
     const FOOTER_FILE = "pages/pageassembly/footer.php";
+    const HEADER_FILE = "pages/pageassembly/header.php";
+    const MODULE_DIR = "pages";
 
+    /**
+     * @var Logger
+     */
+    public static $logger;
     /**
      * @var array file paths from site root to css needed by the page
      */
@@ -65,6 +69,10 @@ class Controller
         $this->setHomeDir();
         $this->CSS = array();
         $this->javaScript = array();
+
+        if(!isset(self::$logger)) {
+            self::$logger = new Logger();
+        }
     }
 
     /**

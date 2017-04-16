@@ -48,26 +48,33 @@ class User
     }
 
     /**
-     * @param string $email
+     * @param string|int $identifier May be either user email or ID
+     * @param int $mode
      * @return null|User
      */
-    public static function load(string $email)
+    public static function load($identifier, int $mode=self::MODE_NAME)
     {
         try {
-            return new User($email);
+            return new User($identifier, $mode);
         } catch (InvalidArgumentException $iae) {
             return null;
         }
     }
 
     /**
-     * @param string $email
+     * @param string|int $identifier
+     * @param int $mode
      */
-    public function __construct1(string $email)
+    public function __construct2($identifier, int $mode=self::MODE_NAME)
     {
         $dbc = new DatabaseConnection();
-        $params = ["s", $email];
-        $user = $dbc->query("select", "SELECT * FROM `user` WHERE `txEmail`=?", $params);
+        if($mode === self::MODE_DBID) {
+            $params = ["i", $identifier];
+            $user = $dbc->query("select", "SELECT * FROM `user` WHERE `pkUserID`=?", $params);
+        } else {
+            $params = ["s", $identifier];
+            $user = $dbc->query("select", "SELECT * FROM `user` WHERE `txEmail`=?", $params);
+        }
 
         if ($user) {
             $params = ["i", $user["fkProvinceID"]];
@@ -108,7 +115,7 @@ class User
             }
 
         } else {
-            throw new InvalidArgumentException("User not found");
+            throw new InvalidArgumentException("User->__construct2($identifier, $mode) - User not found");
         }
     }
 
@@ -154,7 +161,7 @@ class User
                 $this->permissions = [];
                 $this->isInDatabase = false;
                 if (!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14)) {
-                    throw new InvalidArgumentException($r4);
+                    throw new InvalidArgumentException("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Error in setting internal variables");
                 }
             }
         } else {
