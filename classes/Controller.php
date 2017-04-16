@@ -68,6 +68,7 @@ class Controller
     }
 
     /**
+     * A function to check for potentially dangerous inputs to forms
      * @param $value
      * @return string
      */
@@ -93,6 +94,7 @@ class Controller
     }
 
     /**
+     * Push new CSS into the local CSS specifi  cation
      * @param string $CSS
      * @return int|bool
      */
@@ -107,6 +109,7 @@ class Controller
     }
 
     /**
+     * Push new javascript into the local js.js specifi  cation
      * @param string $javaScript
      * @return int|bool
      */
@@ -161,6 +164,7 @@ class Controller
     }
 
     /**
+     *
      * @return bool
      */
     public function initModuleDir()
@@ -218,6 +222,7 @@ class Controller
     }
 
     /**
+     * A middle-man to handle requests of the http variety
      * @return bool
      */
     public function processREQUEST()

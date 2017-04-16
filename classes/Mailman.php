@@ -11,16 +11,28 @@ class Mailman {
     private $address = "noreply@example.com";
 
     /**
+     * Sends an email to the user with a link to a password reset page.
      * @param User $user
      */
     public function mailpasswordreset(User $user)
     {
         //TODO: dependency on frontend password reset page?
     }
+
+    /**
+     * Creates a meeting notice, and notifies all affiliated users by mail.
+     */
     public function mailmeeting()
     {
         //TODO: dependency on iCal/timeanddate functionality
     }
+
+    /**
+     * Sends mail to an author confirming their submission of a piece to the system
+     * @param string $title
+     * @param string $user
+     * @param string $email
+     */
     public function confirmsubmission(string $title, string $user, string $email)
     {
         $date = getdate();

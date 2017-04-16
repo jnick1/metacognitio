@@ -49,6 +49,7 @@ class User
     }
 
     /**
+     * Constructs a new user based on a given email
      * @param string $email
      * @return null|User
      */
@@ -62,6 +63,7 @@ class User
     }
 
     /**
+     * Build permissions for a user
      * @param string $email
      */
     public function __construct1(string $email)
@@ -96,7 +98,7 @@ class User
                     $r16 = $this->setIsActive($user["isActive"]);
                     $this->isInDatabase = true;
                     if (!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14 and $r15 and $r16)) {
-                        throw new InvalidArgumentException();
+                        throw new InvalidArgumentException(); // does php have andmap? jeez
                     }
                 }
             }
@@ -163,6 +165,7 @@ class User
     }
 
     /**
+     * Adds a permission to the user's permissions.
      * @param Permission $permission
      * @return bool|int
      * @throws InvalidArgumentException()
