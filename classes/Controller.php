@@ -96,6 +96,7 @@ class Controller
     }
 
     /**
+     * Flags a user as logged in
      * @param User|null $user
      * @return bool
      */
@@ -231,7 +232,7 @@ class Controller
     }
 
     /**
-     *
+     * Prints javascript, favicon, CSS, and page title
      */
     public function printHead()
     {

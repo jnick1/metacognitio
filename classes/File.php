@@ -323,6 +323,7 @@ class File
     }
 
     /**
+     * Push updated local content to the database
      * @return bool
      */
     public function updateToDatabase(): bool
