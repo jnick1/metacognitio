@@ -9,7 +9,7 @@
 class File
 {
 
-    private const DEFAULT_PATH = "C:/wamp64/www/metacognitio/files";
+    const DEFAULT_PATH = "C:/wamp64/www/metacognitio/files/";
 
     /**
      * Bytes that make up the file stored as a string.
@@ -54,6 +54,9 @@ class File
         //http://php.net/manual/en/language.oop5.decon.php
         $a = func_get_args();
         $i = func_num_args();
+        if ($i > 2) {
+            $i = 2;
+        }
         if (method_exists($this, $f = '__construct' . $i)) {
             call_user_func_array(array($this, $f), $a);
         }
@@ -152,12 +155,12 @@ class File
      * @param string $contents
      * @param File|null $parent
      */
-    public function __construct3(string $name, string $contents, File $parent)
+    public function __construct2(string $name, string $contents, File $parent = null)
     {
         $this->setName($name);
         $this->setIsActive(true);
-        $this->newInternalName();
         $this->isInDatabase = false;
+        $this->newInternalName();
         $this->setParent($parent);
         $this->setContents($contents);
     }
@@ -254,7 +257,7 @@ class File
     public function newInternalName(): bool
     {
         if (!$this->isInDatabase()) {
-            $this->internalName = Hasher::randomHash() . substr(strrchr($this->getName(), "."), 1);
+            $this->internalName = Hasher::randomHash() . substr(strrchr($this->getName(), "."), 0);
             return true;
         } else {
             return false;
@@ -291,6 +294,7 @@ class File
     public function setName(string $name): bool
     {
         $this->name = File::filter_filename($name);
+        return true;
     }
 
     /**
@@ -329,8 +333,8 @@ class File
     public function updateToDatabase(): bool
     {
         $dbc = new DatabaseConnection();
-        if($this->isInDatabase()) {
-            if($this->getParent() !== null) {
+        if ($this->isInDatabase()) {
+            if ($this->getParent() !== null) {
                 $parent = $this->getParent()->getInternalName();
             } else {
                 $parent = null;
@@ -338,9 +342,9 @@ class File
             $params = ["ssis", $parent, $this->getName(), $this->isActive(), $this->getInternalName()];
             $result = $dbc->query("update", "UPDATE `file` SET `fkFilename`=?, `nmTitle`=?, `isActive`=? WHERE `pkFilename` = ?", $params);
             $this->saveContents();
-            return (bool) $result;
+            return (bool)$result;
         } else {
-            if($this->getParent() !== null) {
+            if ($this->getParent() !== null) {
                 $parent = $this->getParent()->getInternalName();
             } else {
                 $parent = null;
@@ -348,7 +352,7 @@ class File
             $params = ["sssi", $this->getInternalName(), $parent, $this->getName(), $this->isActive()];
             $result = $dbc->query("insert", "INSERT INTO `file`(`pkFilename`, `fkFilename`, `nmTitle`, `isActive`) VALUES (?,?,?,?)", $params);
             $this->saveContents();
-            return (bool) $result;
+            return (bool)$result;
         }
     }
 }

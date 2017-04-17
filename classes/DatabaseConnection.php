@@ -84,20 +84,20 @@ class DatabaseConnection
         $connection = $this->connect();
 
         $params = ["sss", $this->getTableSchema(), $table, $column];
-        $type = $connection->query("select", "SELECT `DATA_TYPE` 
+        $type = $this->query("select", "SELECT `DATA_TYPE` 
                                                               FROM `information_schema`.`COLUMNS` 
                                                               WHERE `TABLE_SCHEMA` = ? 
                                                                 AND `TABLE_NAME` = ?
                                                                 AND `COLUMN_NAME` = ?", $params);
         if($type) {
-            switch($type["DATE_TYPE"]) {
+            switch($type["DATA_TYPE"]) {
                 case "tinyint":
                 case "smallint":
                 case "mediumint":
                 case "int":
                 case "bigint":
                 case "bit":
-                    $length = $connection->query("select", "SELECT `NUMERIC_PRECISION`
+                    $length = $this->query("select", "SELECT `NUMERIC_PRECISION`
                                                                             FROM `information_schema`.`COLUMNS`
                                                                             WHERE `TABLE_SCHEMA` = ?
                                                                               AND `TABLE_NAME` = ?
@@ -107,7 +107,7 @@ class DatabaseConnection
                 case "decimal":
                 case "float":
                 case "double":
-                    $length = $connection->query("select", "SELECT `NUMERIC_PRECISION`, `NUMERIC_SCALE`
+                    $length = $this->query("select", "SELECT `NUMERIC_PRECISION`, `NUMERIC_SCALE`
                                                                             FROM `information_schema`.`COLUMNS`
                                                                             WHERE `TABLE_SCHEMA` = ?
                                                                               AND `TABLE_NAME` = ?
@@ -128,7 +128,7 @@ class DatabaseConnection
                 case "longblob":
                 case "enum":
                 case "set":
-                    $length = $connection->query("select", "SELECT `CHARACTER_MAXIMUM_LENGTH`
+                    $length = $this->query("select", "SELECT `CHARACTER_MAXIMUM_LENGTH`
                                                                             FROM `information_schema`.`COLUMNS`
                                                                             WHERE `TABLE_SCHEMA` = ?
                                                                               AND `TABLE_NAME` = ?
@@ -138,7 +138,7 @@ class DatabaseConnection
                 case "datetime":
                 case "timestamp":
                 case "time":
-                    $length = $connection->query("select", "SELECT `DATETIME_PRECISION`
+                    $length = $this->query("select", "SELECT `DATETIME_PRECISION`
                                                                             FROM `information_schema`.`COLUMNS`
                                                                             WHERE `TABLE_SCHEMA` = ?
                                                                               AND `TABLE_NAME` = ?
@@ -163,7 +163,7 @@ class DatabaseConnection
     {
         $connection = $this->connect();
 
-        $db = $connection->query("select", "SELECT database() AS `db`");
+        $db = $this->query("select", "SELECT database() AS `db`");
         if($db) {
             return $db["db"];
         } else {

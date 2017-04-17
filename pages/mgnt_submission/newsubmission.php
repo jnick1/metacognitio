@@ -5,7 +5,7 @@ include "../../autoload.php";
 $controller = new Controller("New Submission");
 $controller->initModuleDir();
 $controller->processREQUEST();
-$controller->addCSS($controller->getModuleDir() . "/css/submission.min.css");
+$controller->addCSS($controller->getModuleDir() . "/css/newsubmission.min.css");
 $controller->addCSS("java/lib/jquery-ui/jquery-ui.css");
 $controller->addCSS("java/lib/jquery-dropdown/jquery.dropdown.min.css");
 $controller->addJavaScript("java/lib/jquery/jQuery.min.js");
@@ -30,7 +30,7 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                                     <div style="background-color: #333333; color: #FFFFFF; padding: 3px; text-align: center;">
                                         <b>New Submission</b></div>
                                     <div style="margin: 30px">
-                                        <form action="" method="post">
+                                        <form action="" method="post" enctype="multipart/form-data">
                                             <label style="font-size: small">
                                                 Title:
                                                 <input class="tbox" name="title" style="width: 238px; height: 25px; padding-left: 5px;" type="text">
@@ -49,7 +49,7 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                                             </label>
                                             <label style="font-size: small">
                                                 Page Count:<br>
-                                                <input class="tbox" name="pageCount" style="width: 40px; height: 25px; padding-left: 5px;" type="text"><br>
+                                                <input class="tbox" name="pageCount" style="width: 40px; height: 25px; padding-left: 5px;" type="number"><br>
                                             </label>
                                             <label style="font-size: small">
                                                 Upload:

@@ -36,6 +36,10 @@ class Submission
      */
     private $form;
     /**
+     * @var bool
+     */
+    private $isInDatabase;
+    /**
      * @var File
      */
     private $licenseFile;
@@ -63,10 +67,6 @@ class Submission
      * @var string
      */
     private $title;
-    /**
-     * @var bool
-     */
-    private $isInDatabase;
 
     /**
      * Submission constructor.
@@ -82,9 +82,31 @@ class Submission
         }
     }
 
+    /**
+     * @param int $submissionID
+     * @throws Exception
+     */
     public function __construct1(int $submissionID)
     {
-        //TODO: finish implementation (load from database)
+        $dbc = new DatabaseConnection();
+        $params = ["i", $submissionID];
+        $submission = $dbc->query("select", "SELECT * FROM `submission` WHERE `pkSubmissionID` = ?", $params);
+        if ($submission) {
+            $this->setSubmissionID($submission["pkSubmissionID"]);
+            $this->setAdditionalAuthors($submission["txAdditionalAuthors"]);
+            $this->setAuthor(new User($submission["fkAuthorID"], User::MODE_DBID));
+            $this->setFile(new File($submission["fkFilename"]));
+            $this->setForm($submission["fkFormID"], self::MODE_ID);
+            $this->isInDatabase = true;
+            $this->setLicenseFile(new File($submission["fkLicenseFile"]));
+            $this->setPageCount($submission["nPageCount"]);
+            $this->setPublication(new Publication($submission["fkPublicationID"]));
+            $this->setRating($submission["nRating"]);
+            $this->setStatus($submission["enStatus"]);
+            $this->setTitle($submission["nmTitle"]);
+        } else {
+            throw new Exception("Submission->__construct1($submissionID) - Unable to select from database");
+        }
     }
 
     /**
@@ -96,7 +118,7 @@ class Submission
      * @param Publication $publication
      * @param string $title
      */
-    public function __construct7(string $additionalAuthors, User $author, File $file, string $form, int $pageCount, Publication $publication, string $title)
+    public function __construct7(string $additionalAuthors, User $author, File $file, string $form, int $pageCount, string $title, Publication $publication=null)
     {
         $this->setTitle($title);
         $this->setAdditionalAuthors($additionalAuthors);
@@ -105,6 +127,7 @@ class Submission
         $this->setForm($form);
         $this->setPageCount($pageCount);
         $this->setPublication($publication);
+        $this->setStatus(self::STATUS_INITIAL);
         $this->isInDatabase = false;
     }
 
@@ -136,9 +159,9 @@ class Submission
      * @param int $mode
      * @return string|int
      */
-    public function getForm(int $mode=self::MODE_NAME)
+    public function getForm(int $mode = self::MODE_NAME)
     {
-        switch($mode) {
+        switch ($mode) {
             case self::MODE_ID:
                 return $this->form["id"];
                 break;
@@ -151,9 +174,9 @@ class Submission
     }
 
     /**
-     * @return File
+     * @return File|null
      */
-    public function getLicenseFile(): File
+    public function getLicenseFile()
     {
         return $this->licenseFile;
     }
@@ -175,9 +198,9 @@ class Submission
     }
 
     /**
-     * @return float
+     * @return float|null
      */
-    public function getRating(): float
+    public function getRating()
     {
         return $this->rating;
     }
@@ -250,26 +273,24 @@ class Submission
      * @param int $mode
      * @return bool
      */
-    public function setForm($form, int $mode=self::MODE_NAME): bool
+    public function setForm($form, int $mode = self::MODE_NAME): bool
     {
         $dbc = new DatabaseConnection();
-        if($mode === self::MODE_ID) {
-            $result = $dbc->query("select multiple", "SELECT `pkFormID` FROM `form`");
-            $forms = [];
-            foreach($result as $r) {
-                $forms[] = $r["pkFormID"];
-            }
-        } else if($mode === self::MODE_NAME) {
-            $result = $dbc->query("select multiple", "SELECT `nmTitle` FROM `form`");
-            $forms = [];
-            foreach($result as $r) {
-                $forms[] = $r["nmTitle"];
-            }
+        if ($mode === self::MODE_ID) {
+            $params = ["i", $form];
+            $result = $dbc->query("select", "SELECT * FROM `form` WHERE `pkFormID` = ?", $params);
+        } else if ($mode === self::MODE_NAME) {
+            $params = ["s", $form];
+            $result = $dbc->query("select", "SELECT * FROM `form` WHERE `nmTitle` = ?", $params);
         } else {
             return false;
         }
-        if(in_array($form, $forms)) {
-            $this->form = $form;
+        if ($result) {
+            $this->form = [
+                "id" => $result["pkFormID"],
+                "name" => $result["nmTitle"],
+                "description" => $result["txDescription"]
+            ];
             return true;
         } else {
             return false;
@@ -292,7 +313,7 @@ class Submission
     {
         $dbc = new DatabaseConnection();
         $maxLength = $dbc->getMaximumLength("submission", "nPageCount");
-        if(strlen($pageCount) <= $maxLength) {
+        if (strlen($pageCount) <= $maxLength) {
             $this->pageCount = $pageCount;
             return true;
         } else {
@@ -360,17 +381,93 @@ class Submission
     /**
      * @return bool
      */
-    public function updateToDatabase(): bool
+    public function updateFromDatabase(): bool
     {
-        //TODO: finish implementation.
+        if ($this->isInDatabase()) {
+            $this->__construct1($this->getSubmissionID());
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * @return bool
      */
-    public function updateFromDatabase(): bool
+    public function updateToDatabase(): bool
     {
-        //TODO: finish implementation.
+        $dbc = new DatabaseConnection();
+        $file = $this->getFile() === null ? null : $this->getFile()->getInternalName();
+        $licenseFile = $this->getLicenseFile() === null ? null : $this->getLicenseFile()->getInternalName();
+        $publication = $this->getPublication() === null ? null : $this->getPublication()->getPublicationID();
+
+        if ($this->isInDatabase()) {
+            $params = [
+                "sisisiidssi",
+                $this->getTitle(),
+                $this->getAuthor()->getUserID(),
+                $file,
+                $this->getForm(self::MODE_ID),
+                $licenseFile,
+                $publication,
+                $this->getPageCount(),
+                $this->getRating(),
+                $this->getStatus(),
+                $this->getAdditionalAuthors(),
+                $this->getSubmissionID()
+            ];
+            $result = $dbc->query("update", "UPDATE `submission` SET 
+                                                          `nmTitle` = ?, 
+                                                          `fkAuthorID` = ?, 
+                                                          `fkFilename` = ?, 
+                                                          `fkFormID` = ?, 
+                                                          `fkLicenseFile` = ?,
+                                                          `fkPublicationID` = ?,
+                                                          `nPageCount` = ?,
+                                                          `nRating` = ?,
+                                                          `enStatus` = ?,
+                                                          `txAdditionalAuthors` = ?
+                                                           WHERE `pkSubmissionID` = ?", $params);
+        } else {
+            $params = [
+                "sisisiidss",
+                $this->getTitle(),
+                $this->getAuthor()->getUserID(),
+                $file,
+                $this->getForm(self::MODE_ID),
+                $licenseFile,
+                $publication,
+                $this->getPageCount(),
+                $this->getRating(),
+                $this->getStatus(),
+                $this->getAdditionalAuthors()
+            ];
+            $result = $dbc->query("insert", "INSERT INTO `submission` 
+                                                        (`pkSubmissionID`, `nmTitle`, `fkAuthorID`, `fkFilename`, 
+                                                        `fkFormID`, `fkLicenseFile`, `fkPublicationID`, `nPageCount`,
+                                                        `nRating`, `enStatus`, `txAdditionalAuthors`) VALUES (NULL,?,?,?,?,?,?,?,?,?,?)", $params);
+            $submission = $dbc->query("select", "SELECT LAST_INSERT_ID() AS `id`");
+            if ($submission) {
+                $this->setSubmissionID($submission["id"]);
+            }
+            $result = ($result and $submission);
+        }
+        return (bool)$result;
+    }
+
+    /**
+     * @param int $submissionID
+     * @return bool
+     */
+    private function setSubmissionID(int $submissionID): bool
+    {
+        $dbc = new DatabaseConnection();
+        if (strlen($submissionID) <= $dbc->getMaximumLength("submission", "pkSubmissionID")) {
+            $this->submissionID = $submissionID;
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

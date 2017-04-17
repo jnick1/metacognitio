@@ -8,5 +8,16 @@
  */
 class Publication
 {
-    //TODO: any implementation for this class
+
+
+    public function __construct()
+    {
+        //TODO: any implementation
+    }
+
+    public function getPublicationID(): int
+    {
+        //TODO: proper implementation
+        return 0;
+    }
 }

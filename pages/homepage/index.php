@@ -32,6 +32,7 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                 <article id="post-8" class="single-post post-8 page type-page status-publish hentry">
                     <div class="entry-content">
                         <h1 class="page-title"></h1>
+                        <?php if(!Controller::isUserLoggedIn()) { ?>
                         <div align="center">
                             <div align="center">
                                 <div align="left" style="width: 300px; border: solid 1px #333333;">
@@ -58,6 +59,7 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                                 </div>
                             </div>
                         </div>
+                        <?php } ?>
                     </div>
                 </article>
             </div>

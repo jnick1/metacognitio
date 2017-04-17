@@ -268,7 +268,12 @@ class Serial
                 $this->getTitle(),
                 $this->getIterationName()
             ];
-            $result = $dbc->query("insert", "INSERT INTO `serial` (`pkSerialID`, `idISSN`, `nmTitle`, `enIterationName`) VALUES (?,?,?,?)", $params);
+            $result = $dbc->query("insert", "INSERT INTO `serial` (`pkSerialID`, `idISSN`, `nmTitle`, `enIterationName`) VALUES (NULL,?,?,?)", $params);
+            $serial = $dbc->query("select", "SELECT LAST_INSERT_ID() AS `id`");
+            if ($serial) {
+                $this->setSerialID($serial["id"]);
+            }
+            $result = ($result and $serial);
         }
         return (bool)$result;
     }

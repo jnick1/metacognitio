@@ -301,7 +301,7 @@ class User
      * @param int $identifier
      * @return string|int
      */
-    public function getProvince(int $identifier = self::MODE_NAME)
+    public function getProvince(int $identifier =  self::MODE_NAME)
     {
         $identifier = strtolower($identifier);
         switch ($identifier) {
@@ -449,7 +449,7 @@ class User
 
             if ($result) {
                 if (isset($this->province)) {
-                    $params = ["s", $this->getProvince("idISO")];
+                    $params = ["s", $this->getProvince(self::MODE_ISO)];
                     $result2 = $dbc->query("select", "SELECT * FROM `province` WHERE `idISO`=?", $params);
                     if ($result2) {
                         $params = ["i", $result2["fkCountryID"]];

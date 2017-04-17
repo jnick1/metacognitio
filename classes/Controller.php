@@ -419,6 +419,12 @@ class Controller
                 ];
                 call_user_func_array("Authenticator::register", $args);
                 break;
+            /**
+             * Required POST variables for this case:
+             *      requestType : "login"
+             *            email : string
+             *         password : string
+             */
             case "login":
                 $args = [
                     $this->scrubbed["email"],
@@ -426,10 +432,36 @@ class Controller
                 ];
                 call_user_func_array("Authenticator::authenticate", $args);
                 break;
+            /**
+             * Required POST variables for this case:
+             *      requestType : "logout"
+             */
             case "logout":
                 Authenticator::logout();
                 break;
+            /**
+             * Required POST variables for this case:
+             *       requestType : "submit"
+             *             title : string
+             * additionalAuthors : string
+             *       publication : string
+             *              form : string
+             *         pageCount : int
+             * Required FILES variables for this case:
+             *              file : array
+             */
             case "submit":
+                $submission = new Submission(
+                    $this->scrubbed["additionalAuthors"],
+                    self::getLoggedInUser(),
+                    new File($_FILES["file"]["name"], ""),
+                    $this->scrubbed["form"],
+                    $this->scrubbed["pageCount"],
+                    $this->scrubbed["title"],
+                    null
+                );
+                move_uploaded_file($_FILES['file']['tmp_name'], File::DEFAULT_PATH.$submission->getFile()->getInternalName());
+                $submission->updateToDatabase();
                 break;
         }
         return true; //temporary return value
