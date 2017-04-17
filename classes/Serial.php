@@ -14,6 +14,10 @@ class Serial
      */
     private $ISSN;
     /**
+     * @var bool
+     */
+    private $isInDatabase;
+    /**
      * @var string
      */
     private $iterationName;
@@ -49,6 +53,8 @@ class Serial
     }
 
     /**
+     * Constructs new Serial object from preexisting data in database.
+     *
      * @param int $serialID
      */
     public function __construct1(int $serialID)
@@ -56,7 +62,20 @@ class Serial
         $dbc = new DatabaseConnection();
         $params = ["i", $serialID];
         $serial = $dbc->query("select", "SELECT * FROM `serial` WHERE `pkSerialID` = ?", $params);
-        //TODO: finish implementation (for pulling serial info from database)
+        if ($serial) {
+            $this->setSerialID($serialID);
+            $this->setISSN($serial["idISSN"]);
+            $this->setIterationName($serial["enIterationName"]);
+            $this->setTitle($serial["nmTitle"]);
+            $this->publications = [];
+            $this->isInDatabase = true;
+            $publications = $dbc->query("select multiple", "SELECT `pkPublicationID` FROM `publication` WHERE `fkSerialID` = ?", $params);
+            if (count($publications) > 0) {
+                foreach ($publications as $pub) {
+                    $this->addPublication(new Publication($pub["pkPublicationID"]));
+                }
+            }
+        }
     }
 
     /**
@@ -66,7 +85,11 @@ class Serial
      */
     public function __construct2(string $title, string $iterationName, string $ISSN = null)
     {
-        //TODO: finish implementation (for creating new serials)
+        $this->setTitle($title);
+        $this->setIterationName($iterationName);
+        $this->setISSN($ISSN);
+        $this->publications = [];
+        $this->isInDatabase = false;
     }
 
     /**
@@ -131,6 +154,14 @@ class Serial
     public function getTitle(): string
     {
         return $this->title;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInDatabase(): bool
+    {
+        return $this->isInDatabase;
     }
 
     /**
@@ -207,7 +238,12 @@ class Serial
      */
     public function updateFromDatabase(): bool
     {
-        //TODO: implementation
+        if ($this->isInDatabase()) {
+            $this->__construct1($this->getSerialID());
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -215,7 +251,26 @@ class Serial
      */
     public function updateToDatabase(): bool
     {
-        //TODO: implementation
+        $dbc = new DatabaseConnection();
+        if ($this->isInDatabase()) {
+            $params = [
+                "sssi",
+                $this->getISSN(),
+                $this->getTitle(),
+                $this->getIterationName(),
+                $this->getSerialID()
+            ];
+            $result = $dbc->query("update", "UPDATE `serial` SET `idISSN` = ?, `nmTitle` = ?, `enIterationName` = ? WHERE `pkSerialID` = ?", $params);
+        } else {
+            $params = [
+                "sss",
+                $this->getISSN(),
+                $this->getTitle(),
+                $this->getIterationName()
+            ];
+            $result = $dbc->query("insert", "INSERT INTO `serial` (`pkSerialID`, `idISSN`, `nmTitle`, `enIterationName`) VALUES (?,?,?,?)", $params);
+        }
+        return (bool)$result;
     }
 
     /**
