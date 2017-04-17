@@ -48,6 +48,8 @@ class User
     }
 
     /**
+     * Loads a user from the database.
+     *
      * @param string|int $identifier May be either user email or ID
      * @param int $mode
      * @return null|User
@@ -62,8 +64,11 @@ class User
     }
 
     /**
+     * User Constructor (2 arguments).
+     *
      * @param string|int $identifier
      * @param int $mode
+     *
      */
     public function __construct2($identifier, int $mode=self::MODE_NAME)
     {
@@ -103,7 +108,7 @@ class User
                     $this->isInDatabase = true;
                     $this->permissions = [];
                     if (!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14 and $r15 and $r16)) {
-                        throw new InvalidArgumentException();
+                        throw new InvalidArgumentException(); // does php have andmap? jeez
                     }
                 }
             }
@@ -170,6 +175,7 @@ class User
     }
 
     /**
+     * Adds a permission to the user's permissions.
      * @param Permission $permission
      * @return bool|int
      * @throws InvalidArgumentException()

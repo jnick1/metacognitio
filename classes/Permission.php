@@ -24,6 +24,11 @@ class Permission
     private $name;
     private $permissionID;
 
+    /**
+     * Permission constructor.
+     * @param int $permissionID
+     * @throws Exception
+     */
     public function __construct(int $permissionID)
     {
         $options = [
@@ -49,6 +54,7 @@ class Permission
     }
 
     /**
+     *
      * @return mixed
      */
     public function getDescription()

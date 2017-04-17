@@ -11,6 +11,7 @@ class Authenticator
 {
 
     /**
+     * Verifies whether the supplied credentials represent a valid user in the system
      * @param string $email
      * @param string $password
      * @return bool
@@ -74,6 +75,8 @@ class Authenticator
     }
 
     /**
+     * Takes a new user's information and registers the user within the system.
+     * The returned boolean confirms the success of the registration.
      * @param string $fName
      * @param string $lName
      * @param string $email
@@ -113,6 +116,7 @@ class Authenticator
     }
 
     /**
+     * Checks whether the given user is registered in the system.
      * @param User $user
      * @return bool
      * @throws TypeError
