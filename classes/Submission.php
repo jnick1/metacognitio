@@ -63,6 +63,50 @@ class Submission
      * @var string
      */
     private $title;
+    /**
+     * @var bool
+     */
+    private $isInDatabase;
+
+    /**
+     * Submission constructor.
+     */
+    public function __construct()
+    {
+        //This segment of code originally written by rayro@gmx.de
+        //http://php.net/manual/en/language.oop5.decon.php
+        $a = func_get_args();
+        $i = func_num_args();
+        if (method_exists($this, $f = '__construct' . $i)) {
+            call_user_func_array(array($this, $f), $a);
+        }
+    }
+
+    public function __construct1(int $submissionID)
+    {
+        //TODO: finish implementation (load from database)
+    }
+
+    /**
+     * @param string $additionalAuthors
+     * @param User $author
+     * @param File $file
+     * @param string $form
+     * @param int $pageCount
+     * @param Publication $publication
+     * @param string $title
+     */
+    public function __construct7(string $additionalAuthors, User $author, File $file, string $form, int $pageCount, Publication $publication, string $title)
+    {
+        $this->setTitle($title);
+        $this->setAdditionalAuthors($additionalAuthors);
+        $this->setAuthor($author);
+        $this->setFile($file);
+        $this->setForm($form);
+        $this->setPageCount($pageCount);
+        $this->setPublication($publication);
+        $this->isInDatabase = false;
+    }
 
     /**
      * @return string
@@ -160,6 +204,14 @@ class Submission
     public function getTitle(): string
     {
         return $this->title;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInDatabase(): bool
+    {
+        return $this->isInDatabase;
     }
 
     /**
@@ -303,6 +355,22 @@ class Submission
         } else {
             return false;
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function updateToDatabase(): bool
+    {
+        //TODO: finish implementation.
+    }
+
+    /**
+     * @return bool
+     */
+    public function updateFromDatabase(): bool
+    {
+        //TODO: finish implementation.
     }
 
 }

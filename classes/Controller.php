@@ -9,6 +9,8 @@ class Controller
 
     const FOOTER_FILE = "pages/pageassembly/footer.php";
     const HEADER_FILE = "pages/pageassembly/header.php";
+    const MODE_COMP_AND = 2;
+    const MODE_COMP_OR = 1;
     const MODULE_DIR = "pages";
 
     /**
@@ -338,6 +340,35 @@ class Controller
     }
 
     /**
+     * Indicates whether the current user has any or all of the required permissions  listed in $permissions.
+     * The use of either "any" or "all" depends on the comparison mode, specified by $mode.
+     * $permissions must be an array of Permission objects.
+     *
+     * @param array $permissions
+     * @param int $mode
+     * @return bool
+     */
+    public function userHasAccess(array $permissions, int $mode=self::MODE_COMP_AND): bool
+    {
+        $user = self::getLoggedInUser();
+        if(isset($user) and $mode === self::MODE_COMP_AND) {
+            $result = true;
+            foreach($permissions as $perm) {
+                $result = ($result and $user->hasPermission($perm));
+            }
+            return $result;
+        } else if(isset($user) and $mode === self::MODE_COMP_OR) {
+            $result = false;
+            foreach($permissions as $perm) {
+                $result = ($result or $user->hasPermission($perm));
+            }
+            return $result;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * @return bool
      */
     private function processGET()
@@ -397,6 +428,8 @@ class Controller
                 break;
             case "logout":
                 Authenticator::logout();
+                break;
+            case "submit":
                 break;
         }
         return true; //temporary return value

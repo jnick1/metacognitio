@@ -4,17 +4,26 @@
             <ul id="menu-main-menu" class="menu">
                 <li id="menu-item-15" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20">
                     <a href="<?php echo $controller->getHomeDir(); ?>">Home</a></li>
+                <?php if(Controller::isUserLoggedIn()) { ?>
                 <li id="menu-item-20" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20">
                     <a href="<?php echo $controller->getHomeDir() . "pages/dashboard/dashboard.php"; ?>">Dashboard</a>
                 </li>
-                <li id="menu-item-45"
-                    class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-8 current_page_item menu-item-45">
-                    <a href="<?php echo $controller->getHomeDir() . "pages/createaccount/createaccount.php"; ?>">Create
-                        Account</a></li>
+                <li id="menu-item-20" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20">
+                    <a href="<?php echo $controller->getHomeDir() . "pages/mgnt_account/accountpreferences.php"; ?>">My Account</a>
+                </li>
+                <?php } if($controller->userHasAccess([new Permission(Permission::PERMISSION_AUTHOR)])) { ?>
+                <li id="menu-item-20" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20">
+                    <a href="<?php echo $controller->getHomeDir() . "pages/mgnt_submission/newsubmission.php"; ?>">New Submission</a>
+                </li>
+                <?php } if(!Controller::isUserLoggedIn()) { ?>
+                <li id="menu-item-45" class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-8 current_page_item menu-item-45">
+                    <a href="<?php echo $controller->getHomeDir() . "pages/createaccount/createaccount.php"; ?>">Create Account</a>
+                </li>
+                <?php } ?>
             </ul>
         </div>
         <?php
-        if(Controller::isUserLoggedIn()) {
+        if (Controller::isUserLoggedIn()) {
             ?>
             <div class="menu-main-menu-container">
                 <form action="<?php echo $controller->getHomeDir(); ?>" method="post">
