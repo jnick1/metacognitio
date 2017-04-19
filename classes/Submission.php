@@ -118,7 +118,7 @@ class Submission
      * @param Publication $publication
      * @param string $title
      */
-    public function __construct7(string $additionalAuthors, User $author, File $file, string $form, int $pageCount, string $title, Publication $publication=null)
+    public function __construct7(string $additionalAuthors, User $author, File $file, string $form, int $pageCount, string $title, Publication &$publication=null)
     {
         $this->setTitle($title);
         $this->setAdditionalAuthors($additionalAuthors);
@@ -349,6 +349,7 @@ class Submission
 
     /**
      * @param string $status
+     * @return bool
      */
     public function setStatus(string $status): bool
     {
@@ -366,6 +367,7 @@ class Submission
 
     /**
      * @param string $title
+     * @return bool
      */
     public function setTitle(string $title): bool
     {
