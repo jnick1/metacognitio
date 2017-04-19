@@ -14,48 +14,77 @@ class Controller
     const MODULE_DIR = "pages";
 
     /**
+     * Log manager that should persist across multiple instances of the Controller class. Allows recordkeeping of events
+     * across the site.
+     *
      * @var Logger
      */
     public static $logger;
     /**
-     * @var array file paths from site root to css needed by the page
+     * An array of stings containing relative file paths (starting without a directory separator) that point towards CSS
+     * files. Each Controller instance's $CSS variable should hold the paths to all css files required for use in the
+     * page that each Controller manages.
+     *
+     * @var array [string]
      */
     private $CSS;
     /**
-     * @var DatabaseConnection Page-wide connection to the database
+     * Page-wide connection to the database. To be used throughout the Controller class, instead of continually
+     * instantiating new instances of DatabaseConnection.
+     *
+     * @var DatabaseConnection
      */
     private $dbc;
     /**
+     * String containing the relative file path to the image file which stores the favicon for the site.
+     *
      * @var string
      */
     private $favicon;
     /**
+     * Relative path to the root directory of the site (of the site, not the web-server)
+     *
      * @var string
      */
     private $homeDir;
     /**
-     * @var array file paths from site root to javascript needed by the page
+     * An array of stings containing relative file paths (starting without a directory separator) that point towards JS
+     * files. Each Controller instance's $javaScript variable should hold the paths to all JS files required for use in
+     * the page that each Controller manages.
+     *
+     * @var array
      */
     private $javaScript;
     /**
+     * String containing a relative path to the subdirectory of the "pages" directory that the current page lies within.
+     *
      * @var string
      */
     private $moduleDir;
     /**
+     * String containing the title of the current page as indicated in tab titles in web browsers.
+     *
      * @var string
      */
     private $pageTitle;
     /**
+     * An array that contains the output of the spamScrubber function after it has been applied to the content of an
+     * HTTP POST or HTTP GET request.
+     *
      * @var array
      */
     private $scrubbed;
     /**
+     * Integer storing a counter that can be used to indicate the order that the user will traverse inputs by pressing
+     * the tab key.
+     *
      * @var int
      */
     private $tabIncrement;
 
     /**
-     * Controller constructor.
+     * Controller constructor. A new Constructor instance should be created on each page in the site.
+     *
      * @param string $pageTitle
      */
     public function __construct(string $pageTitle)
@@ -72,12 +101,14 @@ class Controller
         $this->CSS = array();
         $this->javaScript = array();
 
-        if(!isset(self::$logger)) {
+        if (!isset(self::$logger)) {
             self::$logger = new Logger();
         }
     }
 
     /**
+     * Returns the currently logged in user's User object or null if no user is logged in.
+     *
      * @return User|null
      */
     public static function getLoggedInUser()
@@ -90,42 +121,135 @@ class Controller
     }
 
     /**
+     * Returns the current count of login failures. If unable to access the loginFails SESSION variable, then
+     * the function will return false.
+     *
+     * WARNING: it may be difficult to distinguish the return value of this function using ==
+     * (as 0 and false are equivalent). If checking the output of the function, it is recommended for you to use
+     * the identity operator, ===, instead of the equivalence operator.
+     *
+     * @return int|bool
+     */
+    public static function getLoginFails()
+    {
+        if (session_status() == PHP_SESSION_ACTIVE) {
+            return $_SESSION["loginFails"];
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
+     * Returns the last time login lockout was initiated (should be a UNIX timestamp). If the variable that stores
+     * the timestamp cannot be accessed, false will be returned.
+     *
+     * WARNING: it may be difficult to distinguish the return value of this function using ==
+     * (as 0 and false are equivalent). If checking the output of the function, it is recommended for you to use
+     * the identity operator, ===, instead of the equivalence operator.
+     *
+     * @return int|bool
+     */
+    public static function getLoginLockout()
+    {
+        if (session_status() == PHP_SESSION_ACTIVE) {
+            if (isset($_SESSION["loginLockout"])) {
+                return $_SESSION["loginLockout"];
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Indicates whether or not the currently connected client has logged in as a user of the site.
+     *
      * @return bool
      */
-    public static function isUserLoggedIn()
+    public static function isUserLoggedIn(): bool
     {
         return isset($_SESSION["user"]);
     }
 
     /**
-     * Flags a user as logged in
+     * Sets the current client's User object to the one specified, or null if none are given.
+     * Returns true on success, throws a LogicException/InvalidArgumentException on failure.
+     *
      * @param User|null $user
      * @return bool
+     * @throws LogicException
      */
-    public static function setLoggedInUser(User $user = null)
+    public static function setLoggedInUser(User $user = null): bool
     {
         if ($user === null) {
             unset($_SESSION["user"]);
             return true;
         }
-        if ($user instanceof User) {
-            if ($user->isInDatabase()) {
-                $_SESSION["user"] = $user;
-                return true;
-            } else {
-                throw new LogicException("Controller:setLoggedInUser($user) - Unable to set non-database-saved user as logged-in user");
-            }
+        if ($user->isInDatabase()) {
+            $_SESSION["user"] = $user;
+            return true;
         } else {
-            throw new InvalidArgumentException("Controller::setLoggedInUser($user) -  Expected User: got " . (gettype($user) == "object" ? get_class($user) : gettype($user)));
+            throw new LogicException("Controller:setLoggedInUser($user) - Unable to set non-database-saved user as logged-in user");
         }
     }
 
     /**
-     * A function to check for potentially dangerous inputs to forms
+     * Sets the number of login fails to the specified $fails value. If no value is passed, the function will unset
+     * the current fail counter.
+     * Returns true on success, false on failure. (only fails if a Php session has not been started)
+     *
+     * @param int|null $fails
+     * @return bool
+     */
+    public static function setLoginFails(int $fails = null): bool
+    {
+        if (session_status() == PHP_SESSION_ACTIVE) {
+            if (isset($fails)) {
+                $_SESSION["loginFails"] = $fails;
+            } else {
+                unset($_SESSION["loginFails"]);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Sets the login lockout variable to the specified $lockout value. If the value of $lockout is null, then the
+     * login lockout variable will be unset.
+     * Returns true on success, false on failure.
+     *
+     * @param int|null $lockout
+     * @return bool
+     */
+    public static function setLoginLockout(int $lockout = null): bool
+    {
+        if (session_status() == PHP_SESSION_ACTIVE) {
+            if (isset($lockout)) {
+                $_SESSION["loginLockout"] = $lockout;
+            } else {
+                unset($_SESSION["loginLockout"]);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * A string sanitizer that removes undesirable selections of text from the input string. Returns an empty string if
+     * any of the following are found in the input string:
+     * 'to:', 'cc:', 'bcc:', 'content-type:', 'mime-version:', 'multipart-mixed:', 'content-transfer-encoding:'
+     * Otherwise, returns the input string with the following replaced by a single space, and all HTML tags removed:
+     * "\r", "\n", "%0a", "%0d"
+     *
      * @param $value
      * @return string
      */
-    private static function spamScrubber(string $value)
+    private static function spamScrubber(string $value): string
     {
         // This function is useful for preventing spam in form results.  Should be used on all $_POST arrays.
         // To Use:  $scrubbed=array_map('spam_scrubber',ARRAY_NAME);  Where ARRAY_NAME might be equal to an array such as $_POST
@@ -147,7 +271,8 @@ class Controller
     }
 
     /**
-     * Push new CSS into the local CSS specifi  cation
+     * Push new CSS into the local CSS specification
+     *
      * @param string $CSS
      * @return int|bool
      */
@@ -162,7 +287,8 @@ class Controller
     }
 
     /**
-     * Push new javascript into the local js.js specifi  cation
+     * Push new javascript into the local js.js specification
+     *
      * @param string $javaScript
      * @return int|bool
      */
@@ -217,7 +343,6 @@ class Controller
     }
 
     /**
-     *
      * @return bool
      */
     public function initModuleDir()
@@ -348,18 +473,18 @@ class Controller
      * @param int $mode
      * @return bool
      */
-    public function userHasAccess(array $permissions, int $mode=self::MODE_COMP_AND): bool
+    public function userHasAccess(array $permissions, int $mode = self::MODE_COMP_AND): bool
     {
         $user = self::getLoggedInUser();
-        if(isset($user) and $mode === self::MODE_COMP_AND) {
+        if (isset($user) and $mode === self::MODE_COMP_AND) {
             $result = true;
-            foreach($permissions as $perm) {
+            foreach ($permissions as $perm) {
                 $result = ($result and $user->hasPermission($perm));
             }
             return $result;
-        } else if(isset($user) and $mode === self::MODE_COMP_OR) {
+        } else if (isset($user) and $mode === self::MODE_COMP_OR) {
             $result = false;
-            foreach($permissions as $perm) {
+            foreach ($permissions as $perm) {
                 $result = ($result or $user->hasPermission($perm));
             }
             return $result;
@@ -460,7 +585,7 @@ class Controller
                     $this->scrubbed["title"],
                     null
                 );
-                move_uploaded_file($_FILES['file']['tmp_name'], File::DEFAULT_PATH.$submission->getFile()->getInternalName());
+                move_uploaded_file($_FILES['file']['tmp_name'], File::$DEFAULT_PATH . $submission->getFile()->getInternalName());
                 $submission->updateToDatabase();
                 break;
         }

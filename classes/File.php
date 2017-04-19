@@ -1,5 +1,7 @@
 <?php
 
+define("DEFAULT_PATH", $_SERVER["DOCUMENT_ROOT"] . "/metacognitio/files/");
+
 /**
  * Created by PhpStorm.
  * User: Jacob
@@ -9,7 +11,7 @@
 class File
 {
 
-    const DEFAULT_PATH = "C:/wamp64/www/metacognitio/files/";
+    const DEFAULT_PATH = DEFAULT_PATH;
 
     /**
      * Bytes that make up the file stored as a string.
@@ -18,19 +20,20 @@ class File
      */
     private $contents;
     /**
-     * Stores the internally-used, hashed, filename of the file.
+     * Stores the internally-used, hashed, filename of the file. Should exclude the file type extension.
      *
      * @var string
      */
     private $internalName;
     /**
-     * Allow read and write access to file data? (bool)
+     * Allow read and write access to file data (bool)? Essentially, disallows access to reading or writing the
+     * $contents variable when set to false.
      *
      * @var bool
      */
     private $isActive;
     /**
-     * Indicates if the file is stored in the database
+     * Indicates if the file is stored in the database.
      *
      * @var bool
      */
@@ -188,7 +191,6 @@ class File
         } else {
             return false;
         }
-
     }
 
     /**
@@ -204,7 +206,11 @@ class File
      */
     public function getMimeType(): string
     {
-        return mime_content_type($this->getName());
+        if($this->isActive() and $this->getContents() !== null) {
+            return mime_content_type(self::DEFAULT_PATH.$this->getInternalName());
+        } else {
+            return false;
+        }
     }
 
     /**

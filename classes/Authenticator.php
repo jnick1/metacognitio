@@ -11,21 +11,29 @@ class Authenticator
 {
 
     /**
-     * Verifies whether the supplied credentials represent a valid user in the system
+     * Verifies whether the supplied credentials represent a valid user in the system.
+     * Returns true on success, throws an exception on failure.
+     *
      * @param string $email
      * @param string $password
      * @return bool
-     * @throws Exception
+     * @throws Exception|LogicException
      */
     public static function authenticate(string $email, string $password): bool
     {
-        if(Controller::isUserLoggedIn()) {
+        if (Controller::isUserLoggedIn()) {
             throw new LogicException("Authenticator::authenticate($email, $password) - Unable to log in multiple times");
         }
-        if(isset($_SESSION["loginLockout"])) {
-            if(time()-$_SESSION["loginLockout"]>=60) {
-                unset($_SESSION["loginLockout"]);
-                unset($_SESSION["loginFails"]);
+        /*
+         * Determines whether the client connected to the current session should be locked out
+         * of logging in to the system due to too many repeated log in attempts. This helps to
+         * prevent dictionary attacks against the system by forcing a 60 second wait period after
+         * 3 failed attempts to log in by the client.
+         */
+        if (Controller::getLoginLockout() !== false) {
+            if (time() - Controller::getLoginLockout() >= 60) {
+                Controller::setLoginFails();
+                Controller::setLoginLockout();
             } else {
                 throw new Exception("Authenticator::authenticate($email,$password) - Login failed too many times; wait 60 seconds to try again");
             }
@@ -35,25 +43,24 @@ class Authenticator
             $goodPass = Hasher::verifySaltedHash($password, $user->getSalt(), $user->getHash());
 
             if ($goodPass) {
-                try{
+                try {
                     Controller::setLoggedInUser($user);
                 } catch (Exception $exception) {
                     return $exception->getMessage();
                 }
-                unset($_SESSION["loginFails"]);
-                unset($_SESSION["loginLockout"]);
+                Controller::setLoginLockout();
+                Controller::setLoginFails();
                 return true;
             } else {
-                if(isset($_SESSION["loginFails"])) {
-                    if($_SESSION["loginFails"]>=3) {
-                        $_SESSION["loginLockout"] = time();
+                if (Controller::getLoginFails() !== false) {
+                    if (Controller::getLoginFails() > 3) {
+                        Controller::setLoginLockout(time());
                     } else {
-                        $_SESSION["loginFails"]++;
+                        Controller::setLoginFails(Controller::getLoginFails() + 1);
                     }
                 } else {
-                    $_SESSION["loginFails"] = 1;
+                    Controller::setLoginFails(1);
                 }
-
                 throw new Exception("Authenticator:authenticate($email,$password) - User credentials incorrect; bad password");
             }
         } else {
@@ -62,11 +69,14 @@ class Authenticator
     }
 
     /**
+     * Logs out the currently logged in user, if there is one.
+     * Returns true on success, false on failure.
+     *
      * @return bool
      */
     public static function logout(): bool
     {
-        if(Controller::isUserLoggedIn()) {
+        if (Controller::isUserLoggedIn()) {
             Controller::setLoggedInUser();
             return true;
         } else {
@@ -75,8 +85,10 @@ class Authenticator
     }
 
     /**
-     * Takes a new user's information and registers the user within the system.
-     * The returned boolean confirms the success of the registration.
+     * Takes a new user's information and registers the user within the system,
+     * saving their information to the database.
+     * Returns true on success, throws an exception on failure.
+     *
      * @param string $fName
      * @param string $lName
      * @param string $email
@@ -117,17 +129,15 @@ class Authenticator
 
     /**
      * Checks whether the given user is registered in the system.
+     * Returns true if the user is registered, false otherwise.
+     *
      * @param User $user
      * @return bool
      * @throws TypeError
      */
     public static function userExists(User $user): bool
     {
-        if ($user instanceof User) {
-            $loadedUser = User::load($user->getEmail());
-            return isset($loadedUser);
-        } else {
-            throw new InvalidArgumentException("Authenticator::userExists($user) - expected User: got " . (gettype($user) == "object" ? get_class($user) : gettype($user)));
-        }
+        $loadedUser = User::load($user->getEmail());
+        return isset($loadedUser);
     }
 }

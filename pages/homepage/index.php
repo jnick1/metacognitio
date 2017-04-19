@@ -11,7 +11,7 @@ include "autoload.php";
 $controller = new Controller("MetaCognitio");
 $controller->initModuleDir();
 $controller->processREQUEST();
-$controller->addCSS($controller->getModuleDir() . "/css/index.min.css");
+$controller->addCSS($controller->getModuleDir() . "css/index.min.css");
 $controller->addCSS("java/lib/jquery-ui/jquery-ui.css");
 $controller->addCSS("java/lib/jquery-dropdown/jquery.dropdown.min.css");
 $controller->addJavaScript("java/lib/jquery/jQuery.min.js");
@@ -21,7 +21,7 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
 ?>
 <!DOCTYPE html>
 
-<html>
+<html lang="en-US">
     <head>
         <?php $controller->printHead(); ?>
     </head>
