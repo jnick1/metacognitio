@@ -11,7 +11,8 @@ class Controller
     const HEADER_FILE = "pages/pageassembly/header.php";
     const MODE_COMP_AND = 2;
     const MODE_COMP_OR = 1;
-    const MODULE_DIR = "pages";
+    const PROJECT_DIR = "metacognitio/";
+    const MODULE_DIR = "pages/";
 
     /**
      * Log manager that should persist across multiple instances of the Controller class. Allows recordkeeping of events
@@ -349,10 +350,10 @@ class Controller
     {
         $stack = debug_backtrace();
         $pathToCaller = $stack[0]['file'];
-        if (stripos($pathToCaller, Controller::MODULE_DIR)) {
+        if (stripos($pathToCaller, rtrim(Controller::MODULE_DIR,"/"))) {
             $pathArr = explode(DIRECTORY_SEPARATOR, $pathToCaller);
-            $nextDir = array_search(Controller::MODULE_DIR, $pathArr) + 1;
-            $this->moduleDir = Controller::MODULE_DIR . "/" . $pathArr[$nextDir] . "/";
+            $nextDir = array_search(rtrim(Controller::MODULE_DIR,"/"), $pathArr) + 1;
+            $this->moduleDir = Controller::MODULE_DIR . $pathArr[$nextDir] . "/";
             return true;
         }
         return false;
@@ -600,7 +601,7 @@ class Controller
         $path = explode("/", dirname($_SERVER["SCRIPT_NAME"]));
         $homeDir = "";
         foreach ($path as $dir) {
-            if ($dir != "metacognitio" and $dir != "") {
+            if ($dir != rtrim(self::PROJECT_DIR, "/") and $dir != "") {
                 $homeDir .= ".." . DIRECTORY_SEPARATOR;
             }
         }

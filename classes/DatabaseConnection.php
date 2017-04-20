@@ -13,6 +13,7 @@ class DatabaseConnection
      * @var mysqli The database connection
      */
     protected static $connection;
+    private static $db;
     private static $inTransaction;
 
     /**
@@ -40,8 +41,9 @@ class DatabaseConnection
         // Try and connect to the database
         if (!isset(self::$connection)) {
             // Load configuration as an array. Use the actual location of your configuration file
-            $config = parse_ini_file("C:/wamp64/secure/metacognitio/config.ini");
+            $config = parse_ini_file($_SERVER["DOCUMENT_ROOT"]."/../secure/".Controller::PROJECT_DIR."config.ini");
             self::$connection = new mysqli($config["host"], $config["username"], $config["password"], $config["database"]);
+            self::$db = $config["database"];
         }
 
         // If connection was not successful, handle the error
@@ -61,6 +63,14 @@ class DatabaseConnection
     {
         $connection = $this->connect();
         return $connection->error;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseName(): string
+    {
+        return $this::$db;
     }
 
     /**

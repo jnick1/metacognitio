@@ -115,10 +115,33 @@ class Publication
      * @param int $publicationID
      * @param int $iterationID
      * @param int $editionID
+     * @throws Exception
      */
     public function __construct3(int $publicationID, int $iterationID, int $editionID)
     {
-        //TODO: finish database constructor
+        $dbc = new DatabaseConnection();
+        $publication = $dbc->query("select", "SELECT * FROM `publication` WHERE `pkPublicationID` = ? AND `idIteration` = ? AND `idEdition` = ?");
+        if ($publication) {
+            $result = [
+                $this->setISBN($publication["idISBN"]),
+                $this->setCoverFile(new File($publication["fkCoverFilename"])),
+                $this->setDescription($publication["txDescription"]),
+                $this->setEditionID($publication["idEdition"]),
+                $this->isInDatabase = true,
+                $this->setIterationID($publication["idIteration"]),
+                $this->setPublicationDate(new DateTime($publication["dtPublished"])),
+                $this->setPublicationID($publication["pkPublicationID"]),
+                $this->setSerial(new Serial($publication["fkSerialID"])),
+                $this->setStatus($publication["enStatus"]),
+                $this->setTargetPublicationDate(new DateTime($publication["dtPublicationTarget"])),
+                $this->setTitle($publication["nmTitle"])
+            ];
+            if (in_array(false, $result, true)) {
+                throw new Exception("Publication->__construct3($publicationID, $iterationID, $editionID) - Unable to construct Publication object; variable assignment failure");
+            }
+        } else {
+            throw new Exception("Publication->__construct3($publicationID, $iterationID, $editionID) - Unable to select from database");
+        }
     }
 
     /**
@@ -134,10 +157,26 @@ class Publication
      * @param Serial|null $serial
      * @param int|null $ISBN
      * @param File|null $coverFile
+     * @throws Exception
      */
     public function __construct4(string $title, string $description, int $editionID, int $iterationID, string $status = "WIP", DateTime $targetPublicationDate = null, DateTime $publicationDate = null, Serial &$serial = null, int $ISBN = null, File $coverFile = null)
     {
-        //TODO: finish new publication constructor
+        $result = [
+            $this->setISBN($ISBN),
+            $this->setCoverFile($coverFile),
+            $this->setDescription($description),
+            $this->setEditionID($editionID),
+            $this->setIterationID($iterationID),
+            $this->setPublicationDate($publicationDate),
+            $this->setSerial($serial),
+            $this->setStatus($status),
+            $this->setTargetPublicationDate($targetPublicationDate),
+            $this->setTitle($title)
+        ];
+        if(in_array(false, $result, true)) {
+            throw new Exception("Publication->__construct4($title, $description, $editionID, $iterationID, $status, $targetPublicationDate, $publicationDate, $serial, $ISBN, $coverFile) - Unable to construct Publication object; variable assignment failure");
+        }
+        $this->isInDatabase = false;
     }
 
     /**

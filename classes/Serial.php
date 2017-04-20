@@ -96,12 +96,12 @@ class Serial
      * @param Publication $publication
      * @return bool
      */
-    public function addPublication(Publication $publication): bool
+    public function addPublication(Publication &$publication): bool
     {
         if (in_array($publication, $this->getPublications())) {
             return false;
         } else {
-            $this->publications[] = $publication;
+            $this->publications[] = &$publication;
             return true;
         }
     }
@@ -129,7 +129,7 @@ class Serial
      */
     public function getPublication(int $iteration, int $edition): Publication
     {
-
+        //TODO: implement
     }
 
     /**
@@ -281,9 +281,10 @@ class Serial
     /**
      * @param int $serialID
      */
-    private function setSerialID(int $serialID)
+    private function setSerialID(int $serialID): bool
     {
         $this->serialID = $serialID;
+        return true;
     }
 
 }

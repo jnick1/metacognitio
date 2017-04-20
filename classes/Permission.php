@@ -31,59 +31,88 @@ class Permission
      */
     public function __construct(int $permissionID)
     {
-        $options = [
-            "options" => [
-                "min_range" => 1,
-                "max_range" => 10
-            ]
-        ];
-        if ($filtered = filter_var($permissionID, FILTER_VALIDATE_INT, $options)) {
-            $dbc = new DatabaseConnection();
-            $params = ["i", $filtered];
-            $result = $dbc->query("select", "SELECT * FROM `permission` WHERE `pkPermissionID`=?", $params);
-            if ($result) {
-                $this->permissionID = $filtered;
-                $this->name = $result["nmName"];
-                $this->description = $result["txDescription"];
-            } else {
-                throw new Exception("Permission->__construct -  Unable to select from database");
+        $dbc = new DatabaseConnection();
+        $params = ["i", $permissionID];
+        $permission = $dbc->query("select", "SELECT * FROM `permission` WHERE `pkPermissionID`=?", $params);
+        if ($permission) {
+            $result = [
+                $this->setPermissionID($permissionID),
+                $this->setName($permission["nmName"]),
+                $this->setDescription($permission["txDescription"])
+            ];
+            if (in_array(false, $result, true)) {
+                throw new Exception("Permission->__construct($permissionID) -  Unable to construct Permission object; variable assignment failure");
             }
         } else {
-            throw new InvalidArgumentException("Permission->__construct -  Not a recognized permission");
+            throw new Exception("Permission->__construct($permissionID) -  Unable to select from database");
         }
     }
 
     /**
      *
-     * @return mixed
+     * @return string
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getPermissionID()
+    public function getPermissionID(): int
     {
         return $this->permissionID;
     }
 
     /**
-     * @param mixed $permissionID
+     * @param string $description
+     * @return bool
      */
-    public function setPermissionID($permissionID)
+    public function setDescription(string $description): bool
     {
-        $this->__construct($permissionID);
+        $dbc = new DatabaseConnection();
+        if (strlen($description) <= $dbc->getMaximumLength("permission", "txDescription")) {
+            $this->description = $description;
+            return true;
+        } else {
+            return false;
+        }
     }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function setName(string $name): bool
+    {
+        $dbc = new DatabaseConnection();
+        $params = ["s", $name];
+        if ($dbc->query("exists", "SELECT * FROM `permission` WHERE `nmName`=?", $params)) {
+            $this->name = $name;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param int $permissionID
+     * @return bool
+     */
+    private function setPermissionID(int $permissionID): bool
+    {
+        $this->permissionID = $permissionID;
+        return true;
+    }
+
 
 }

@@ -21,8 +21,8 @@ class User
     private $fName;
     private $gradSemester;
     private $gradYear;
-    private $hash;  //array("pkStateID"=>000,   "idISO"=>"",    "nmName"=>"")
-    private $isActive;   //array("pkCountryID"=>000, "idISO"=>"",    "nmName"=>"",   "idPhoneCode"=>000)
+    private $hash;  //array("pkStateID"=>int,   "idISO"=>string,    "nmName"=>string)
+    private $isActive;   //array("pkCountryID"=>int, "idISO"=>string,    "nmName"=>string,   "idPhoneCode"=>int)
     private $isInDatabase;
     private $lName;
     private $permissions;
@@ -64,6 +64,8 @@ class User
     }
 
     /**
+     * User constructor (13 arguments).
+     *
      * @param string $fName
      * @param string $lName
      * @param string $email
@@ -77,6 +79,7 @@ class User
      * @param int $gradYear
      * @param string $password
      * @param bool $isActive
+     * @throws Exception
      */
     public function __construct13(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
     {
@@ -88,37 +91,39 @@ class User
             $country = $dbc->query("select", "SELECT * FROM `country` WHERE `pkCountryID`=?", $params);
 
             if ($country) {
-                $r1 = $this->setFName($fName);
-                $r2 = $this->setLName($lName);
-                $r3 = $this->setEmail($email);
-                $r4 = $this->setAltEmail($altEmail);
-                $r5 = $this->setStreetAddress($streetAddress);
-                $r6 = $this->setCity($city);
-                $r7 = $this->setProvince($provinceResult["idISO"], self::MODE_ISO);
-                $r8 = $this->setCountry($country["idISO"], self::MODE_ISO);
-                $r9 = $this->setZip($zip);
-                $r10 = $this->setPhone($phone);
-                $r11 = $this->setGradsemester($gradSemester);
-                $r12 = $this->setGradYear($gradYear);
-                $r13 = $this->updatePassword($password);
-                $r14 = $this->setIsActive($isActive);
+                $result = [
+                    $this->setFName($fName),
+                    $this->setLName($lName),
+                    $this->setEmail($email),
+                    $this->setAltEmail($altEmail),
+                    $this->setStreetAddress($streetAddress),
+                    $this->setCity($city),
+                    $this->setProvince($provinceResult["idISO"], self::MODE_ISO),
+                    $this->setCountry($country["idISO"]),
+                    $this->setZip($zip),
+                    $this->setPhone($phone),
+                    $this->setGradsemester($gradSemester),
+                    $this->setGradYear($gradYear),
+                    $this->updatePassword($password),
+                    $this->setIsActive($isActive),
+                ];
+                if (in_array(false, $result, true)) {
+                    throw new Exception("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; variable assignment failure");
+                }
                 $this->permissions = [];
                 $this->isInDatabase = false;
-                if (!($r1 and $r2 and $r3 and $r4 and $r5 and $r6 and $r7 and $r8 and $r9 and $r10 and $r11 and $r12 and $r13 and $r14)) {
-                    throw new InvalidArgumentException("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Error in setting internal variables");
-                }
             }
         } else {
-            throw new InvalidArgumentException("Invalid province");
+            throw new InvalidArgumentException("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; Invalid province");
         }
     }
 
     /**
      * User Constructor (2 arguments).
      *
-     * @param string|int $identifier
+     * @param $identifier
      * @param int $mode
-     *
+     * @throws Exception
      */
     public function __construct2($identifier, int $mode = self::MODE_NAME)
     {
@@ -139,24 +144,28 @@ class User
                 $country = $dbc->query("select", "SELECT * FROM `country` WHERE `pkCountryID`=?", $params);
 
                 if ($country) {
-                    $this->setUserID($user["pkUserID"]);
-                    $this->setFName($user["nmFirst"]);
-                    $this->setLName($user["nmLast"]);
-                    $this->setEmail($user["txEmail"]);
-                    $this->setAltEmail($user["txEmailAlt"]);
-                    $this->setStreetAddress($user["txStreetAddress"]);
-                    $this->setCity($user["txCity"]);
-                    $this->setProvince($province["idISO"], self::MODE_ISO);
-                    $this->setZip($user["nZip"]);
-                    $this->setPhone($user["nPhone"]);
-                    $this->setGradsemester($user["enGradSemester"]);
-                    $this->setGradYear($user["dtGradYear"]);
-                    $this->setSalt($user["blSalt"]);
-                    $this->setHash($user["txHash"]);
-                    $this->setIsActive($user["isActive"]);
+                    $result = [
+                        $this->setUserID($user["pkUserID"]),
+                        $this->setFName($user["nmFirst"]),
+                        $this->setLName($user["nmLast"]),
+                        $this->setEmail($user["txEmail"]),
+                        $this->setAltEmail($user["txEmailAlt"]),
+                        $this->setStreetAddress($user["txStreetAddress"]),
+                        $this->setCity($user["txCity"]),
+                        $this->setProvince($province["idISO"], self::MODE_ISO),
+                        $this->setZip($user["nZip"]),
+                        $this->setPhone($user["nPhone"]),
+                        $this->setGradsemester($user["enGradSemester"]),
+                        $this->setGradYear($user["dtGradYear"]),
+                        $this->setSalt($user["blSalt"]),
+                        $this->setHash($user["txHash"]),
+                        $this->setIsActive($user["isActive"]),
+                    ];
+                    if(in_array(false, $result, true)) {
+                        throw new Exception("User->__construct2($identifier, $mode) - Unable to construct User object; variable assignment failure");
+                    }
                     $this->isInDatabase = true;
                     $this->removeAllPermissions();
-
                     $params = ["i", $user["pkUserID"]];
                     $permissions = $dbc->query("select multiple", "SELECT `fkPermissionID` FROM `userpermissions` WHERE `fkUserID` = ?", $params);
                     if ($permissions) {
@@ -164,7 +173,11 @@ class User
                             $this->addPermission(new Permission($permission["fkPermissionID"]));
                         }
                     }
+                } else {
+                    throw new Exception("User->__construct2($identifier, $mode) - Unable to select from database");
                 }
+            } else {
+                throw new Exception("User->__construct2($identifier, $mode) - Unable to select from database");
             }
         } else {
             throw new InvalidArgumentException("User->__construct2($identifier, $mode) - User not found");
@@ -173,20 +186,17 @@ class User
 
     /**
      * Adds a permission to the user's permissions.
+     *
      * @param Permission $permission
      * @return bool|int
      * @throws InvalidArgumentException()
      */
     public function addPermission(Permission $permission)
     {
-        if ($permission instanceof Permission) {
-            if (in_array($permission, $this->getPermissions())) {
-                return false;
-            } else {
-                return array_push($this->permissions, $permission);
-            }
+        if (in_array($permission, $this->getPermissions())) {
+            return false;
         } else {
-            throw new InvalidArgumentException("User->addPermission($permission) - expected Permission: got " . (gettype($permission) == "object" ? get_class($permission) : gettype($permission)));
+            return array_push($this->permissions, $permission);
         }
     }
 
@@ -301,7 +311,7 @@ class User
      * @param int $identifier
      * @return string|int
      */
-    public function getProvince(int $identifier =  self::MODE_NAME)
+    public function getProvince(int $identifier = self::MODE_NAME)
     {
         $identifier = strtolower($identifier);
         switch ($identifier) {
@@ -399,13 +409,14 @@ class User
      * @param string $email
      * @return bool
      */
-    public function setAltEmail(string $email)
+    public function setAltEmail(string $email = null): bool
     {
-        if ($email === "") {
-            $this->altEmail = "";
+        if ($email === null) {
+            $this->altEmail = null;
             return true;
         }
-        if ($filtered = filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $dbc = new DatabaseConnection();
+        if (strlen($email) <= $dbc->getMaximumLength("user", "txEmailAlt") and $filtered = filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->altEmail = filter_var($filtered, FILTER_SANITIZE_EMAIL);
             return true;
         }
@@ -416,10 +427,11 @@ class User
      * @param string $city
      * @return bool
      */
-    public function setCity(string $city)
+    public function setCity(string $city): bool
     {
-        if (strlen((string)$city) <= 50 and $filtered = filter_var($city, FILTER_SANITIZE_STRING)) {
-            $this->city = $filtered;
+        $dbc = new DatabaseConnection();
+        if (strlen($city) <= $dbc->getMaximumLength("user", "txCity")) {
+            $this->city = $city;
             return true;
         }
         return false;
@@ -430,7 +442,7 @@ class User
      * @param int $mode one of MODE_ISO, MODE_NAME, or MODE_DBID
      * @return bool true if successfully set, false otherwise
      */
-    public function setCountry($country, int $mode)
+    public function setCountry($country, int $mode = self::MODE_ISO): bool
     {
         if (gettype($country) == "string" or gettype($country) == "integer") {
             $dbc = new DatabaseConnection();
@@ -475,14 +487,15 @@ class User
      * @param string $email
      * @return bool
      */
-    public function setEmail(string $email)
+    public function setEmail(string $email): bool
     {
-        if ($filtered = filter_var($email, FILTER_VALIDATE_EMAIL) or $email === null) {
-            if ($email === null) {
-                $this->email = null;
-            } else {
-                $this->email = filter_var($filtered, FILTER_SANITIZE_EMAIL);
-            }
+        if ($email === null) {
+            $this->email = null;
+            return true;
+        }
+        $dbc = new DatabaseConnection();
+        if (strlen($email) <= $dbc->getMaximumLength("user", "txEmail") and $filtered = filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->email = filter_var($filtered, FILTER_SANITIZE_EMAIL);
             return true;
         }
         return false;
@@ -492,10 +505,11 @@ class User
      * @param string $fName
      * @return bool
      */
-    public function setFName(string $fName)
+    public function setFName(string $fName): bool
     {
-        if (strlen((string)$fName) <= 20 and $filtered = filter_var($fName, FILTER_SANITIZE_STRING)) {
-            $this->fName = $filtered;
+        $dbc = new DatabaseConnection();
+        if (strlen($fName) <= $dbc->getMaximumLength("user", "nmFirst")) {
+            $this->fName = $fName;
             return true;
         }
         return false;
@@ -505,23 +519,30 @@ class User
      * @param string $gradSemester
      * @return bool
      */
-    public function setGradSemester(string $gradSemester)
+    public function setGradSemester(string $gradSemester): bool
     {
-        $values = array("Fall", "Summer", "Winter");
+        $dbc = new DatabaseConnection();
+        $result = $dbc->query("select", "SELECT SUBSTRING(COLUMN_TYPE,5) AS `enum`
+                                                        FROM `information_schema`.`COLUMNS`
+                                                        WHERE `TABLE_SCHEMA` = '" . $dbc->getDatabaseName() . "' 
+                                                            AND `TABLE_NAME` = 'user'
+                                                            AND `COLUMN_NAME` = 'enGradSemester'");
+        $value = trim($result["enum"], "()");
+        $values = explode(",", $value);
+        array_map("trim", $values, array_fill(0, count($values), "'"));
         if (in_array($gradSemester, $values)) {
             $this->gradSemester = $gradSemester;
             return true;
         } else {
             return false;
         }
-
     }
 
     /**
      * @param int $gradYear
      * @return bool
      */
-    public function setGradYear(int $gradYear)
+    public function setGradYear(int $gradYear): bool
     {
         $options = [
             "options" => [
@@ -540,23 +561,21 @@ class User
      * @param bool $isActive
      * @return bool
      */
-    public function setIsActive(bool $isActive)
+    public function setIsActive(bool $isActive): bool
     {
-        if ($filtered = filter_var($isActive, FILTER_VALIDATE_BOOLEAN)) {
-            $this->isActive = $filtered;
-            return true;
-        }
-        return false;
+        $this->isActive = $isActive;
+        return true;
     }
 
     /**
      * @param string $lName
      * @return bool
      */
-    public function setLName(string $lName)
+    public function setLName(string $lName): bool
     {
-        if (strlen((string)$lName) <= 20 and $filtered = filter_var($lName, FILTER_SANITIZE_STRING)) {
-            $this->lName = $filtered;
+        $dbc = new DatabaseConnection();
+        if (strlen($lName) <= $dbc->getMaximumLength("user", "nmLast")) {
+            $this->lName = $lName;
             return true;
         }
         return false;
@@ -566,7 +585,7 @@ class User
      * @param int $phone
      * @return bool
      */
-    public function setPhone(int $phone)
+    public function setPhone(int $phone): bool
     {
         $phoneNumberUtil = libphonenumber\PhoneNumberUtil::getInstance();
         $phoneNumberObject = $phoneNumberUtil->parse($phone, $this->getCountry("ISO"));
@@ -584,37 +603,35 @@ class User
      * @param int $mode Indicates input types, and must be either MODE_ISO or MODE_NAME
      * @return bool
      */
-    public function setProvince(string $province, int $mode)
+    public function setProvince(string $province, int $mode): bool
     {
-        if (gettype($province) == "string") {
-            $province = strtoupper($province);
-            $dbc = new DatabaseConnection();
-            $params = ["s", $province];
-            if ($mode === self::MODE_ISO) {
-                $result = $dbc->query("select", "SELECT * FROM `province` WHERE `idISO`=?", $params);
-            } else {
-                $result = $dbc->query("select", "SELECT * FROM `province` WHERE UPPER(`nmName`)=?", $params);
-            }
-
-            if ($result) {
-                $this->setCountry($result["fkCountryID"], self::MODE_DBID);
-                $this->province["pkStateID"] = $result["pkStateID"];
-                $this->province["idISO"] = $result["idISO"];
-                $this->province["nmName"] = $result["nmName"];
-                return true;
-            }
+        $province = strtoupper($province);
+        $dbc = new DatabaseConnection();
+        $params = ["s", $province];
+        if ($mode === self::MODE_ISO) {
+            $result = $dbc->query("select", "SELECT * FROM `province` WHERE `idISO`=?", $params);
+        } else {
+            $result = $dbc->query("select", "SELECT * FROM `province` WHERE UPPER(`nmName`)=?", $params);
         }
-        return false;
+
+        if ($result) {
+            $this->setCountry($result["fkCountryID"], self::MODE_DBID);
+            $this->province["pkStateID"] = $result["pkStateID"];
+            $this->province["idISO"] = $result["idISO"];
+            $this->province["nmName"] = $result["nmName"];
+            return true;
+        }
     }
 
     /**
      * @param string $streetAddress
      * @return bool
      */
-    public function setStreetAddress(string $streetAddress)
+    public function setStreetAddress(string $streetAddress): bool
     {
-        if (strlen((string)$streetAddress) <= 50 and $filtered = filter_var($streetAddress, FILTER_SANITIZE_STRING)) {
-            $this->streetAddress = $filtered;
+        $dbc = new DatabaseConnection();
+        if (strlen($streetAddress) <= $dbc->getMaximumLength("user", "txStreetAddress")) {
+            $this->streetAddress = $streetAddress;
             return true;
         }
         return false;
@@ -624,16 +641,11 @@ class User
      * @param int $zip
      * @return bool
      */
-    public function setZip(int $zip)
+    public function setZip(int $zip): bool
     {
-        $options = [
-            "options" => [
-                "min_range" => 10000,
-                "max_range" => 99999
-            ]
-        ];
-        if ($filtered = filter_var($zip, FILTER_VALIDATE_INT, $options)) {
-            $this->zip = $filtered;
+        $dbc = new DatabaseConnection();
+        if (strlen($zip) <= $dbc->getMaximumLength("user", "nZip")) {
+            $this->zip = $zip;
             return true;
         }
         return false;
@@ -757,9 +769,10 @@ class User
      * @param string $hash
      * @return bool
      */
-    private function setHash(string $hash)
+    private function setHash(string $hash): bool
     {
-        if (strlen($hash) == 64) {
+        $dbc = new DatabaseConnection();
+        if (strlen($hash) == $dbc->getMaximumLength("user", "txHash")) {
             $this->hash = $hash;
             return true;
         }
@@ -770,9 +783,10 @@ class User
      * @param string $salt
      * @return bool
      */
-    private function setSalt(string $salt)
+    private function setSalt(string $salt): bool
     {
-        if (strlen($salt) == 16) {
+        $dbc = new DatabaseConnection();
+        if (strlen($salt) == $dbc->getMaximumLength("user", "blSalt")) {
             $this->salt = $salt;
             return true;
         }
@@ -783,7 +797,7 @@ class User
      * @param int $userID
      * @return bool
      */
-    private function setUserID(int $userID)
+    private function setUserID(int $userID): bool
     {
         $options = [
             "options" => [

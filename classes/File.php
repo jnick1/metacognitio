@@ -1,6 +1,6 @@
 <?php
 
-define("DEFAULT_PATH", $_SERVER["DOCUMENT_ROOT"] . "/metacognitio/files/");
+define("DEFAULT_PATH", $_SERVER["DOCUMENT_ROOT"] . "/" . Controller::PROJECT_DIR . "files/");
 
 /**
  * Created by PhpStorm.
@@ -138,16 +138,21 @@ class File
         $file = $dbc->query("select", "SELECT * FROM `file` WHERE `pkFilename`=?", $params);
 
         if ($file) {
-            $this->internalName = $file["pkFilename"];
-            $this->fetchContents();
-            $this->setName($file["nmTitle"]);
-            $this->setIsActive($file["isActive"]);
-            $this->isInDatabase = true;
+            $result = [
+                $this->internalName = $file["pkFilename"],
+                $this->fetchContents(),
+                $this->setName($file["nmTitle"]),
+                $this->setIsActive($file["isActive"]),
+                $this->isInDatabase = true,
+            ];
             if (isset($file["fkFilename"])) {
-                $this->setParent(new File($file["fkFilename"]));
+                $result[] = $this->setParent(new File($file["fkFilename"]));
+            }
+            if (in_array(false, $result, true)) {
+                throw new Exception("File->__construct1($internalName) - Unable to construct File object; variable assignment failure");
             }
         } else {
-            throw new InvalidArgumentException("File->__construct1($internalName) - Unable to select from database");
+            throw new Exception("File->__construct1($internalName) - Unable to select from database");
         }
     }
 
@@ -160,12 +165,17 @@ class File
      */
     public function __construct2(string $name, string $contents, File $parent = null)
     {
-        $this->setName($name);
-        $this->setIsActive(true);
+        $result = [
+            $this->setName($name),
+            $this->setIsActive(true),
+            $this->setParent($parent),
+            $this->setContents($contents),
+        ];
         $this->isInDatabase = false;
-        $this->newInternalName();
-        $this->setParent($parent);
-        $this->setContents($contents);
+        $result[] = $this->newInternalName();
+        if (in_array(false, $result, true)) {
+            throw new Exception("File->__construct2($name, \$contents, $parent) - Unable to construct File object; variable assignment failure");
+        }
     }
 
     /**
@@ -206,8 +216,8 @@ class File
      */
     public function getMimeType(): string
     {
-        if($this->isActive() and $this->getContents() !== null) {
-            return mime_content_type(self::DEFAULT_PATH.$this->getInternalName());
+        if ($this->isActive() and $this->getContents() !== null) {
+            return mime_content_type(self::DEFAULT_PATH . $this->getInternalName());
         } else {
             return false;
         }
@@ -263,7 +273,7 @@ class File
     public function newInternalName(): bool
     {
         if (!$this->isInDatabase()) {
-            $this->internalName = Hasher::randomHash() . substr(strrchr($this->getName(), "."), 0);
+            $this->internalName = Hasher::randomHash();
             return true;
         } else {
             return false;
@@ -280,18 +290,22 @@ class File
 
     /**
      * @param string $contents
+     * @return bool
      */
-    public function setContents(string $contents): void
+    public function setContents(string $contents): bool
     {
         $this->contents = $contents;
+        return true;
     }
 
     /**
      * @param bool $isActive
+     * @return bool
      */
-    public function setIsActive(bool $isActive): void
+    public function setIsActive(bool $isActive): bool
     {
         $this->isActive = $isActive;
+        return true;
     }
 
     /**
