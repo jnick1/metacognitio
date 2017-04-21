@@ -12,25 +12,81 @@ class User
      */
     const MODE_DBID = 1;
     const MODE_ISO = 2;
-    const MODE_NAME = 3;
+    const MODE_ISO_SHORT = 3;
+    const MODE_NAME = 4;
+    const MODE_PHONE = 5;
 
+    /**
+     * @var string
+     */
     private $altEmail;
+    /**
+     * @var string
+     */
     private $city;
+    /**
+     * @var array ["pkCountryID"=>int, "idISO"=>string,    "nmName"=>string,   "idPhoneCode"=>int]
+     */
     private $country;
+    /**
+     * @var string
+     */
     private $email;
+    /**
+     * @var string
+     */
     private $fName;
+    /**
+     * @var string
+     */
     private $gradSemester;
+    /**
+     * @var int
+     */
     private $gradYear;
-    private $hash;  //array("pkStateID"=>int,   "idISO"=>string,    "nmName"=>string)
-    private $isActive;   //array("pkCountryID"=>int, "idISO"=>string,    "nmName"=>string,   "idPhoneCode"=>int)
+    /**
+     * @var string
+     */
+    private $hash;
+    /**
+     * @var bool
+     */
+    private $isActive;
+    /**
+     * @var bool
+     */
     private $isInDatabase;
+    /**
+     * @var string
+     */
     private $lName;
+    /**
+     * @var array [Permission]
+     */
     private $permissions;
+    /**
+     * @var int
+     */
     private $phone;
+    /**
+     * @var array ["pkStateID"=>int,   "idISO"=>string,    "nmName"=>string]
+     */
     private $province;
+    /**
+     * @var string
+     */
     private $salt;
+    /**
+     * @var string
+     */
     private $streetAddress;
+    /**
+     * @var int
+     */
     private $userID;
+    /**
+     * @var int
+     */
     private $zip;
 
     /**
@@ -108,7 +164,7 @@ class User
                     $this->setIsActive($isActive),
                 ];
                 if (in_array(false, $result, true)) {
-                    throw new Exception("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; variable assignment failure");
+                    throw new Exception("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
                 }
                 $this->permissions = [];
                 $this->isInDatabase = false;
@@ -161,8 +217,9 @@ class User
                         $this->setHash($user["txHash"]),
                         $this->setIsActive($user["isActive"]),
                     ];
-                    if(in_array(false, $result, true)) {
-                        throw new Exception("User->__construct2($identifier, $mode) - Unable to construct User object; variable assignment failure");
+                    if (in_array(false, $result, true)) {
+                        var_dump($this->getSalt());
+                        throw new Exception("User->__construct2($identifier, $mode) - Unable to construct User object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
                     }
                     $this->isInDatabase = true;
                     $this->removeAllPermissions();
@@ -185,6 +242,14 @@ class User
     }
 
     /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return "{" . implode(" ", [$this->getFName(), $this->getLName(), $this->getEmail(), $this->getUserID(), $this->isInDatabase(), $this->getIsActive()]) . "}";
+    }
+
+    /**
      * Adds a permission to the user's permissions.
      *
      * @param Permission $permission
@@ -201,34 +266,38 @@ class User
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getAltEmail()
+    public function getAltEmail(): string
     {
-        return $this->altEmail;
+        if ($this->altEmail === null) {
+            return "";
+        } else {
+            return $this->altEmail;
+        }
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getCity()
+    public function getCity(): string
     {
         return $this->city;
     }
 
     /**
-     * @param string $identifier
-     * @return mixed
+     * @param int $mode
+     * @return int|string
      */
-    public function getCountry(string $identifier)
+    public function getCountry(int $mode)
     {
-        $identifier = strtolower($identifier);
-        switch ($identifier) {
-            case "iso":
-            case "idiso":
+        switch ($mode) {
+            case self::MODE_DBID:
+                return $this->country["pkCountryID"];
+            case self::MODE_ISO:
+            case self::MODE_ISO_SHORT:
                 return $this->country["idISO"];
-            case "phone":
-            case "idphonecode":
+            case self::MODE_PHONE:
                 return $this->country["idPhoneCode"];
             default:
                 return $this->country["nmName"];
@@ -236,73 +305,73 @@ class User
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getEmail()
+    public function getEmail(): string
     {
         return $this->email;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getFName()
+    public function getFName(): string
     {
         return $this->fName;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getGradSemester()
+    public function getGradSemester(): string
     {
         return $this->gradSemester;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getGradYear()
+    public function getGradYear(): int
     {
         return $this->gradYear;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getHash()
+    public function getHash(): string
     {
         return $this->hash;
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
-    public function getIsActive()
+    public function getIsActive(): bool
     {
         return $this->isActive;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getLName()
+    public function getLName(): string
     {
         return $this->lName;
     }
 
     /**
-     * @return Permission[]
+     * @return array
      */
-    public function getPermissions()
+    public function getPermissions(): array
     {
         return $this->permissions;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getPhone()
+    public function getPhone(): int
     {
         return $this->phone;
     }
@@ -317,6 +386,8 @@ class User
         switch ($identifier) {
             case self::MODE_ISO:
                 return $this->province["idISO"];
+            case self::MODE_ISO_SHORT:
+                return str_replace($this->getCountry(self::MODE_ISO)."-", "", $this->province["idISO"]);
             case self::MODE_DBID:
                 return $this->province["pkStateID"];
             default:
@@ -325,33 +396,33 @@ class User
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getSalt()
+    public function getSalt(): string
     {
         return $this->salt;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getStreetAddress()
+    public function getStreetAddress(): string
     {
         return $this->streetAddress;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getUserID()
+    public function getUserID(): int
     {
         return $this->userID;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getZip()
+    public function getZip(): int
     {
         return $this->zip;
     }
@@ -361,7 +432,7 @@ class User
      * @return bool
      * @throws InvalidArgumentException()
      */
-    public function hasPermission(Permission $permission)
+    public function hasPermission(Permission $permission): bool
     {
         if ($permission instanceof Permission) {
             return in_array($permission, $this->getPermissions());
@@ -373,7 +444,7 @@ class User
     /**
      * @return bool
      */
-    public function isInDatabase()
+    public function isInDatabase(): bool
     {
         return $this->isInDatabase;
     }
@@ -381,7 +452,7 @@ class User
     /**
      * @return bool
      */
-    public function removeAllPermissions()
+    public function removeAllPermissions(): bool
     {
         $this->permissions = [];
         return true;
@@ -392,11 +463,12 @@ class User
      * @return bool
      * @throws InvalidArgumentException()
      */
-    public function removePermission(Permission $permission)
+    public function removePermission(Permission $permission): bool
     {
         if ($permission instanceof Permission) {
             if (($key = array_search($permission, $this->getPermissions(), true)) !== false) {
                 unset($this->permissions[$key]);
+                return true;
             } else {
                 return false;
             }
@@ -411,7 +483,7 @@ class User
      */
     public function setAltEmail(string $email = null): bool
     {
-        if ($email === null) {
+        if ($email === null or $email === "") {
             $this->altEmail = null;
             return true;
         }
@@ -438,9 +510,14 @@ class User
     }
 
     /**
-     * @param mixed $country ISO code, country name, or primary key in database
-     * @param int $mode one of MODE_ISO, MODE_NAME, or MODE_DBID
-     * @return bool true if successfully set, false otherwise
+     * Sets the country of residence of the current User. $country may either be a country's ISO code, its name,
+     * or the value of its primary key in the database. $mode may be one of self::MODE_ISO, self::MODE_NAME, or
+     * self::MODE_DBID.
+     * Returns true on success, false otherwise.
+     *
+     * @param string|int
+     * @param int $mode
+     * @return bool
      */
     public function setCountry($country, int $mode = self::MODE_ISO): bool
     {
@@ -461,8 +538,8 @@ class User
 
             if ($result) {
                 if (isset($this->province)) {
-                    $params = ["s", $this->getProvince(self::MODE_ISO)];
-                    $result2 = $dbc->query("select", "SELECT * FROM `province` WHERE `idISO`=?", $params);
+                    $params = ["i", $this->getProvince(self::MODE_DBID)];
+                    $result2 = $dbc->query("select", "SELECT * FROM `province` WHERE `pkStateID`=?", $params);
                     if ($result2) {
                         $params = ["i", $result2["fkCountryID"]];
                         $result3 = $dbc->query("select", "SELECT * FROM `country` WHERE `pkCountryID`=?", $params);
@@ -529,7 +606,7 @@ class User
                                                             AND `COLUMN_NAME` = 'enGradSemester'");
         $value = trim($result["enum"], "()");
         $values = explode(",", $value);
-        array_map("trim", $values, array_fill(0, count($values), "'"));
+        $values = array_map("trim", $values, array_fill(0, count($values), "'"));
         if (in_array($gradSemester, $values)) {
             $this->gradSemester = $gradSemester;
             return true;
@@ -620,6 +697,8 @@ class User
             $this->province["idISO"] = $result["idISO"];
             $this->province["nmName"] = $result["nmName"];
             return true;
+        } else {
+            return false;
         }
     }
 
@@ -657,7 +736,7 @@ class User
      *
      * Pulls data stored in the database to the current User instance.
      */
-    public function updateFromDatabase()
+    public function updateFromDatabase(): bool
     {
         if ($this->isInDatabase()) {
             $this->__construct2($this->getUserID(), self::MODE_DBID);
@@ -671,7 +750,7 @@ class User
      * @param string $password
      * @return bool
      */
-    public function updatePassword(string $password)
+    public function updatePassword(string $password): bool
     {
         $saltedHash = Hasher::cryptographicHash($password);
         if (is_array($saltedHash)) {
@@ -683,11 +762,12 @@ class User
     }
 
     /**
-     * @return bool indicates if the update was completed successfully
-     *
      * Pushes data stored in current User instance to the database.
+     * Returns true if the update was completed successfully, false otherwise.
+     *
+     * @return bool
      */
-    public function updateToDatabase()
+    public function updateToDatabase(): bool
     {
         $dbc = new DatabaseConnection();
         if ($this->isInDatabase()) {
@@ -786,7 +866,7 @@ class User
     private function setSalt(string $salt): bool
     {
         $dbc = new DatabaseConnection();
-        if (strlen($salt) == $dbc->getMaximumLength("user", "blSalt")) {
+        if (strlen($salt) <= $dbc->getMaximumLength("user", "blSalt") and strlen($salt) == strlen(Hasher::randomSalt())) {
             $this->salt = $salt;
             return true;
         }

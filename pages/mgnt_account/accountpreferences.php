@@ -57,7 +57,7 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                                             <label style="font-size: small; padding-left: 100px;">State:</label>
                                             <label style="font-size: small; padding-left: 20px;">Zip:</label><br>
                                             <input class="tbox" name="city" style="width: 120px; height: 25px; padding-left: 5px;" type="text" value="<?php echo Controller::getLoggedInUser()->getCity(); ?>">
-                                            <input class="tbox" name="state" style="width: 40px; height: 25px;" type="text" value="<?php echo Controller::getLoggedInUser()->getProvince(User::MODE_ISO); ?>">
+                                            <input class="tbox" name="state" style="width: 40px; height: 25px;" type="text" value="<?php echo Controller::getLoggedInUser()->getProvince(User::MODE_ISO_SHORT); ?>">
                                             <input class="tbox" name="zip" style="width: 61px; height: 25px; " type="text" value="<?php echo Controller::getLoggedInUser()->getZip(); ?>">
                                             <label style="font-size: small">Excpected Graduation</label><br>
                                             <label style="font-size: small">Semester:</label>

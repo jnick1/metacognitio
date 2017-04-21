@@ -6,7 +6,8 @@
  * Time: 2:18 PM
  */
 
-define("CLASSES_DIR",$_SERVER["DOCUMENT_ROOT"]."/metacognitio/classes/");
+define("CLASSES_DIR",$_SERVER["DOCUMENT_ROOT"]."/".AutoLoader::PROJECT_DIR."classes/");
+define("ENTITIES_DIR",$_SERVER["DOCUMENT_ROOT"]."/".AutoLoader::PROJECT_DIR."classes/entities/");
 
 /**
  * Originally written by ircmaxell (2010/07/21)
@@ -17,9 +18,12 @@ define("CLASSES_DIR",$_SERVER["DOCUMENT_ROOT"]."/metacognitio/classes/");
  * Class AutoLoader
  */
 class AutoLoader {
-    protected static $paths = array(
+    const PROJECT_DIR = "metacognitio/";
+
+    protected static $paths = [
         CLASSES_DIR,
-    );
+        ENTITIES_DIR
+    ];
     public static function addPath($path) {
         $path = realpath($path);
         if ($path) {
@@ -39,4 +43,4 @@ class AutoLoader {
 
 spl_autoload_register(array("AutoLoader", "load"));
 
-require $_SERVER["DOCUMENT_ROOT"]."/metacognitio/vendor/autoload.php";
+require $_SERVER["DOCUMENT_ROOT"]."/".AutoLoader::PROJECT_DIR."vendor/autoload.php";

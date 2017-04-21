@@ -9,14 +9,14 @@ class Hasher
 {
 
     /**
+     * Generates a new salt and salted hash for a given string.
+     *
      * @param string $string
      * @return array
-     *
-     * Generates a new salt and salted hash for a given string
      */
-    public static function cryptographicHash(string $string)
+    public static function cryptographicHash(string $string): array
     {
-        $salt = random_bytes(16);
+        $salt = self::randomSalt();
         $salt1 = substr($salt, 0, strlen($salt) / 2);
         $salt2 = substr($salt, strlen($salt) / 2, strlen($salt));
         $hash = hash("sha256", $salt1 . $string . $salt2);
@@ -24,21 +24,31 @@ class Hasher
     }
 
     /**
-     * @return string
+     * Generates a new random hash based on SHA-256.
      *
-     * Generates a new random hash based on a cryptographically securely generated random string of bytes
+     * @return string
      */
-    public static function randomHash()
+    public static function randomHash(): string
     {
-        return hash("sha256", random_bytes(16));
+        return hash("sha256", self::randomSalt());
     }
 
     /**
+     * Generates a new random salt based on a cryptographically securely generated random string of bytes.
+     *
+     * @return string
+     */
+    public static function randomSalt(): string
+    {
+        return random_bytes(16);
+    }
+
+    /**
+     * Verifies that $string hashed is equivalent to $hash via the SHA256 hashing algorithm.
+     *
      * @param string $string
      * @param string $hash
      * @return bool
-     *
-     * Verifies that $string hashed is equivalent to $hash via the SHA256 hashing algorithm
      */
     public static function verifyHash(string $string, string $hash)
     {
@@ -46,12 +56,12 @@ class Hasher
     }
 
     /**
+     * Verifies that a salted $string is equivalent to $hash via the SHA256 hashing algorithm.
+     *
      * @param string $string
      * @param string $salt
      * @param string $hash
      * @return bool
-     *
-     * Verifies that a salted $string is equivalent to $hash via the SHA256 hashing algorithm
      */
     public static function verifySaltedHash(string $string, string $salt, string $hash)
     {
@@ -59,11 +69,4 @@ class Hasher
         $salt2 = substr($salt, strlen($salt) / 2, strlen($salt));
         return hash("sha256", $salt1 . $string . $salt2) == $hash;
     }
-
-    /*
-     * At the moment, this class looks useless, but it exists to separate
-     * concerns of hashing from the rest of the system. This becomes very
-     * useful if/when we decide to use an external library or change our
-     * method later; only these methods in this class need be changed.
-     */
 }

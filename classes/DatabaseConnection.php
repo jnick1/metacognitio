@@ -41,7 +41,7 @@ class DatabaseConnection
         // Try and connect to the database
         if (!isset(self::$connection)) {
             // Load configuration as an array. Use the actual location of your configuration file
-            $config = parse_ini_file($_SERVER["DOCUMENT_ROOT"]."/../secure/".Controller::PROJECT_DIR."config.ini");
+            $config = parse_ini_file($_SERVER["DOCUMENT_ROOT"]."/../secure/".AutoLoader::PROJECT_DIR."config.ini");
             self::$connection = new mysqli($config["host"], $config["username"], $config["password"], $config["database"]);
             self::$db = $config["database"];
         }
@@ -91,7 +91,7 @@ class DatabaseConnection
      */
     public function getMaximumLength(string $table, string $column)
     {
-        $connection = $this->connect();
+        $this->connect();
 
         $params = ["sss", $this->getTableSchema(), $table, $column];
         $type = $this->query("select", "SELECT `DATA_TYPE` 
@@ -171,7 +171,7 @@ class DatabaseConnection
      */
     public function getTableSchema(): string
     {
-        $connection = $this->connect();
+        $this->connect();
 
         $db = $this->query("select", "SELECT database() AS `db`");
         if($db) {
@@ -182,11 +182,6 @@ class DatabaseConnection
     }
 
     /**
-     * @param string $type
-     * @param string $query
-     * @param array|null $parameters
-     * @return array|bool
-     *
      * This is a helper function to speed up the process of continually coding
      * prepared statements for queries. It accepts three arguments:
      *       $type : a string indicating what type of query should be executed. It may
@@ -213,6 +208,11 @@ class DatabaseConnection
      * If $type is "select multiple", the function will return a multidimensional
      * array, where each element is an associative array, like in a result returned
      * from when $type is "select single". These arrays are indexed numerically.
+     *
+     * @param string $type
+     * @param string $query
+     * @param array|null $parameters
+     * @return array|bool
      */
     public function query(string $type, string $query, array &$parameters = NULL)
     {
@@ -231,8 +231,9 @@ class DatabaseConnection
                     $result = $stmt->get_result()->fetch_assoc();
                     $stmt->free_result();
                     $stmt->close();
+                    return $result;
                 }
-                return $result;
+                return false;
             case "select array":
             case "select multiple":
 
@@ -266,8 +267,9 @@ class DatabaseConnection
                     }
                     $result = $stmt->execute();
                     $stmt->close();
+                    return $result;
                 }
-                return $result;
+                return false;
             case "isset":
             case "exist":
             case "exists":
@@ -318,7 +320,7 @@ class DatabaseConnection
     }
 
     /**
-     * @param $arr
+     * @param $params
      * @return array
      *
      * Originally created by bitWorking, April 20, 2013

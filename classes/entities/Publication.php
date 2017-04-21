@@ -137,7 +137,7 @@ class Publication
                 $this->setTitle($publication["nmTitle"])
             ];
             if (in_array(false, $result, true)) {
-                throw new Exception("Publication->__construct3($publicationID, $iterationID, $editionID) - Unable to construct Publication object; variable assignment failure");
+                throw new Exception("Publication->__construct3($publicationID, $iterationID, $editionID) - Unable to construct Publication object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
             }
         } else {
             throw new Exception("Publication->__construct3($publicationID, $iterationID, $editionID) - Unable to select from database");
@@ -173,10 +173,18 @@ class Publication
             $this->setTargetPublicationDate($targetPublicationDate),
             $this->setTitle($title)
         ];
-        if(in_array(false, $result, true)) {
-            throw new Exception("Publication->__construct4($title, $description, $editionID, $iterationID, $status, $targetPublicationDate, $publicationDate, $serial, $ISBN, $coverFile) - Unable to construct Publication object; variable assignment failure");
+        if (in_array(false, $result, true)) {
+            throw new Exception("Publication->__construct4($title, $description, $editionID, $iterationID, $status, ".$targetPublicationDate->format('Y-m-d').", ".$publicationDate->format('Y-m-d').", $serial, $ISBN, $coverFile) - Unable to construct Publication object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
         }
         $this->isInDatabase = false;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return "{" . implode(" ", [$this->getTitle(), $this->getPublicationID(), $this->getIterationID(), $this->getEditionID(), $this->getISBN(), $this->isInDatabase()]) . "}";
     }
 
     /**
@@ -384,6 +392,7 @@ class Publication
     public function setSerial(Serial $serial = null): bool
     {
         $this->serial = $serial;
+        return true;
     }
 
     /**
@@ -407,6 +416,7 @@ class Publication
     public function setTargetPublicationDate(DateTime $targetPublicationDate): bool
     {
         $this->targetPublicationDate = $targetPublicationDate;
+        return true;
     }
 
     /**
@@ -455,7 +465,7 @@ class Publication
             $editionID
         ];
         $result = ($result or $dbc->query("isset", "SELECT * FROM `publication` WHERE `pkPublicationID` = ? AND `idIteration` = ? AND `idEdition` = ?", $params));
-        return !result;
+        return !$result;
     }
 
     /**

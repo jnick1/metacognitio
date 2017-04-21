@@ -77,6 +77,9 @@ class Submission
         //http://php.net/manual/en/language.oop5.decon.php
         $a = func_get_args();
         $i = func_num_args();
+        if ($i > 6) {
+            $i = 6;
+        }
         if (method_exists($this, $f = '__construct' . $i)) {
             call_user_func_array(array($this, $f), $a);
         }
@@ -92,18 +95,23 @@ class Submission
         $params = ["i", $submissionID];
         $submission = $dbc->query("select", "SELECT * FROM `submission` WHERE `pkSubmissionID` = ?", $params);
         if ($submission) {
-            $this->setSubmissionID($submission["pkSubmissionID"]);
-            $this->setAdditionalAuthors($submission["txAdditionalAuthors"]);
-            $this->setAuthor(new User($submission["fkAuthorID"], User::MODE_DBID));
-            $this->setFile(new File($submission["fkFilename"]));
-            $this->setForm($submission["fkFormID"], self::MODE_ID);
+            $result = [
+                $this->setSubmissionID($submission["pkSubmissionID"]),
+                $this->setAdditionalAuthors($submission["txAdditionalAuthors"]),
+                $this->setAuthor(new User($submission["fkAuthorID"], User::MODE_DBID)),
+                $this->setForm($submission["fkFormID"], self::MODE_ID),
+                $this->setFile(new File($submission["fkFilename"])),
+                $this->setLicenseFile(new File($submission["fkLicenseFile"])),
+                $this->setPageCount($submission["nPageCount"]),
+                $this->setPublication(new Publication($submission["fkPublicationID"])),
+                $this->setRating($submission["nRating"]),
+                $this->setStatus($submission["enStatus"]),
+                $this->setTitle($submission["nmTitle"]),
+            ];
             $this->isInDatabase = true;
-            $this->setLicenseFile(new File($submission["fkLicenseFile"]));
-            $this->setPageCount($submission["nPageCount"]);
-            $this->setPublication(new Publication($submission["fkPublicationID"]));
-            $this->setRating($submission["nRating"]);
-            $this->setStatus($submission["enStatus"]);
-            $this->setTitle($submission["nmTitle"]);
+            if (in_array(false, $result, true)) {
+                throw new Exception("Submission->__construct1($submissionID) - Unable to construct Submission object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
+            }
         } else {
             throw new Exception("Submission->__construct1($submissionID) - Unable to select from database");
         }
@@ -115,26 +123,34 @@ class Submission
      * @param File $file
      * @param string $form
      * @param int $pageCount
-     * @param Publication $publication
      * @param string $title
+     * @param Publication|null $publication
+     * @throws Exception
      */
-    public function __construct7(string $additionalAuthors, User $author, File $file, string $form, int $pageCount, string $title, Publication &$publication=null)
+    public function __construct6(string $additionalAuthors, User $author, File $file, string $form, int $pageCount, string $title, Publication $publication = null)
     {
-        $this->setTitle($title);
-        $this->setAdditionalAuthors($additionalAuthors);
-        $this->setAuthor($author);
-        $this->setFile($file);
-        $this->setForm($form);
-        $this->setPageCount($pageCount);
-        $this->setPublication($publication);
-        $this->setStatus(self::STATUS_INITIAL);
+        $result = [
+            $this->setTitle($title),
+            $this->setAdditionalAuthors($additionalAuthors),
+            $this->setAuthor($author),
+            $this->setForm($form),
+            $this->setFile($file),
+            $this->setPageCount($pageCount),
+            $this->setPublication($publication),
+            $this->setStatus(self::STATUS_INITIAL),
+        ];
         $this->isInDatabase = false;
+        if (in_array(false, $result, true)) {
+            var_dump($file);
+            var_dump($this->getFile());
+            throw new Exception("Submission->__construct6($additionalAuthors, $author, $file, $form, $pageCount, $title, $publication) - Unable to construct Submission object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
+        }
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getAdditionalAuthors(): string
+    public function getAdditionalAuthors()
     {
         return $this->additionalAuthors;
     }
@@ -241,10 +257,10 @@ class Submission
      * @param string $additionalAuthors
      * @return bool
      */
-    public function setAdditionalAuthors(string $additionalAuthors)
+    public function setAdditionalAuthors(string $additionalAuthors=null)
     {
         $dbc = new DatabaseConnection();
-        if (strlen($additionalAuthors) <= $dbc->getMaximumLength("submission", "txAdditionalAuthors")) {
+        if ($additionalAuthors === null or strlen($additionalAuthors) <= $dbc->getMaximumLength("submission", "txAdditionalAuthors")) {
             $this->additionalAuthors = $additionalAuthors;
             return true;
         } else {
@@ -254,18 +270,31 @@ class Submission
 
     /**
      * @param User $author
+     * @return bool
      */
-    public function setAuthor(User $author)
+    public function setAuthor(User $author): bool
     {
-        $this->author = $author;
+        if ($author->isInDatabase()) {
+            $this->author = $author;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * @param File $file
+     * @return bool
      */
     public function setFile(File $file)
     {
-        $this->file = $file;
+        if ($file->isInDatabase()) {
+            $this->file = $file;
+            return true;
+        } else {
+            return false;
+        }
+        //TODO: allow/disallow setting the file based on mime type and form.
     }
 
     /**
@@ -295,14 +324,22 @@ class Submission
         } else {
             return false;
         }
+        //TODO: allow/disallow setting form based on current file mime type (if any), otherwise no restriction.
     }
 
     /**
      * @param File $licenseFile
+     * @return bool
      */
-    public function setLicenseFile(File $licenseFile): void
+    public function setLicenseFile(File $licenseFile): bool
     {
-        $this->licenseFile = $licenseFile;
+        if ($licenseFile->isInDatabase()) {
+            $this->licenseFile = $licenseFile;
+            return true;
+        } else {
+            return false;
+        }
+        //TODO: allow/disallow setting license file based on mime type
     }
 
     /**
@@ -323,10 +360,12 @@ class Submission
 
     /**
      * @param Publication|null $publication
+     * @return bool
      */
-    public function setPublication(Publication $publication = null): void
+    public function setPublication(Publication $publication = null): bool
     {
         $this->publication = $publication;
+        return true;
     }
 
     /**

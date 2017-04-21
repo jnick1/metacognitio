@@ -93,6 +93,14 @@ class Serial
     }
 
     /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return "{".implode(" ", [$this->getTitle(), $this->getISSN(), $this->getIterationName(), $this->getSerialID()])."}";
+    }
+
+    /**
      * @param Publication $publication
      * @return bool
      */
@@ -125,11 +133,20 @@ class Serial
     /**
      * @param int $iteration
      * @param int $edition
-     * @return Publication
+     * @return Publication|null
      */
-    public function getPublication(int $iteration, int $edition): Publication
+    public function getPublication(int $iteration, int $edition)
     {
-        //TODO: implement
+        $pubs = $this->getPublications();
+        foreach($pubs as $pub) {
+            // this is always true, but it is included to allow for ease of code auto-completion by PhpStorm (and so it doesn't bug out when I call class methods)
+            if($pub instanceof Publication) {
+                if($pub->getIterationID() === $iteration and $pub->getEditionID() === $edition) {
+                    return $pub;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -280,6 +297,7 @@ class Serial
 
     /**
      * @param int $serialID
+     * @return bool
      */
     private function setSerialID(int $serialID): bool
     {

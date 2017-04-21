@@ -41,11 +41,19 @@ class Permission
                 $this->setDescription($permission["txDescription"])
             ];
             if (in_array(false, $result, true)) {
-                throw new Exception("Permission->__construct($permissionID) -  Unable to construct Permission object; variable assignment failure");
+                throw new Exception("Permission->__construct($permissionID) -  Unable to construct Permission object; variable assignment failure - (".implode(" ", array_keys($result,false,true)).")");
             }
         } else {
             throw new Exception("Permission->__construct($permissionID) -  Unable to select from database");
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return "{".implode(" ", [$this->getPermissionID(), $this->getName()])."}";
     }
 
     /**

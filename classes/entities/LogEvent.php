@@ -84,14 +84,21 @@ class LogEvent
     const USER_UPDATE_PASSWORD = 53;
 
     /**
+     * Stores the primary key by which the current LogEvent is stored in table `log`. The value of this field is
+     * null if the LogEvent has not been saved to the database.
+     *
      * @var int
      */
     private $eventID;
     /**
+     * Stores an array describing the type of event that the current LogEvent instance represents.
+     *
      * @var array ["id"=>int,"name"=>string,"description"=>string]
      */
-    private $eventtype;
+    private $eventType;
     /**
+     * Stores a reference to a file that has been modified in some way as a part of this LogEvent
+     *
      * @var File
      */
     private $file;
@@ -110,10 +117,15 @@ class LogEvent
      */
     private $table;
     /**
-     * @var string
+     * Date and Time at which the LogEvent is registered to have occurred. Typically whenever the a LogEvent object is
+     * instantiated.
+     *
+     * @var DateTime
      */
     private $timestamp;
     /**
+     * The user who performed the action as specified by a LogEvent instance.
+     *
      * @var User
      */
     private $user;
@@ -198,11 +210,11 @@ class LogEvent
     {
         switch ($mode) {
             case self::MODE_ID:
-                return $this->eventtype["id"];
+                return $this->eventType["id"];
             case self::MODE_DESCRIPTION:
-                return $this->eventtype["description"];
+                return $this->eventType["description"];
             default:
-                return $this->eventtype["name"];
+                return $this->eventType["name"];
         }
     }
 
@@ -250,7 +262,7 @@ class LogEvent
      * @param string|int $eventType
      * @param int $mode
      * @return bool
-     * @throws Exception|InvalidArgumentException
+     * @throws Exception
      */
     public function setEventType($eventType, int $mode = self::MODE_ID): bool
     {
@@ -259,7 +271,7 @@ class LogEvent
             $params = ["i", $eventType];
             $event = $dbc->query("select", "SELECT `nmEvent`, `txDescription` FROM `event` WHERE `pkEventID`=?", $params);
             if ($event) {
-                $this->eventtype = ["id" => $eventType, "name" => $event["nmEvent"], "description" => $event["txDescription"]];
+                $this->eventType = ["id" => $eventType, "name" => $event["nmEvent"], "description" => $event["txDescription"]];
                 return true;
             } else {
                 throw new Exception("LogEvent->setEventType($eventType) -  Unable to select from database");
@@ -268,8 +280,13 @@ class LogEvent
             $params = ["s", $eventType];
             $event = $dbc->query("select", "SELECT `pkEventID`, `txDescription` FROM `event` WHERE `nmEvent` = ?", $params);
             if ($event) {
-                $this->eventtype = ["id" => $event["pkEventID"], "name" => $eventType, "description" => $event["txDescription"]];
+                $this->eventType = ["id" => $event["pkEventID"], "name" => $eventType, "description" => $event["txDescription"]];
+                return true;
+            } else {
+                throw new Exception("LogEvent->setEventType($eventType) -  Unable to select from database");
             }
+        } else {
+            return false;
         }
     }
 
@@ -345,7 +362,7 @@ class LogEvent
                 // ... then properly sort out the database output into an array (is returned by default as a 2d array,
                 // where each row returned is an array whose elements are indexed by column names).
                 foreach ($tables as $table) {
-                    $tableList[] = $table["Tables_in_metacognitiodb"];
+                    $tableList[] = $table["Tables_in_".$dbc->getDatabaseName()];
                 }
                 // Finally, perform the check to see if the proposed table is a valid one
                 if (in_array($table, $tableList)) {
@@ -434,9 +451,10 @@ class LogEvent
      * @param int $eventID
      * @return bool
      */
-    private function setEventID(int $eventID): void
+    private function setEventID(int $eventID): bool
     {
         $this->eventID = $eventID;
+        return true;
     }
 
 }

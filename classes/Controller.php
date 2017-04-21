@@ -11,7 +11,6 @@ class Controller
     const HEADER_FILE = "pages/pageassembly/header.php";
     const MODE_COMP_AND = 2;
     const MODE_COMP_OR = 1;
-    const PROJECT_DIR = "metacognitio/";
     const MODULE_DIR = "pages/";
 
     /**
@@ -577,16 +576,19 @@ class Controller
              *              file : array
              */
             case "submit":
+                $file = new File($_FILES["file"]["name"], "");
+                move_uploaded_file($_FILES['file']['tmp_name'], File::DEFAULT_PATH . $file->getInternalName());
+                $file->fetchContents();
+                $file->updateToDatabase();
                 $submission = new Submission(
                     $this->scrubbed["additionalAuthors"],
                     self::getLoggedInUser(),
-                    new File($_FILES["file"]["name"], ""),
+                    $file,
                     $this->scrubbed["form"],
                     $this->scrubbed["pageCount"],
                     $this->scrubbed["title"],
                     null
                 );
-                move_uploaded_file($_FILES['file']['tmp_name'], File::$DEFAULT_PATH . $submission->getFile()->getInternalName());
                 $submission->updateToDatabase();
                 break;
         }
@@ -601,7 +603,7 @@ class Controller
         $path = explode("/", dirname($_SERVER["SCRIPT_NAME"]));
         $homeDir = "";
         foreach ($path as $dir) {
-            if ($dir != rtrim(self::PROJECT_DIR, "/") and $dir != "") {
+            if ($dir != rtrim(AutoLoader::PROJECT_DIR, "/") and $dir != "") {
                 $homeDir .= ".." . DIRECTORY_SEPARATOR;
             }
         }

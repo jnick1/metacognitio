@@ -1,6 +1,6 @@
 <?php
 
-define("DEFAULT_PATH", $_SERVER["DOCUMENT_ROOT"] . "/" . Controller::PROJECT_DIR . "files/");
+define("DEFAULT_PATH", $_SERVER["DOCUMENT_ROOT"] . "/" . AutoLoader::PROJECT_DIR . "files/");
 
 /**
  * Created by PhpStorm.
@@ -130,6 +130,7 @@ class File
      * Constructor for retrieving existing files from the database.
      *
      * @param string $internalName
+     * @throws Exception
      */
     public function __construct1(string $internalName)
     {
@@ -149,7 +150,7 @@ class File
                 $result[] = $this->setParent(new File($file["fkFilename"]));
             }
             if (in_array(false, $result, true)) {
-                throw new Exception("File->__construct1($internalName) - Unable to construct File object; variable assignment failure");
+                throw new Exception("File->__construct1($internalName) - Unable to construct File object; variable assignment failure - (" . array_keys($result, false, true) . ")");
             }
         } else {
             throw new Exception("File->__construct1($internalName) - Unable to select from database");
@@ -162,6 +163,7 @@ class File
      * @param string $name
      * @param string $contents
      * @param File|null $parent
+     * @throws Exception
      */
     public function __construct2(string $name, string $contents, File $parent = null)
     {
@@ -174,8 +176,16 @@ class File
         $this->isInDatabase = false;
         $result[] = $this->newInternalName();
         if (in_array(false, $result, true)) {
-            throw new Exception("File->__construct2($name, \$contents, $parent) - Unable to construct File object; variable assignment failure");
+            throw new Exception("File->__construct2($name, \$contents, $parent) - Unable to construct File object; variable assignment failure - (" . array_keys($result, false, true) . ")");
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return "{" . implode(" ", [$this->getInternalName(), $this->getName(), $this->getMimeType()]) . "}";
     }
 
     /**
@@ -232,23 +242,27 @@ class File
     }
 
     /**
-     * @return File
+     * @return File|null
      */
-    public function getParent(): File
+    public function getParent()
     {
         return $this->parent;
     }
 
     /**
-     * @return File
+     * @return File|null
      */
-    public function getRootParent(): File
+    public function getRootParent()
     {
         $file = $this;
-        while ($file->getParent() !== null) {
-            $file = $file->getParent();
+        if($file->getParent() === null) {
+            return null;
+        } else {
+            while ($file->getParent() !== null) {
+                $file = $file->getParent();
+            }
+            return $file;
         }
-        return $file;
     }
 
     /**
@@ -281,7 +295,7 @@ class File
     }
 
     /**
-     * @param string $contents
+     *
      */
     public function saveContents(): void
     {
@@ -310,6 +324,7 @@ class File
 
     /**
      * @param string $name
+     * @return bool
      */
     public function setName(string $name): bool
     {
@@ -372,6 +387,7 @@ class File
             $params = ["sssi", $this->getInternalName(), $parent, $this->getName(), $this->isActive()];
             $result = $dbc->query("insert", "INSERT INTO `file`(`pkFilename`, `fkFilename`, `nmTitle`, `isActive`) VALUES (?,?,?,?)", $params);
             $this->saveContents();
+            $this->isInDatabase = true;
             return (bool)$result;
         }
     }
