@@ -218,7 +218,6 @@ class User
                         $this->setIsActive($user["isActive"]),
                     ];
                     if (in_array(false, $result, true)) {
-                        var_dump($this->getSalt());
                         throw new Exception("User->__construct2($identifier, $mode) - Unable to construct User object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
                     }
                     $this->isInDatabase = true;

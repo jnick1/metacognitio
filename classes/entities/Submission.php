@@ -141,8 +141,6 @@ class Submission
         ];
         $this->isInDatabase = false;
         if (in_array(false, $result, true)) {
-            var_dump($file);
-            var_dump($this->getFile());
             throw new Exception("Submission->__construct6($additionalAuthors, $author, $file, $form, $pageCount, $title, $publication) - Unable to construct Submission object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
         }
     }
