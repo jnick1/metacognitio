@@ -149,6 +149,7 @@ class LogEvent
      * Constructor for retrieving existing logs from the database.
      *
      * @param int $eventID
+     * @throws Exception
      */
     public function __construct1(int $eventID)
     {
@@ -157,19 +158,25 @@ class LogEvent
         $event = $dbc->query("select", "SELECT * FROM `log` WHERE `pkLogID`=?", $params);
 
         if ($event) {
-            $this->setEventID($eventID);
-            $this->setEventType($event["fkEventID"], self::MODE_ID);
-            $this->setTimestamp($event["dtTimestamp"]);
-            $this->setUser(User::load($event["fkUserID"], User::MODE_DBID));
+            $result = [
+                $this->setEventID($eventID),
+                $this->setEventType($event["fkEventID"], self::MODE_ID),
+                $this->setTimestamp($event["dtTimestamp"]),
+                $this->setUser(User::load($event["fkUserID"], User::MODE_DBID)),
+            ];
 
             if (isset($event["nmTable"])) {
-                $this->setTable($event["nmTable"]);
+                $result[] = $this->setTable($event["nmTable"]);
             }
             if (isset($event["fkIdentifier"])) {
-                $this->setIdentifier($event["fkIdentifier"]);
+                $result[] = $this->setIdentifier($event["fkIdentifier"]);
             }
             if (isset($event["fkFilename"])) {
-                $this->setFile(new File($event["fkFilename"]));
+                $result[] = $this->setFile(new File($event["fkFilename"]));
+            }
+
+            if (in_array(false, $result, true)) {
+                throw new Exception("LogEvent->__construct2($eventID) - Unable to construct LogEvent object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
             }
         }
     }
@@ -183,15 +190,21 @@ class LogEvent
      * @param string|null $table
      * @param string|int|null $identifier
      * @param int|null $timestamp
+     * @throws Exception
      */
     public function __construct2(User $user, int $eventTypeID, File $file = null, string $table = null, $identifier = null, int $timestamp = null)
     {
-        $this->setUser($user);
-        $this->setEventType($eventTypeID);
-        $this->setFile($file);
-        $this->setTable($table);
-        $this->setIdentifier($identifier);
-        $this->setTimestamp($timestamp);
+        $result = [
+            $this->setUser($user),
+            $this->setEventType($eventTypeID),
+            $this->setFile($file),
+            $this->setTable($table),
+            $this->setIdentifier($identifier),
+            $this->setTimestamp($timestamp),
+        ];
+        if (in_array(false, $result, true)) {
+            throw new Exception("LogEvent->__construct2($user, $eventTypeID, $file, $table, $identifier, $timestamp) - Unable to construct LogEvent object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
+        }
     }
 
     /**
@@ -381,15 +394,16 @@ class LogEvent
 
     /**
      * @param int $time
-     * @return void
+     * @return bool
      */
-    public function setTimestamp(int $time = null): void
+    public function setTimestamp(int $time = null): bool
     {
         if (isset($time)) {
-            $this->timestamp = date('Y-m-d H:i:s', $time);
+            $this->timestamp = new DateTime(date('Y-m-d H:i:s', $time));
         } else {
-            $this->timestamp = date('Y-m-d H:i:s', time());
+            $this->timestamp = new DateTime();
         }
+        return true;
     }
 
     /**

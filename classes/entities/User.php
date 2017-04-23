@@ -17,77 +17,120 @@ class User
     const MODE_PHONE = 5;
 
     /**
-     * @var string
+     * Stores a user's alternative email address for contact purposes only. A user cannot log in using their
+     * alternate email address.
+     *
+     * @var string|null
      */
     private $altEmail;
     /**
+     * Stores the city of the shipping address for a user.
+     *
      * @var string
      */
     private $city;
     /**
+     * Stores information about the country of the shipping address for a user. This includes an internal identifier,
+     * the country's ISO code (ISO 3166-1), its name, and its international phone extension.
+     *
      * @var array ["pkCountryID"=>int, "idISO"=>string,    "nmName"=>string,   "idPhoneCode"=>int]
      */
     private $country;
     /**
+     * Stores the main email for a user. This is the also the username that users use to log in to their account.
+     *
      * @var string
      */
     private $email;
     /**
+     * Stores a user's first name.
+     *
      * @var string
      */
     private $fName;
     /**
+     * Stores the expected graduation semester of a user.
+     *
      * @var string
      */
     private $gradSemester;
     /**
+     * Stores the 4-digit expected graduation year of a user.
+     *
      * @var int
      */
     private $gradYear;
     /**
+     * Stores the salted hash of a user's password.
+     *
      * @var string
      */
     private $hash;
     /**
+     * Stores a boolean indicating whether or not a user is permitted to log in.
+     *
      * @var bool
      */
     private $isActive;
     /**
+     * Stores a boolean indicating whether or not a user's information is stored in the database (true), or whether
+     * the current User object only exists within the current session.
+     *
      * @var bool
      */
     private $isInDatabase;
     /**
+     * Stores a user's last name.
+     *
      * @var string
      */
     private $lName;
     /**
+     * Stores an array of Permission objects indicating what permissions the a user has.
+     *
      * @var array [Permission]
      */
     private $permissions;
     /**
+     * Stores a user's phone number. This must be a valid phone number within the current User object's indicated
+     * shipping address country.
+     *
      * @var int
      */
     private $phone;
     /**
+     * Stores the postal code for a user's shipping address. May be null if a user's shipping address' country does not
+     * use postal codes, otherwise, it must have a value. Allows only arabic numerals 0-9 and ISO basic latin alphabet
+     * characters.
+     *
+     * @var string|null
+     */
+    private $postalCode;
+    /**
+     * Stores information about the province of the shipping address for a user. This includes an internal identifier,
+     * the province's ISO code (ISO 3166-2), and its name.
+     *
      * @var array ["pkStateID"=>int,   "idISO"=>string,    "nmName"=>string]
      */
     private $province;
     /**
+     * Stores the salt for a user's salted hash of their password.
+     *
      * @var string
      */
     private $salt;
     /**
+     * Stores the street address of the shipping address for a user.
+     *
      * @var string
      */
     private $streetAddress;
     /**
+     * Stores the internal identifier for a user. Can only be changed if the user is not saved to the database.
+     *
      * @var int
      */
     private $userID;
-    /**
-     * @var int
-     */
-    private $zip;
 
     /**
      * User constructor.
@@ -129,7 +172,7 @@ class User
      * @param string $streetAddress
      * @param string $city
      * @param string $province
-     * @param int $zip
+     * @param int $postalCode
      * @param int $phone
      * @param string $gradSemester
      * @param int $gradYear
@@ -137,7 +180,7 @@ class User
      * @param bool $isActive
      * @throws Exception
      */
-    public function __construct13(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
+    public function __construct13(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $postalCode, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
     {
         $dbc = new DatabaseConnection();
         $params = ["s", $province];
@@ -156,7 +199,7 @@ class User
                     $this->setCity($city),
                     $this->setProvince($provinceResult["idISO"], self::MODE_ISO),
                     $this->setCountry($country["idISO"]),
-                    $this->setZip($zip),
+                    $this->setPostalCode($postalCode),
                     $this->setPhone($phone),
                     $this->setGradsemester($gradSemester),
                     $this->setGradYear($gradYear),
@@ -164,13 +207,13 @@ class User
                     $this->setIsActive($isActive),
                 ];
                 if (in_array(false, $result, true)) {
-                    throw new Exception("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
+                    throw new Exception("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $postalCode, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
                 }
                 $this->permissions = [];
                 $this->isInDatabase = false;
             }
         } else {
-            throw new InvalidArgumentException("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; Invalid province");
+            throw new InvalidArgumentException("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $postalCode, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; Invalid province");
         }
     }
 
@@ -209,7 +252,7 @@ class User
                         $this->setStreetAddress($user["txStreetAddress"]),
                         $this->setCity($user["txCity"]),
                         $this->setProvince($province["idISO"], self::MODE_ISO),
-                        $this->setZip($user["nZip"]),
+                        $this->setPostalCode($user["txPostalCode"]),
                         $this->setPhone($user["nPhone"]),
                         $this->setGradsemester($user["enGradSemester"]),
                         $this->setGradYear($user["dtGradYear"]),
@@ -288,7 +331,7 @@ class User
      * @param int $mode
      * @return int|string
      */
-    public function getCountry(int $mode)
+    public function getCountry(int $mode=self::MODE_NAME)
     {
         switch ($mode) {
             case self::MODE_DBID:
@@ -376,6 +419,14 @@ class User
     }
 
     /**
+     * @return string|null
+     */
+    public function getPostalCode(): string
+    {
+        return $this->postalCode;
+    }
+
+    /**
      * @param int $identifier
      * @return string|int
      */
@@ -386,7 +437,7 @@ class User
             case self::MODE_ISO:
                 return $this->province["idISO"];
             case self::MODE_ISO_SHORT:
-                return str_replace($this->getCountry(self::MODE_ISO)."-", "", $this->province["idISO"]);
+                return str_replace($this->getCountry(self::MODE_ISO) . "-", "", $this->province["idISO"]);
             case self::MODE_DBID:
                 return $this->province["pkStateID"];
             default:
@@ -419,14 +470,6 @@ class User
     }
 
     /**
-     * @return int
-     */
-    public function getZip(): int
-    {
-        return $this->zip;
-    }
-
-    /**
      * @param Permission $permission
      * @return bool
      * @throws InvalidArgumentException()
@@ -445,7 +488,11 @@ class User
      */
     public function isInDatabase(): bool
     {
-        return $this->isInDatabase;
+        if(isset($this->isInDatabase)) {
+            return $this->isInDatabase;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -664,14 +711,35 @@ class User
     public function setPhone(int $phone): bool
     {
         $phoneNumberUtil = libphonenumber\PhoneNumberUtil::getInstance();
-        $phoneNumberObject = $phoneNumberUtil->parse($phone, $this->getCountry("ISO"));
-        $isValid = $phoneNumberUtil->isValidNumberForRegion($phoneNumberObject, $this->getCountry("ISO"));
+        $phoneNumberObject = $phoneNumberUtil->parse($phone, $this->getCountry(self::MODE_ISO));
+        $isValid = $phoneNumberUtil->isValidNumberForRegion($phoneNumberObject, $this->getCountry(self::MODE_ISO));
 
         if ($isValid) {
             $this->phone = $phoneNumberUtil->format($phoneNumberObject, \libphonenumber\PhoneNumberFormat::E164);
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param int $postalCode
+     * @return bool
+     */
+    public function setPostalCode(int $postalCode = null): bool
+    {
+        if (isset($postalCode)) {
+            $postalCode = strtoupper($postalCode);
+            $postalCode = preg_replace("/[^0-9A-Z]/", "", $postalCode);
+            $dbc = new DatabaseConnection();
+            if (strlen($postalCode) <= $dbc->getMaximumLength("user", "txPostalCode")) {
+                $this->postalCode = $postalCode;
+                return true;
+            }
+            return false;
+        } else {
+            $this->postalCode = null;
+            return true;
+        }
     }
 
     /**
@@ -710,20 +778,6 @@ class User
         $dbc = new DatabaseConnection();
         if (strlen($streetAddress) <= $dbc->getMaximumLength("user", "txStreetAddress")) {
             $this->streetAddress = $streetAddress;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @param int $zip
-     * @return bool
-     */
-    public function setZip(int $zip): bool
-    {
-        $dbc = new DatabaseConnection();
-        if (strlen($zip) <= $dbc->getMaximumLength("user", "nZip")) {
-            $this->zip = $zip;
             return true;
         }
         return false;
@@ -779,7 +833,7 @@ class User
                 $this->getStreetAddress(),
                 $this->getCity(),
                 $this->getProvince(self::MODE_DBID),
-                $this->getZip(),
+                $this->getPostalCode(),
                 $this->getPhone(),
                 $this->getGradSemester(),
                 $this->getGradYear(),
@@ -790,7 +844,7 @@ class User
             ];
             $result = $dbc->query("update", "UPDATE `user` SET 
                                       `nmFirst`=?,`nmLast`=?,`txEmail`=?,`txEmailAlt`=?,
-                                      `txStreetAddress`=?,`txCity`=?,`fkProvinceID`=?,`nZip`=?,
+                                      `txStreetAddress`=?,`txCity`=?,`fkProvinceID`=?,`txPostalCode`=?,
                                       `nPhone`=?,`enGradSemester`=?,`dtGradYear`=?,`blSalt`=?,
                                       `txHash`=?,`isActive`=?
                                       WHERE `pkUserID`=?", $params);
@@ -812,7 +866,7 @@ class User
                 $this->getStreetAddress(),
                 $this->getCity(),
                 $this->getProvince(self::MODE_DBID),
-                $this->getZip(),
+                $this->getPostalCode(),
                 $this->getPhone(),
                 $this->getGradSemester(),
                 $this->getGradYear(),
@@ -822,7 +876,7 @@ class User
             ];
             $result = $dbc->query("insert", "INSERT INTO `user` (`pkUserID`, 
                                           `nmFirst`, `nmLast`, `txEmail`, `txEmailAlt`, 
-                                          `txStreetAddress`, `txCity`, `fkProvinceID`, `nZip`, 
+                                          `txStreetAddress`, `txCity`, `fkProvinceID`, `txPostalCode`, 
                                           `nPhone`, `enGradSemester`, `dtGradYear`, `blSalt`, 
                                           `txHash`, `isActive`) 
                                           VALUES 
@@ -878,16 +932,20 @@ class User
      */
     private function setUserID(int $userID): bool
     {
-        $options = [
-            "options" => [
-                "min_range" => 0,
-                "max_range" => pow(2, 31) - 1
-            ]
-        ];
-        if ($filtered = filter_var($userID, FILTER_VALIDATE_INT, $options)) {
-            $this->userID = $filtered;
-            return true;
+        if ($this->isInDatabase()) {
+            return false;
+        } else {
+            $options = [
+                "options" => [
+                    "min_range" => 0,
+                    "max_range" => pow(2, 31) - 1
+                ]
+            ];
+            if ($filtered = filter_var($userID, FILTER_VALIDATE_INT, $options)) {
+                $this->userID = $filtered;
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 }

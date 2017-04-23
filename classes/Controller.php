@@ -133,11 +133,14 @@ class Controller
     public static function getLoginFails()
     {
         if (session_status() == PHP_SESSION_ACTIVE) {
-            return $_SESSION["loginFails"];
+            if(isset($_SESSION["loginFails"])) {
+                return $_SESSION["loginFails"];
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
-
     }
 
     /**
