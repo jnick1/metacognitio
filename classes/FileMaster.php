@@ -9,16 +9,19 @@
 class FileMaster
 {
     const ALLOWED_DOC_MIME_TYPES = [
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/msword',
-        'application/vnd.oasis.opendocument.text',
-        'text/rtf',
-        'text/plain'
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/msword",
+        "application/vnd.oasis.opendocument.text",
+        "text/rtf",
+        "text/plain"
     ];
     const ALLOWED_IMG_MIME_TYPES = [
-        'image/jpeg',
-        'image/png',
-        'image/tiff'
+        "image/jpeg",
+        "image/png",
+        "image/tiff"
+    ];
+    const ALLOWED_LICENSE_MIME_TYPES = [
+        "application/pdf"
     ];
 
     //TODO: any implementation (needs to handle all downloads/uploads from/to the server to/from the client)

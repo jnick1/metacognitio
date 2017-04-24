@@ -103,17 +103,16 @@ class LogEvent
      */
     private $file;
     /**
-     * Foreign key referencing primary key in the table specified by $table.
+     * An array of foreign key values referencing primary keys in the table specified by $table.
      * Thus, it can vary, and be either an string or an int.
      *
-     * @var int|string
+     * @var array [int|string]
      */
     private $identifier;
     /**
-     * An array storing both the name of the column, and the value of the identifier stored in the table referred to
-     * in $table;
+     * An array storing both the name of the table, and an array of the names of all primary key columns of the table.
      *
-     * @var array ["name"=string,"id"=string|int]
+     * @var array ["name"=string,"columns"=[string]]
      */
     private $table;
     /**
@@ -208,6 +207,23 @@ class LogEvent
     }
 
     /**
+     * Returns a dump-able string version of the current LogEvent.
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        $dbc = new DatabaseConnection();
+        $eventType = str_pad("[" . $this->getEventType() . "]", $dbc->getMaximumLength("event", "nmEvent"));
+        $timestamp = "[" . str_pad($this->getTimestamp()->format("Y-m-d H:i:s.v"), 23) . "]";
+        $user = "[" . str_pad($this->getUser()->getUserID(), $dbc->getMaximumLength("user", "pkUserID")) . " " . str_pad($this->getUser()->getEmail(), $dbc->getMaximumLength("user", "txEmail")) . "]";
+        if ($this->getTable() === null) {
+
+        }
+        return $eventType . " " . $timestamp . " " . $user;
+    }
+
+    /**
      * @return int
      */
     public function getEventID(): int
@@ -248,17 +264,17 @@ class LogEvent
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTable(): string
+    public function getTable()
     {
         return $this->table;
     }
 
     /**
-     * @return string
+     * @return DateTime
      */
-    public function getTimestamp(): string
+    public function getTimestamp(): DateTime
     {
         return $this->timestamp;
     }
@@ -307,7 +323,7 @@ class LogEvent
      * @param File $file
      * @return bool
      */
-    public function setFile(File $file=null): bool
+    public function setFile(File $file = null): bool
     {
         if (!isset($file) or $file->isInDatabase()) {
             $this->file = $file;
@@ -324,11 +340,12 @@ class LogEvent
      */
     public function setIdentifier($identifier = null): bool
     {
-        if ($identifier === null) {
-            $this->identifier = null;
-            return true;
-        } else if ($this->getTable() === null and $identifier) {
+        if (isset($identifier) and $this->getTable() === null) {
             throw new Exception("File->setIdentifier($identifier) - Unable to set foreign key identifier when table is null");
+        } else if (!isset($identifier)) {
+            $this->identifier = null;
+            $this->setTable();
+            return true;
         } else {
             $dbc = new DatabaseConnection();
             $identifierType = $this->getIdentifierType() == "int" ? "i" : "s";
@@ -375,16 +392,30 @@ class LogEvent
                 // ... then properly sort out the database output into an array (is returned by default as a 2d array,
                 // where each row returned is an array whose elements are indexed by column names).
                 foreach ($tables as $table) {
-                    $tableList[] = $table["Tables_in_".$dbc->getDatabaseName()];
+                    $tableList[] = $table["Tables_in_" . $dbc->getDatabaseName()];
                 }
                 // Finally, perform the check to see if the proposed table is a valid one
                 if (in_array($table, $tableList)) {
+                    //Next, get a list of the names of columns in the table which are part of the table's primary key
+                    $params = ["ss", $dbc->getTableSchema(), $table];
+                    $keys = $dbc->query("select multiple", "SELECT `COLUMN_NAME` FROM `information_schema`.`COLUMNS`
+                                                                          WHERE `TABLE_SCHEMA` = ?
+                                                                          AND `TABLE_NAME` = ?
+                                                                          AND `COLUMN_KEY` = 'PRI'", $params);
+                    //Again, sort out the database output into a flat array.
+                    $columns = [];
+                    foreach ($keys as $key) {
+                        $columns[] = $key["COLUMN_NAME"];
+                    }
+                    $this->table = [
+                        "name" => $table,
+                        "columns" => $columns
+                    ];
                     // Make sure $identifier is set to null once $table changes, since the old value will have no meaning.
-                    $this->table = $table;
                     $this->setIdentifier();
                     return true;
                 } else {
-                    throw new InvalidArgumentException("LogEvent->setTable($table) - Unable to find table in database");
+                    return false;
                 }
             } else {
                 throw new Exception("LogEvent->setTable($table) - Unable to select from database");
@@ -412,7 +443,7 @@ class LogEvent
      */
     public function setUser(User $user): bool
     {
-        if($user->isInDatabase()) {
+        if ($user->isInDatabase()) {
             $this->user = $user;
             return true;
         } else {

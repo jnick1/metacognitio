@@ -41,7 +41,7 @@ class DatabaseConnection
         // Try and connect to the database
         if (!isset(self::$connection)) {
             // Load configuration as an array. Use the actual location of your configuration file
-            $config = parse_ini_file($_SERVER["DOCUMENT_ROOT"]."/../secure/".AutoLoader::PROJECT_DIR."config.ini");
+            $config = parse_ini_file(SECURE_DIR.AutoLoader::PROJECT_DIR."config.ini");
             self::$connection = new mysqli($config["host"], $config["username"], $config["password"], $config["database"]);
             self::$db = $config["database"];
         }
@@ -87,13 +87,16 @@ class DatabaseConnection
      *
      * @param string $table
      * @param string $column
+     * @param string|null $schema
      * @return int|array|bool
      */
-    public function getMaximumLength(string $table, string $column)
+    public function getMaximumLength(string $table, string $column, string $schema=null)
     {
         $this->connect();
-
-        $params = ["sss", $this->getTableSchema(), $table, $column];
+        if(!isset($schema)) {
+            $schema = $this->getTableSchema();
+        }
+        $params = ["sss", $schema, $table, $column];
         $type = $this->query("select", "SELECT `DATA_TYPE` 
                                                               FROM `information_schema`.`COLUMNS` 
                                                               WHERE `TABLE_SCHEMA` = ? 
@@ -171,14 +174,19 @@ class DatabaseConnection
      */
     public function getTableSchema(): string
     {
-        $this->connect();
-
-        $db = $this->query("select", "SELECT database() AS `db`");
-        if($db) {
-            return $db["db"];
-        } else {
-            throw new Exception("DatabaseConnection->getTableSchema() - Unable to select from database");
-        }
+        return $this->getDatabaseName();
+        /*
+         * Used to query the database each time for the required information, but this function has instead been changed
+         * to act as an alias for getDatabaseName.
+         */
+//        $this->connect();
+//
+//        $db = $this->query("select", "SELECT database() AS `db`");
+//        if($db) {
+//            return $db["db"];
+//        } else {
+//            throw new Exception("DatabaseConnection->getTableSchema() - Unable to select from database");
+//        }
     }
 
     /**

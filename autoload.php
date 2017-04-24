@@ -8,6 +8,8 @@
 
 define("CLASSES_DIR",$_SERVER["DOCUMENT_ROOT"]."/".AutoLoader::PROJECT_DIR."classes/");
 define("ENTITIES_DIR",$_SERVER["DOCUMENT_ROOT"]."/".AutoLoader::PROJECT_DIR."classes/entities/");
+define("TMP_DIR", $_SERVER["DOCUMENT_ROOT"]."/../tmp/");
+define("SECURE_DIR", $_SERVER["DOCUMENT_ROOT"]."/../secure/");
 
 /**
  * Originally written by ircmaxell (2010/07/21)

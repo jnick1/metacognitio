@@ -12,6 +12,7 @@ class Submission
     const MODE_DESCRIPTION = 1;
     const MODE_ID = 2;
     const MODE_NAME = 3;
+    const MODE_TYPE = 4;
     const STATUS_CANCELLED = "Cancelled";
     const STATUS_FINAL = "Apply Final Edits";
     const STATUS_INITIAL = "Initial Review";
@@ -28,11 +29,11 @@ class Submission
      */
     private $author;
     /**
-     * @var File
+     * @var File|null
      */
     private $file;
     /**
-     * @var array ["id"=>int, "name"=>string, "description"=>string]
+     * @var array ["id"=>int, "name"=>string, "type"=>string, "description"=>string]
      */
     private $form;
     /**
@@ -40,7 +41,7 @@ class Submission
      */
     private $isInDatabase;
     /**
-     * @var File
+     * @var File|null
      */
     private $licenseFile;
     /**
@@ -52,7 +53,7 @@ class Submission
      */
     private $publication;
     /**
-     * @var float
+     * @var float|null
      */
     private $rating;
     /**
@@ -178,10 +179,10 @@ class Submission
         switch ($mode) {
             case self::MODE_ID:
                 return $this->form["id"];
-                break;
+            case self::MODE_TYPE:
+                return $this->form["type"];
             case self::MODE_DESCRIPTION:
                 return $this->form["description"];
-                break;
             default:
                 return $this->form["name"];
         }
@@ -255,7 +256,7 @@ class Submission
      * @param string $additionalAuthors
      * @return bool
      */
-    public function setAdditionalAuthors(string $additionalAuthors=null)
+    public function setAdditionalAuthors(string $additionalAuthors = null)
     {
         $dbc = new DatabaseConnection();
         if ($additionalAuthors === null or strlen($additionalAuthors) <= $dbc->getMaximumLength("submission", "txAdditionalAuthors")) {
@@ -281,18 +282,35 @@ class Submission
     }
 
     /**
-     * @param File $file
+     * @param File|null $file
      * @return bool
      */
-    public function setFile(File $file)
+    public function setFile(File $file = null)
     {
-        if ($file->isInDatabase()) {
-            $this->file = $file;
-            return true;
+        if (isset($file)) {
+            if ($file->isInDatabase()) {
+                if ($this->getForm(self::MODE_TYPE) == "DOC") {
+                    $allowed = FileMaster::ALLOWED_DOC_MIME_TYPES;
+                } else if ($this->getForm(self::MODE_TYPE) == "IMG") {
+                    $allowed = FileMaster::ALLOWED_IMG_MIME_TYPES;
+                } else if ($this->getForm(self::MODE_TYPE) == "ANY") {
+                    $allowed = array_merge(FileMaster::ALLOWED_IMG_MIME_TYPES, FileMaster::ALLOWED_DOC_MIME_TYPES);
+                } else {
+                    return false;
+                }
+                if (in_array($file->getMimeType(), $allowed)) {
+                    $this->file = $file;
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         } else {
-            return false;
+            $this->file = null;
+            return true;
         }
-        //TODO: allow/disallow setting the file based on mime type and form.
     }
 
     /**
@@ -307,37 +325,69 @@ class Submission
             $params = ["i", $form];
             $result = $dbc->query("select", "SELECT * FROM `form` WHERE `pkFormID` = ?", $params);
         } else if ($mode === self::MODE_NAME) {
+            $form = strtolower($form);
             $params = ["s", $form];
             $result = $dbc->query("select", "SELECT * FROM `form` WHERE `nmTitle` = ?", $params);
         } else {
             return false;
         }
         if ($result) {
-            $this->form = [
-                "id" => $result["pkFormID"],
-                "name" => $result["nmTitle"],
-                "description" => $result["txDescription"]
-            ];
-            return true;
+            if ($this->getFile() === null) {
+                $this->form = [
+                    "id" => $result["pkFormID"],
+                    "name" => $result["nmTitle"],
+                    "type" => $result["enFileType"],
+                    "description" => $result["txDescription"]
+                ];
+                return true;
+            } else {
+                if ($result["enFileType"] == "DOC") {
+                    $allowed = FileMaster::ALLOWED_DOC_MIME_TYPES;
+                } else if ($result["enFileType"] == "IMG") {
+                    $allowed = FileMaster::ALLOWED_IMG_MIME_TYPES;
+                } else if ($result["enFileType"] == "ANY") {
+                    $allowed = array_merge(FileMaster::ALLOWED_IMG_MIME_TYPES, FileMaster::ALLOWED_DOC_MIME_TYPES);
+                } else {
+                    return false;
+                }
+                if (in_array($this->getFile()->getMimeType(), $allowed)) {
+                    $this->form = [
+                        "id" => $result["pkFormID"],
+                        "name" => $result["nmTitle"],
+                        "type" => $result["enFileType"],
+                        "description" => $result["txDescription"]
+                    ];
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         } else {
             return false;
         }
-        //TODO: allow/disallow setting form based on current file mime type (if any), otherwise no restriction.
     }
 
     /**
-     * @param File $licenseFile
+     * @param File|null $licenseFile
      * @return bool
      */
-    public function setLicenseFile(File $licenseFile): bool
+    public function setLicenseFile(File $licenseFile = null): bool
     {
-        if ($licenseFile->isInDatabase()) {
-            $this->licenseFile = $licenseFile;
-            return true;
+        if (isset($licenseFile)) {
+            if ($licenseFile->isInDatabase()) {
+                if (in_array($licenseFile->getMimeType(), FileMaster::ALLOWED_LICENSE_MIME_TYPES)) {
+                    $this->licenseFile = $licenseFile;
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         } else {
-            return false;
+            $this->licenseFile = null;
+            return true;
         }
-        //TODO: allow/disallow setting license file based on mime type
     }
 
     /**
@@ -370,17 +420,22 @@ class Submission
      * @param float $rating
      * @return bool
      */
-    public function setRating(float $rating): bool
+    public function setRating(float $rating = null): bool
     {
-        $dbc = new DatabaseConnection();
-        $mLength = stripos($rating, ".");
-        $dLength = strlen($rating) - strrpos($rating, ".") - 1;
-        $maxLength = $dbc->getMaximumLength("submission", "nRating");
-        if ($mLength <= $maxLength["NUMERIC_PRECISION"] and $dLength <= $maxLength["NUMERIC_SCALE"]) {
-            $this->rating = $rating;
-            return true;
+        if (isset($rating)) {
+            $dbc = new DatabaseConnection();
+            $mLength = stripos($rating, ".");
+            $dLength = strlen($rating) - strrpos($rating, ".") - 1;
+            $maxLength = $dbc->getMaximumLength("submission", "nRating");
+            if ($mLength <= $maxLength["NUMERIC_PRECISION"] and $dLength <= $maxLength["NUMERIC_SCALE"]) {
+                $this->rating = $rating;
+                return true;
+            } else {
+                return false;
+            }
         } else {
-            return false;
+            $this->rating = null;
+            return true;
         }
     }
 
@@ -388,7 +443,7 @@ class Submission
      * @param string $status
      * @return bool
      */
-    public function setStatus(string $status): bool
+    public function setStatus(string $status = self::STATUS_INITIAL): bool
     {
         $possible = [
             self::STATUS_CANCELLED, self::STATUS_FINAL, self::STATUS_INITIAL,
@@ -435,27 +490,29 @@ class Submission
      */
     public function updateToDatabase(): bool
     {
-        $dbc = new DatabaseConnection();
-        $file = $this->getFile() === null ? null : $this->getFile()->getInternalName();
-        $licenseFile = $this->getLicenseFile() === null ? null : $this->getLicenseFile()->getInternalName();
-        $publication = $this->getPublication() === null ? null : $this->getPublication()->getPublicationID();
+        if ($this->getFile() === null) {
+            return false;
+        } else {
+            $dbc = new DatabaseConnection();
+            $licenseFile = $this->getLicenseFile() === null ? null : $this->getLicenseFile()->getInternalName();
+            $publication = $this->getPublication() === null ? null : $this->getPublication()->getPublicationID();
 
-        if ($this->isInDatabase()) {
-            $params = [
-                "sisisiidssi",
-                $this->getTitle(),
-                $this->getAuthor()->getUserID(),
-                $file,
-                $this->getForm(self::MODE_ID),
-                $licenseFile,
-                $publication,
-                $this->getPageCount(),
-                $this->getRating(),
-                $this->getStatus(),
-                $this->getAdditionalAuthors(),
-                $this->getSubmissionID()
-            ];
-            $result = $dbc->query("update", "UPDATE `submission` SET 
+            if ($this->isInDatabase()) {
+                $params = [
+                    "sisisiidssi",
+                    $this->getTitle(),
+                    $this->getAuthor()->getUserID(),
+                    $this->getFile()->getInternalName(),
+                    $this->getForm(self::MODE_ID),
+                    $licenseFile,
+                    $publication,
+                    $this->getPageCount(),
+                    $this->getRating(),
+                    $this->getStatus(),
+                    $this->getAdditionalAuthors(),
+                    $this->getSubmissionID()
+                ];
+                $result = $dbc->query("update", "UPDATE `submission` SET 
                                                           `nmTitle` = ?, 
                                                           `fkAuthorID` = ?, 
                                                           `fkFilename` = ?, 
@@ -467,31 +524,32 @@ class Submission
                                                           `enStatus` = ?,
                                                           `txAdditionalAuthors` = ?
                                                            WHERE `pkSubmissionID` = ?", $params);
-        } else {
-            $params = [
-                "sisisiidss",
-                $this->getTitle(),
-                $this->getAuthor()->getUserID(),
-                $file,
-                $this->getForm(self::MODE_ID),
-                $licenseFile,
-                $publication,
-                $this->getPageCount(),
-                $this->getRating(),
-                $this->getStatus(),
-                $this->getAdditionalAuthors()
-            ];
-            $result = $dbc->query("insert", "INSERT INTO `submission` 
+            } else {
+                $params = [
+                    "sisisiidss",
+                    $this->getTitle(),
+                    $this->getAuthor()->getUserID(),
+                    $this->getFile()->getInternalName(),
+                    $this->getForm(self::MODE_ID),
+                    $licenseFile,
+                    $publication,
+                    $this->getPageCount(),
+                    $this->getRating(),
+                    $this->getStatus(),
+                    $this->getAdditionalAuthors()
+                ];
+                $result = $dbc->query("insert", "INSERT INTO `submission` 
                                                         (`pkSubmissionID`, `nmTitle`, `fkAuthorID`, `fkFilename`, 
                                                         `fkFormID`, `fkLicenseFile`, `fkPublicationID`, `nPageCount`,
                                                         `nRating`, `enStatus`, `txAdditionalAuthors`) VALUES (NULL,?,?,?,?,?,?,?,?,?,?)", $params);
-            $submission = $dbc->query("select", "SELECT LAST_INSERT_ID() AS `id`");
-            if ($submission) {
-                $this->setSubmissionID($submission["id"]);
+                $submission = $dbc->query("select", "SELECT LAST_INSERT_ID() AS `id`");
+                if ($submission) {
+                    $this->setSubmissionID($submission["id"]);
+                }
+                $result = ($result and $submission);
             }
-            $result = ($result and $submission);
+            return (bool)$result;
         }
-        return (bool)$result;
     }
 
     /**
