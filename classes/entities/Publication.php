@@ -101,8 +101,8 @@ class Publication
         //http://php.net/manual/en/language.oop5.decon.php
         $a = func_get_args();
         $i = func_num_args();
-        if ($i > 4) {
-            $i = 4;
+        if ($i > 5) {
+            $i = 5;
         }
         if (method_exists($this, $f = '__construct' . $i)) {
             call_user_func_array(array($this, $f), $a);
@@ -148,9 +148,10 @@ class Publication
      * Construct a new Publication instance.
      *
      * @param string $title
-     * @param string $description
+     * @param int $publicationID
      * @param int $editionID
      * @param int $iterationID
+     * @param string $description
      * @param string $status
      * @param DateTime|null $targetPublicationDate
      * @param DateTime|null $publicationDate
@@ -159,12 +160,13 @@ class Publication
      * @param File|null $coverFile
      * @throws Exception
      */
-    public function __construct4(string $title, string $description, int $editionID, int $iterationID, string $status = "WIP", DateTime $targetPublicationDate = null, DateTime $publicationDate = null, Serial &$serial = null, int $ISBN = null, File $coverFile = null)
+    public function __construct5(string $title, int $publicationID, int $editionID, int $iterationID, string $description, string $status = "WIP", DateTime $targetPublicationDate = null, DateTime $publicationDate = null, Serial &$serial = null, int $ISBN = null, File $coverFile = null)
     {
         $result = [
             $this->setISBN($ISBN),
             $this->setCoverFile($coverFile),
             $this->setDescription($description),
+            $this->setPublicationID($publicationID),
             $this->setEditionID($editionID),
             $this->setIterationID($iterationID),
             $this->setPublicationDate($publicationDate),

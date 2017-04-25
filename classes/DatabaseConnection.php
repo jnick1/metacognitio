@@ -88,7 +88,7 @@ class DatabaseConnection
      * @param string $table
      * @param string $column
      * @param string|null $schema
-     * @return int|array|bool
+     * @return int|int[]|bool
      */
     public function getMaximumLength(string $table, string $column, string $schema=null)
     {
@@ -115,8 +115,11 @@ class DatabaseConnection
                                                                             WHERE `TABLE_SCHEMA` = ?
                                                                               AND `TABLE_NAME` = ?
                                                                               AND `COLUMN_NAME` = ?", $params);
-                    return $length["NUMERIC_PRECISION"];
-                    break;
+                    if($length) {
+                        return $length["NUMERIC_PRECISION"];
+                    } else {
+                        return false;
+                    }
                 case "decimal":
                 case "float":
                 case "double":
@@ -125,8 +128,11 @@ class DatabaseConnection
                                                                             WHERE `TABLE_SCHEMA` = ?
                                                                               AND `TABLE_NAME` = ?
                                                                               AND `COLUMN_NAME` = ?", $params);
-                    return $length;
-                    break;
+                    if($length) {
+                        return $length;
+                    } else {
+                        return false;
+                    }
                 case "char":
                 case "varchar":
                 case "tinytext":
@@ -146,8 +152,11 @@ class DatabaseConnection
                                                                             WHERE `TABLE_SCHEMA` = ?
                                                                               AND `TABLE_NAME` = ?
                                                                               AND `COLUMN_NAME` = ?", $params);
-                    return $length["CHARACTER_MAXIMUM_LENGTH"];
-                    break;
+                    if($length) {
+                        return $length["CHARACTER_MAXIMUM_LENGTH"];
+                    } else {
+                        return false;
+                    }
                 case "datetime":
                 case "timestamp":
                 case "time":
@@ -156,8 +165,11 @@ class DatabaseConnection
                                                                             WHERE `TABLE_SCHEMA` = ?
                                                                               AND `TABLE_NAME` = ?
                                                                               AND `COLUMN_NAME` = ?", $params);
-                return $length["DATETIME_PRECISION"];
-                    break;
+                    if($length) {
+                        return $length["DATETIME_PRECISION"];
+                    } else {
+                        return false;
+                    }
                 default:
                     return false;
             }
@@ -219,10 +231,10 @@ class DatabaseConnection
      *
      * @param string $type
      * @param string $query
-     * @param array|null $parameters
-     * @return array|bool
+     * @param mixed[]|null $parameters
+     * @return mixed[]|bool
      */
-    public function query(string $type, string $query, array &$parameters = NULL)
+    public function query(string $type, string $query, array $parameters = null)
     {
         $connection = $this->connect();
         $type = strtolower($type);
@@ -268,6 +280,7 @@ class DatabaseConnection
             case "insert":
             case "update" :
             case "delete" :
+            case "truncate":
 
                 if ($stmt = $connection->prepare($query)) {
                     if (!is_null($parameters)) {
@@ -329,7 +342,7 @@ class DatabaseConnection
 
     /**
      * @param $params
-     * @return array
+     * @return mixed[]
      *
      * Originally created by bitWorking, April 20, 2013
      * http://stackoverflow.com/a/16120923

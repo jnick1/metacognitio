@@ -12,7 +12,7 @@ class Hasher
      * Generates a new salt and salted hash for a given string.
      *
      * @param string $string
-     * @return array
+     * @return string[]
      */
     public static function cryptographicHash(string $string): array
     {
@@ -20,7 +20,7 @@ class Hasher
         $salt1 = substr($salt, 0, strlen($salt) / 2);
         $salt2 = substr($salt, strlen($salt) / 2, strlen($salt));
         $hash = hash("sha256", $salt1 . $string . $salt2);
-        return array("salt" => $salt, "hash" => $hash);
+        return ["salt" => $salt, "hash" => $hash];
     }
 
     /**

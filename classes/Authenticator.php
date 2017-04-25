@@ -12,7 +12,7 @@ class Authenticator
 
     /**
      * Verifies whether the supplied credentials represent a valid user in the system.
-     * Returns true on success, throws an exception on failure.
+     * Returns true on success, false on failure. Exceptions may be thrown on occasion.
      *
      * @param string $email
      * @param string $password
@@ -22,49 +22,46 @@ class Authenticator
     public static function authenticate(string $email, string $password): bool
     {
         if (Controller::isUserLoggedIn()) {
-            throw new LogicException("Authenticator::authenticate($email, $password) - Unable to log in multiple times");
-        }
-        /*
-         * Determines whether the client connected to the current session should be locked out
-         * of logging in to the system due to too many repeated log in attempts. This helps to
-         * prevent dictionary attacks against the system by forcing a 60 second wait period after
-         * 3 failed attempts to log in by the client.
-         */
-        if (Controller::getLoginLockout() !== false) {
-            if (time() - Controller::getLoginLockout() >= 60) {
-                Controller::setLoginFails();
-                Controller::setLoginLockout();
-            } else {
-                throw new Exception("Authenticator::authenticate($email,$password) - Login failed too many times; wait 60 seconds to try again");
-            }
-        }
-        $user = User::load($email);
-        if (isset($user)) {
-            $goodPass = Hasher::verifySaltedHash($password, $user->getSalt(), $user->getHash());
-
-            if ($goodPass) {
-                try {
-                    Controller::setLoggedInUser($user);
-                } catch (Exception $exception) {
-                    return $exception->getMessage();
-                }
-                Controller::setLoginLockout();
-                Controller::setLoginFails();
-                return true;
-            } else {
-                if (Controller::getLoginFails() !== false) {
-                    if (Controller::getLoginFails() > 3) {
-                        Controller::setLoginLockout(time());
-                    } else {
-                        Controller::setLoginFails(Controller::getLoginFails() + 1);
-                    }
-                } else {
-                    Controller::setLoginFails(1);
-                }
-                throw new Exception("Authenticator:authenticate($email,$password) - User credentials incorrect; bad password");
-            }
+            return false;
         } else {
-            throw new Exception("Authenticator::authenticate($email,$password) - User credentials incorrect; unable to find email address");
+            /*
+             * Determines whether the client connected to the current session should be locked out
+             * of logging in to the system due to too many repeated log in attempts. This helps to
+             * prevent dictionary attacks against the system by forcing a 60 second wait period after
+             * 3 failed attempts to log in by the client.
+             */
+            if (Controller::getLoginLockout() !== false) {
+                if (time() - Controller::getLoginLockout() >= 60) {
+                    Controller::setLoginFails();
+                    Controller::setLoginLockout();
+                } else {
+                    throw new Exception("Authenticator::authenticate($email,$password) - Login failed too many times; wait 60 seconds to try again");
+                }
+            }
+            $user = User::load($email);
+            if (isset($user)) {
+                $goodPass = Hasher::verifySaltedHash($password, $user->getSalt(), $user->getHash());
+
+                if ($goodPass) {
+                    Controller::setLoggedInUser($user);
+                    Controller::setLoginLockout();
+                    Controller::setLoginFails();
+                    return true;
+                } else {
+                    if (Controller::getLoginFails() !== false) {
+                        if (Controller::getLoginFails() > 3) {
+                            Controller::setLoginLockout(time());
+                        } else {
+                            Controller::setLoginFails(Controller::getLoginFails() + 1);
+                        }
+                    } else {
+                        Controller::setLoginFails(1);
+                    }
+                    throw new Exception("Authenticator:authenticate($email,$password) - User credentials incorrect; bad password");
+                }
+            } else {
+                throw new Exception("Authenticator::authenticate($email,$password) - User credentials incorrect; unable to find email address");
+            }
         }
     }
 
@@ -87,7 +84,7 @@ class Authenticator
     /**
      * Takes a new user's information and registers the user within the system,
      * saving their information to the database.
-     * Returns true on success, throws an exception on failure.
+     * Returns true on success, false on failure.
      *
      * @param string $fName
      * @param string $lName
@@ -103,27 +100,25 @@ class Authenticator
      * @param string $password
      * @param bool $isActive
      * @return bool
-     * @throws Exception
      */
     public static function register(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive): bool
     {
         if (Controller::isUserLoggedIn()) {
-            throw new Exception("Authenticator::register($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - Cannot create account when already signed in");
+            return false;
         } else {
-            try {
-                $user = new User($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
-                $user->addPermission(new Permission(Permission::PERMISSION_AUTHOR));
-            } catch (Exception $exception) {
-                return $exception->getMessage();
-            }
-            if (!self::userExists($user)) {
+            $user = new User($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
+            $user->addPermission(new Permission(Permission::PERMISSION_AUTHOR));
+            if (self::userExists($user)) {
+                return false;
+            } else {
                 $success = $user->updateToDatabase();
                 if ($success) {
                     Controller::setLoggedInUser($user);
                     return true;
+                } else{
+                    return false;
                 }
             }
-            throw new Exception("Authenticator::register($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive) - User already exists in database; unable to re-register");
         }
     }
 

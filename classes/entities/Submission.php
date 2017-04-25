@@ -33,7 +33,7 @@ class Submission
      */
     private $file;
     /**
-     * @var array ["id"=>int, "name"=>string, "type"=>string, "description"=>string]
+     * @var (int|string)[] ["id"=>int, "name"=>string, "type"=>string, "description"=>string]
      */
     private $form;
     /**
@@ -104,7 +104,7 @@ class Submission
                 $this->setFile(new File($submission["fkFilename"])),
                 $this->setLicenseFile(new File($submission["fkLicenseFile"])),
                 $this->setPageCount($submission["nPageCount"]),
-                $this->setPublication(new Publication($submission["fkPublicationID"])),
+                $this->setPublication(new Publication($submission["fkPublicationID"], $submission["fkIterationID"], $submission["fkEditionID"])),
                 $this->setRating($submission["nRating"]),
                 $this->setStatus($submission["enStatus"]),
                 $this->setTitle($submission["nmTitle"]),
@@ -163,9 +163,9 @@ class Submission
     }
 
     /**
-     * @return File
+     * @return File|null
      */
-    public function getFile(): File
+    public function getFile()
     {
         return $this->file;
     }

@@ -14,18 +14,11 @@ class Controller
     const MODULE_DIR = "pages/";
 
     /**
-     * Log manager that should persist across multiple instances of the Controller class. Allows recordkeeping of events
-     * across the site.
-     *
-     * @var Logger
-     */
-    public static $logger;
-    /**
      * An array of stings containing relative file paths (starting without a directory separator) that point towards CSS
      * files. Each Controller instance's $CSS variable should hold the paths to all css files required for use in the
      * page that each Controller manages.
      *
-     * @var array [string]
+     * @var string[]
      */
     private $CSS;
     /**
@@ -52,7 +45,7 @@ class Controller
      * files. Each Controller instance's $javaScript variable should hold the paths to all JS files required for use in
      * the page that each Controller manages.
      *
-     * @var array
+     * @var string[]
      */
     private $javaScript;
     /**
@@ -71,7 +64,7 @@ class Controller
      * An array that contains the output of the spamScrubber function after it has been applied to the content of an
      * HTTP POST or HTTP GET request.
      *
-     * @var array
+     * @var mixed[]
      */
     private $scrubbed;
     /**
@@ -98,11 +91,11 @@ class Controller
         $this->tabIncrement = 1;
         $this->pageTitle = $pageTitle;
         $this->setHomeDir();
-        $this->CSS = array();
-        $this->javaScript = array();
+        $this->CSS = [];
+        $this->javaScript = [];
 
-        if (!isset(self::$logger)) {
-            self::$logger = new Logger();
+        if (self::getLogger() === null) {
+            self::setLogger(new Logger());
         }
     }
 
@@ -118,6 +111,25 @@ class Controller
         } else {
             return null;
         }
+    }
+
+    /**
+     * Log manager that should persist across multiple instances of the Controller class. Allows recordkeeping of events
+     * across the site.
+     *
+     * @return Logger|null
+     */
+    public static function getLogger() {
+        return $_SESSION["logger"];
+    }
+
+    /**
+     * @param Logger $logger
+     * @return bool
+     */
+    public static function setLogger(Logger $logger): bool {
+        $_SESSION["logger"] = $logger;
+        return true;
     }
 
     /**
@@ -194,7 +206,7 @@ class Controller
             $_SESSION["user"] = $user;
             return true;
         } else {
-            throw new LogicException("Controller:setLoggedInUser($user) - Unable to set non-database-saved user as logged-in user");
+            return false;
         }
     }
 
@@ -472,7 +484,7 @@ class Controller
      * The use of either "any" or "all" depends on the comparison mode, specified by $mode.
      * $permissions must be an array of Permission objects.
      *
-     * @param array $permissions
+     * @param Permission[] $permissions
      * @param int $mode
      * @return bool
      */
@@ -545,7 +557,10 @@ class Controller
                     $this->scrubbed["password"],
                     true
                 ];
-                call_user_func_array("Authenticator::register", $args);
+                $success = call_user_func_array("Authenticator::register", $args);
+                if($success) {
+                    $this::getLogger()->log(LogEvent::USER_CREATE);
+                }
                 break;
             /**
              * Required POST variables for this case:
@@ -558,7 +573,10 @@ class Controller
                     $this->scrubbed["email"],
                     $this->scrubbed["password"]
                 ];
-                call_user_func_array("Authenticator::authenticate", $args);
+                $success = call_user_func_array("Authenticator::authenticate", $args);
+                if($success) {
+                    $this::getLogger()->log(LogEvent::USER_LOGIN);
+                }
                 break;
             /**
              * Required POST variables for this case:
@@ -592,7 +610,10 @@ class Controller
                     $this->scrubbed["title"],
                     null
                 );
-                $submission->updateToDatabase();
+                $success = $submission->updateToDatabase();
+                if($success) {
+                    self::getLogger()->log(LogEvent::SUBMISSION_CREATE, ["file"=>$file, "identifiers"=>[$submission->getSubmissionID()]]);
+                }
                 break;
         }
         return true; //temporary return value

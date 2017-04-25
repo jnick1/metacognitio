@@ -141,9 +141,9 @@ class File
         if ($file) {
             $result = [
                 $this->internalName = $file["pkFilename"],
+                $this->setIsActive($file["isActive"]),
                 $this->fetchContents(),
                 $this->setName($file["nmTitle"]),
-                $this->setIsActive($file["isActive"]),
                 $this->isInDatabase = true,
             ];
             if (isset($file["fkFilename"])) {

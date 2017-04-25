@@ -93,7 +93,7 @@ class LogEvent
     /**
      * Stores an array describing the type of event that the current LogEvent instance represents.
      *
-     * @var array ["id"=>int,"name"=>string,"description"=>string]
+     * @var (int|string)[] ["id"=>int,"name"=>string,"description"=>string]
      */
     private $eventType;
     /**
@@ -106,13 +106,13 @@ class LogEvent
      * An array of foreign key values referencing primary keys in the table specified by $table.
      * Thus, it can vary, and be either an string or an int.
      *
-     * @var array [int|string]
+     * @var (int|string)[]
      */
-    private $identifier;
+    private $identifiers;
     /**
      * An array storing both the name of the table, and an array of the names of all primary key columns of the table.
      *
-     * @var array ["name"=string,"columns"=[string]]
+     * @var (string|string[])[] ["name"=string,"columns"=[string]]
      */
     private $table;
     /**
@@ -163,12 +163,11 @@ class LogEvent
                 $this->setTimestamp($event["dtTimestamp"]),
                 $this->setUser(User::load($event["fkUserID"], User::MODE_DBID)),
             ];
-
             if (isset($event["nmTable"])) {
                 $result[] = $this->setTable($event["nmTable"]);
             }
             if (isset($event["fkIdentifier"])) {
-                $result[] = $this->setIdentifier($event["fkIdentifier"]);
+                $result[] = $this->setIdentifiers(array_values(json_decode($event["fkIdentifier"], true)));
             }
             if (isset($event["fkFilename"])) {
                 $result[] = $this->setFile(new File($event["fkFilename"]));
@@ -187,22 +186,22 @@ class LogEvent
      * @param int $eventTypeID
      * @param File|null $file
      * @param string|null $table
-     * @param string|int|null $identifier
-     * @param int|null $timestamp
+     * @param (int|string)[]|null $identifiers
+     * @param DateTime|int|string|null $timestamp
      * @throws Exception
      */
-    public function __construct2(User $user, int $eventTypeID, File $file = null, string $table = null, $identifier = null, int $timestamp = null)
+    public function __construct2(User $user, int $eventTypeID, File $file = null, string $table = null, array $identifiers = null, $timestamp = null)
     {
         $result = [
             $this->setUser($user),
             $this->setEventType($eventTypeID),
             $this->setFile($file),
             $this->setTable($table),
-            $this->setIdentifier($identifier),
+            $this->setIdentifiers($identifiers),
             $this->setTimestamp($timestamp),
         ];
         if (in_array(false, $result, true)) {
-            throw new Exception("LogEvent->__construct2($user, $eventTypeID, $file, $table, $identifier, $timestamp) - Unable to construct LogEvent object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
+            throw new Exception("LogEvent->__construct2($user, $eventTypeID, $file, $table, [".implode(" ", $identifiers)."], $timestamp) - Unable to construct LogEvent object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
         }
     }
 
@@ -213,20 +212,37 @@ class LogEvent
      */
     public function __toString(): string
     {
-        $dbc = new DatabaseConnection();
-        $eventType = str_pad("[" . $this->getEventType() . "]", $dbc->getMaximumLength("event", "nmEvent"));
-        $timestamp = "[" . str_pad($this->getTimestamp()->format("Y-m-d H:i:s.v"), 23) . "]";
-        $user = "[" . str_pad($this->getUser()->getUserID(), $dbc->getMaximumLength("user", "pkUserID")) . " " . str_pad($this->getUser()->getEmail(), $dbc->getMaximumLength("user", "txEmail")) . "]";
+        //Event type for inclusion.
+        $eventType = "[" . $this->getEventType() . "]";
+        //Timestamp for inclusion.
+        $timestamp = "[" . $this->getTimestamp()->format("Y-m-d H:i:s.v") . "]";
+        //User information for inclusion.
+        $user = "[" . $this->getUser()->getUserID() . " | " . $this->getUser()->getEmail() . "]";
+        //Table and identifier (if used) for inclusion.
         if ($this->getTable() === null) {
-
+            $table = "";
+        } else {
+            $table = " [" . $this->getTable() . " | ";
+            $identifierNames = $this->getTable(self::MODE_DESCRIPTION);
+            $identifiers = $this->getIdentifiers();
+            $table = $table . str_replace("+"," ", http_build_query(array_combine($identifierNames, $identifiers), null, ", ")) . "]";
         }
-        return $eventType . " " . $timestamp . " " . $user;
+        //File information for inclusion.
+        if($this->getFile() === null) {
+            $file = "";
+        } else {
+            $file = " [" . $this->getFile()->getInternalName() . " : " . $this->getFile()->getName() . "]";
+        }
+        /* Spaces aren't added down here for $table and $file, as they're included above if the LogEvent has those
+         * respective elements.
+         */
+        return $timestamp . " " . $eventType . " " . $user . $table . $file;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getEventID(): int
+    public function getEventID()
     {
         return $this->eventID;
     }
@@ -248,27 +264,37 @@ class LogEvent
     }
 
     /**
-     * @return File
+     * @return File|null
      */
-    public function getFile(): File
+    public function getFile()
     {
         return $this->file;
     }
 
     /**
-     * @return int|string
+     * @return (int|string)[]|null
      */
-    public function getIdentifier()
+    public function getIdentifiers()
     {
-        return $this->identifier;
+        return $this->identifiers;
     }
 
     /**
-     * @return string|null
+     * @param int $mode
+     * @return string|string[]|null
      */
-    public function getTable()
+    public function getTable(int $mode = self::MODE_NAME)
     {
-        return $this->table;
+        if (isset($this->table)) {
+            switch ($mode) {
+                case self::MODE_DESCRIPTION:
+                    return $this->table["columns"];
+                default:
+                    return $this->table["name"];
+            }
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -285,6 +311,16 @@ class LogEvent
     public function getUser(): User
     {
         return $this->user;
+    }
+
+    /**
+     * @param int $eventID
+     * @return bool
+     */
+    public function setEventID(int $eventID): bool
+    {
+        $this->eventID = $eventID;
+        return true;
     }
 
     /**
@@ -334,27 +370,57 @@ class LogEvent
     }
 
     /**
-     * @param int|string|null $identifier
+     * @param (int|string)[]|null $identifiers
      * @return bool
      * @throws Exception
      */
-    public function setIdentifier($identifier = null): bool
+    public function setIdentifiers($identifiers = null): bool
     {
-        if (isset($identifier) and $this->getTable() === null) {
-            throw new Exception("File->setIdentifier($identifier) - Unable to set foreign key identifier when table is null");
-        } else if (!isset($identifier)) {
-            $this->identifier = null;
-            $this->setTable();
+        if (isset($identifiers) and $this->getTable() === null) {
+            throw new Exception("LogEvent->setIdentifier([" . implode(" ", $identifiers) . "]) - Unable to set foreign key identifier when table is null");
+        } else if (!isset($identifiers)) {
+            $this->identifiers = null;
             return true;
         } else {
             $dbc = new DatabaseConnection();
-            $identifierType = $this->getIdentifierType() == "int" ? "i" : "s";
-            $params = ["$identifierType", $identifier];
-            $exists = $dbc->query("exists", "SELECT * FROM `" . $this->getTable() . "` WHERE `" . $this->getIdentifierName() . "` = ?", $params);
+            $identifierTypes = $this->getIdentifierTypes();
+            //Check to see it the provided number of identifiers meets the required number of identifiers.
+            if (count($identifierTypes) == count($identifiers)) {
+                //Assemble the query parameters based on how many columns are in the table's primary key
+                $typesList = "";
+                foreach ($identifierTypes as $identifierType) {
+                    $typesList .= $identifierType == "int" ? "i" : "s";
+                }
+                $params = [$typesList];
+                foreach ($identifiers as $identifier) {
+                    $params[] = $identifier;
+                }
+                //Assemble the query based off of how many columns are in the table's primary key
+                $identifierNames = $this->getTable(self::MODE_DESCRIPTION);
+                $query = "SELECT * FROM `" . $this->getTable() . "`";
+                $query .= " WHERE";
+                $i = count($identifierNames);
+                foreach ($identifierNames as $identifierName) {
+                    if ($i == 1) {
+                        $query .= " `$identifierName` = ?";
+                    } else {
+                        $query .= " `$identifierName` = ? AND";
+                    }
+                    $i--;
+                }
 
-            if ($exists) {
-                $this->identifier = $identifier;
-                return true;
+                /*
+                 * Finally, run the query to see if the values provided in the function call actually reference a real
+                 * record in the database.
+                 */
+                $exists = $dbc->query("exists", $query, $params);
+
+                if ($exists) {
+                    $this->identifiers = $identifiers;
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
                 return false;
             }
@@ -373,8 +439,8 @@ class LogEvent
             $this->table = null;
             // This if block is used to make sure an infinite recursion loop doesn't occur between setIdentifier and setTable
             // when the input to either function is null.
-            if ($this->getIdentifier() !== null) {
-                $this->setIdentifier();
+            if ($this->getIdentifiers() !== null) {
+                $this->setIdentifiers();
             }
             return true;
             // Do nothing if the proposed table is the same as the current table.
@@ -391,8 +457,8 @@ class LogEvent
                 $tableList = [];
                 // ... then properly sort out the database output into an array (is returned by default as a 2d array,
                 // where each row returned is an array whose elements are indexed by column names).
-                foreach ($tables as $table) {
-                    $tableList[] = $table["Tables_in_" . $dbc->getDatabaseName()];
+                foreach ($tables as $t) {
+                    $tableList[] = $t["Tables_in_" . $dbc->getDatabaseName()];
                 }
                 // Finally, perform the check to see if the proposed table is a valid one
                 if (in_array($table, $tableList)) {
@@ -402,18 +468,22 @@ class LogEvent
                                                                           WHERE `TABLE_SCHEMA` = ?
                                                                           AND `TABLE_NAME` = ?
                                                                           AND `COLUMN_KEY` = 'PRI'", $params);
-                    //Again, sort out the database output into a flat array.
-                    $columns = [];
-                    foreach ($keys as $key) {
-                        $columns[] = $key["COLUMN_NAME"];
+                    if($keys) {
+                        //Again, sort out the database output into a flat array.
+                        $columns = [];
+                        foreach ($keys as $key) {
+                            $columns[] = $key["COLUMN_NAME"];
+                        }
+                        $this->table = [
+                            "name" => $table,
+                            "columns" => $columns
+                        ];
+                        // Make sure $identifier is set to null once $table changes, since the old value will have no meaning.
+                        $this->setIdentifiers();
+                        return true;
+                    } else {
+                        throw new Exception("LogEvent->setTable($table) - Unable to select from database");
                     }
-                    $this->table = [
-                        "name" => $table,
-                        "columns" => $columns
-                    ];
-                    // Make sure $identifier is set to null once $table changes, since the old value will have no meaning.
-                    $this->setIdentifier();
-                    return true;
                 } else {
                     return false;
                 }
@@ -424,13 +494,21 @@ class LogEvent
     }
 
     /**
-     * @param int $time
+     * @param int|DateTime $time
      * @return bool
      */
-    public function setTimestamp(int $time = null): bool
+    public function setTimestamp($time = null): bool
     {
         if (isset($time)) {
-            $this->timestamp = new DateTime(date('Y-m-d H:i:s', $time));
+            if(gettype($time) == "object") {
+                $this->timestamp = $time;
+            } else if (gettype($time) == "int") {
+                $this->timestamp = new DateTime(date('Y-m-d H:i:s', $time));
+            } else if (gettype($time) == "string") {
+                $this->timestamp = new DateTime($time);
+            } else {
+                return false;
+            }
         } else {
             $this->timestamp = new DateTime();
         }
@@ -452,54 +530,27 @@ class LogEvent
     }
 
     /**
-     * @return string
+     * @return string[]
      * @throws Exception
      */
-    private function getIdentifierName(): string
+    private function getIdentifierTypes(): array
     {
         $dbc = new DatabaseConnection();
         $params = ["ss", $dbc->getTableSchema(), $this->getTable()];
-        $name = $dbc->query("select", "SELECT `COLUMN_NAME`
-                                                    FROM `information_schema`.`COLUMNS`
-                                                    WHERE (`TABLE_SCHEMA` = ?)
-                                                      AND (`TABLE_NAME` = ?)
-                                                      AND (`COLUMN_KEY` = 'PRI')
-                                                      LIMIT 1", $params);
-        if ($name) {
-            return $name["COLUMN_NAME"];
-        } else {
-            throw new Exception("LogEvent->getIdentifierName() - Unable to select from database: information_schema");
-        }
-    }
-
-    /**
-     * @return string
-     * @throws Exception
-     */
-    private function getIdentifierType(): string
-    {
-        $dbc = new DatabaseConnection();
-        $params = ["sss", $dbc->getTableSchema(), $this->getTable(), $this->getIdentifierName()];
-        $type = $dbc->query("select", "SELECT `DATA_TYPE` 
+        $types = $dbc->query("select multiple", "SELECT `DATA_TYPE` 
                                                     FROM `information_schema`.`COLUMNS` 
                                                     WHERE `TABLE_SCHEMA`= ? 
                                                       AND `TABLE_NAME`= ? 
-                                                      AND `COLUMN_NAME` = ?", $params);
-        if ($type) {
-            return $type["DATA_TYPE"];
+                                                      AND `COLUMN_KEY` = 'PRI'", $params);
+        if ($types) {
+            $typeList = [];
+            foreach ($types as $type) {
+                $typeList[] = $type["DATA_TYPE"];
+            }
+            return $typeList;
         } else {
             throw new Exception("LogEvent->getIdentifierType() - Unable to select from database: information_schema");
         }
-    }
-
-    /**
-     * @param int $eventID
-     * @return bool
-     */
-    private function setEventID(int $eventID): bool
-    {
-        $this->eventID = $eventID;
-        return true;
     }
 
 }

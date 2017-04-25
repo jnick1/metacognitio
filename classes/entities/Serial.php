@@ -22,7 +22,7 @@ class Serial
      */
     private $iterationName;
     /**
-     * @var array
+     * @var Publication[]
      */
     private $publications;
     /**
@@ -56,6 +56,7 @@ class Serial
      * Constructs new Serial object from preexisting data in database.
      *
      * @param int $serialID
+     * @throws Exception
      */
     public function __construct1(int $serialID)
     {
@@ -63,33 +64,50 @@ class Serial
         $params = ["i", $serialID];
         $serial = $dbc->query("select", "SELECT * FROM `serial` WHERE `pkSerialID` = ?", $params);
         if ($serial) {
-            $this->setSerialID($serialID);
-            $this->setISSN($serial["idISSN"]);
-            $this->setIterationName($serial["enIterationName"]);
-            $this->setTitle($serial["nmTitle"]);
+            $result = [
+                $this->setSerialID($serialID),
+                $this->setISSN($serial["idISSN"]),
+                $this->setIterationName($serial["enIterationName"]),
+                $this->setTitle($serial["nmTitle"]),
+            ];
             $this->publications = [];
             $this->isInDatabase = true;
-            $publications = $dbc->query("select multiple", "SELECT `pkPublicationID` FROM `publication` WHERE `fkSerialID` = ?", $params);
-            if (count($publications) > 0) {
-                foreach ($publications as $pub) {
-                    $this->addPublication(new Publication($pub["pkPublicationID"]));
+            $publications = $dbc->query("select multiple", "SELECT `pkPublicationID`, `idIteration`, `idEdition` FROM `publication` WHERE `fkSerialID` = ?", $params);
+            if($publications) {
+                if (count($publications) > 0) {
+                    foreach ($publications as $pub) {
+                        $result[] = $this->addPublication(new Publication($pub["pkPublicationID"], $pub["idIteration"], $pub["idEdition"]));
+                    }
                 }
+            } else {
+                throw new Exception("Serial->__construct1($serialID) - Unable to select from database");
+            }
+            if(in_array(false, $result, true)) {
+                throw new Exception("Serial->__construct1($serialID) - Unable to construct Serial object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
             }
         }
     }
 
     /**
+     * Construct a new Serial instance.
+     * 
      * @param string $title
      * @param string $iterationName
      * @param string|null $ISSN
+     * @throws Exception
      */
     public function __construct2(string $title, string $iterationName, string $ISSN = null)
     {
-        $this->setTitle($title);
-        $this->setIterationName($iterationName);
-        $this->setISSN($ISSN);
+        $result = [
+            $this->setTitle($title),
+            $this->setIterationName($iterationName),
+            $this->setISSN($ISSN)
+        ];
         $this->publications = [];
         $this->isInDatabase = false;
+        if(in_array(false, $result, true)) {
+            throw new Exception("Serial->__construct2($title, $iterationName, $ISSN) - Unable to construct Serial object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
+        }
     }
 
     /**
@@ -104,12 +122,12 @@ class Serial
      * @param Publication $publication
      * @return bool
      */
-    public function addPublication(Publication &$publication): bool
+    public function addPublication(Publication $publication): bool
     {
         if (in_array($publication, $this->getPublications())) {
             return false;
         } else {
-            $this->publications[] = &$publication;
+            $this->publications[] = $publication;
             return true;
         }
     }
@@ -150,7 +168,7 @@ class Serial
     }
 
     /**
-     * @return array
+     * @return Publication[]
      */
     public function getPublications(): array
     {

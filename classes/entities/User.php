@@ -33,7 +33,7 @@ class User
      * Stores information about the country of the shipping address for a user. This includes an internal identifier,
      * the country's ISO code (ISO 3166-1), its name, and its international phone extension.
      *
-     * @var array ["pkCountryID"=>int, "idISO"=>string,    "nmName"=>string,   "idPhoneCode"=>int]
+     * @var (int|string)[] ["pkCountryID"=>int, "idISO"=>string,    "nmName"=>string,   "idPhoneCode"=>int]
      */
     private $country;
     /**
@@ -88,7 +88,7 @@ class User
     /**
      * Stores an array of Permission objects indicating what permissions the a user has.
      *
-     * @var array [Permission]
+     * @var Permission[]
      */
     private $permissions;
     /**
@@ -110,7 +110,7 @@ class User
      * Stores information about the province of the shipping address for a user. This includes an internal identifier,
      * the province's ISO code (ISO 3166-2), and its name.
      *
-     * @var array ["pkStateID"=>int,   "idISO"=>string,    "nmName"=>string]
+     * @var (int|string)[] ["pkStateID"=>int,   "idISO"=>string,    "nmName"=>string]
      */
     private $province;
     /**
@@ -403,7 +403,7 @@ class User
     }
 
     /**
-     * @return array
+     * @return Permission[]
      */
     public function getPermissions(): array
     {

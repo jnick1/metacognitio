@@ -30,7 +30,7 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                                     <div style="background-color: #333333; color: #FFFFFF; padding: 3px; text-align: center;">
                                         <b>New Submission</b></div>
                                     <div style="margin: 30px">
-                                        <form action="" method="post" enctype="multipart/form-data">
+                                        <form action="<?php echo $controller->getHomeDir(); ?>" method="post" enctype="multipart/form-data">
                                             <label style="font-size: small">
                                                 Title:
                                                 <input class="tbox" name="title" style="width: 238px; height: 25px; padding-left: 5px;" type="text">
