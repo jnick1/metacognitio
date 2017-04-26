@@ -16,7 +16,7 @@ class Serial
     /**
      * @var bool
      */
-    private $isInDatabase;
+    private $inDatabase;
     /**
      * @var string
      */
@@ -71,9 +71,9 @@ class Serial
                 $this->setTitle($serial["nmTitle"]),
             ];
             $this->publications = [];
-            $this->isInDatabase = true;
+            $this->inDatabase = true;
             $publications = $dbc->query("select multiple", "SELECT `pkPublicationID`, `idIteration`, `idEdition` FROM `publication` WHERE `fkSerialID` = ?", $params);
-            if($publications) {
+            if ($publications) {
                 if (count($publications) > 0) {
                     foreach ($publications as $pub) {
                         $result[] = $this->addPublication(new Publication($pub["pkPublicationID"], $pub["idIteration"], $pub["idEdition"]));
@@ -82,7 +82,7 @@ class Serial
             } else {
                 throw new Exception("Serial->__construct1($serialID) - Unable to select from database");
             }
-            if(in_array(false, $result, true)) {
+            if (in_array(false, $result, true)) {
                 throw new Exception("Serial->__construct1($serialID) - Unable to construct Serial object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
             }
         }
@@ -90,7 +90,7 @@ class Serial
 
     /**
      * Construct a new Serial instance.
-     * 
+     *
      * @param string $title
      * @param string $iterationName
      * @param string|null $ISSN
@@ -104,8 +104,8 @@ class Serial
             $this->setISSN($ISSN)
         ];
         $this->publications = [];
-        $this->isInDatabase = false;
-        if(in_array(false, $result, true)) {
+        $this->inDatabase = false;
+        if (in_array(false, $result, true)) {
             throw new Exception("Serial->__construct2($title, $iterationName, $ISSN) - Unable to construct Serial object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
         }
     }
@@ -115,7 +115,7 @@ class Serial
      */
     public function __toString(): string
     {
-        return "{".implode(" ", [$this->getTitle(), $this->getISSN(), $this->getIterationName(), $this->getSerialID()])."}";
+        return "{" . implode(" ", [$this->getTitle(), $this->getISSN(), $this->getIterationName(), $this->getSerialID()]) . "}";
     }
 
     /**
@@ -156,10 +156,10 @@ class Serial
     public function getPublication(int $iteration, int $edition)
     {
         $pubs = $this->getPublications();
-        foreach($pubs as $pub) {
+        foreach ($pubs as $pub) {
             // this is always true, but it is included to allow for ease of code auto-completion by PhpStorm (and so it doesn't bug out when I call class methods)
-            if($pub instanceof Publication) {
-                if($pub->getIterationID() === $iteration and $pub->getEditionID() === $edition) {
+            if ($pub instanceof Publication) {
+                if ($pub->getIterationID() === $iteration and $pub->getEditionID() === $edition) {
                     return $pub;
                 }
             }
@@ -196,7 +196,7 @@ class Serial
      */
     public function isInDatabase(): bool
     {
-        return $this->isInDatabase;
+        return $this->inDatabase;
     }
 
     /**

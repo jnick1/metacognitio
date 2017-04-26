@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Jacob
- * Date: 4/4/2017
- * Time: 2:18 PM
- */
 
 define("CLASSES_DIR",$_SERVER["DOCUMENT_ROOT"]."/".AutoLoader::PROJECT_DIR."classes/");
 define("ENTITIES_DIR",$_SERVER["DOCUMENT_ROOT"]."/".AutoLoader::PROJECT_DIR."classes/entities/");
@@ -12,6 +6,11 @@ define("TMP_DIR", $_SERVER["DOCUMENT_ROOT"]."/../tmp/");
 define("SECURE_DIR", $_SERVER["DOCUMENT_ROOT"]."/../secure/");
 
 /**
+ * Created by PhpStorm.
+ * User: Jacob
+ * Date: 4/4/2017
+ * Time: 2:18 PM
+ *
  * Originally written by ircmaxell (2010/07/21)
  * http://stackoverflow.com/a/3300138
  *

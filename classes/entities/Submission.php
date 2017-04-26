@@ -39,7 +39,7 @@ class Submission
     /**
      * @var bool
      */
-    private $isInDatabase;
+    private $inDatabase;
     /**
      * @var File|null
      */
@@ -109,7 +109,7 @@ class Submission
                 $this->setStatus($submission["enStatus"]),
                 $this->setTitle($submission["nmTitle"]),
             ];
-            $this->isInDatabase = true;
+            $this->inDatabase = true;
             if (in_array(false, $result, true)) {
                 throw new Exception("Submission->__construct1($submissionID) - Unable to construct Submission object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
             }
@@ -140,7 +140,7 @@ class Submission
             $this->setPublication($publication),
             $this->setStatus(self::STATUS_INITIAL),
         ];
-        $this->isInDatabase = false;
+        $this->inDatabase = false;
         if (in_array(false, $result, true)) {
             throw new Exception("Submission->__construct6($additionalAuthors, $author, $file, $form, $pageCount, $title, $publication) - Unable to construct Submission object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
         }
@@ -249,7 +249,7 @@ class Submission
      */
     public function isInDatabase(): bool
     {
-        return $this->isInDatabase;
+        return $this->inDatabase;
     }
 
     /**

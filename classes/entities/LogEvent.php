@@ -13,22 +13,6 @@ class LogEvent
      * so that any added event types are represented here).
      */
 
-    /**
-     * One of 3 modes to help indicate desired input or output from various internal functions.
-     * Specifies a description-like string as the type.
-     */
-    const MODE_DESCRIPTION = 1;
-    /**
-     * One of 3 modes to help indicate desired input or output from various internal functions.
-     * Specifies an int as the type.
-     */
-    const MODE_ID = 2;
-    /**
-     * One of 3 modes to help indicate desired input or output from various internal functions.
-     * Specifies a name-like string as the type.
-     */
-    const MODE_NAME = 3;
-
     const AUTHOR_BIOGRAPHY = 1;
     const CONTACT_CREATE = 2;
     const CONTACT_DELETE = 3;
@@ -47,6 +31,21 @@ class LogEvent
     const MEETING_UPDATE_AGENDA = 16;
     const MEETING_UPDATE_LOCATION = 17;
     const MEETING_UPDATE_TIME = 18;
+    /**
+     * One of 3 modes to help indicate desired input or output from various internal functions.
+     * Specifies a description-like string as the type.
+     */
+    const MODE_DESCRIPTION = 1;
+    /**
+     * One of 3 modes to help indicate desired input or output from various internal functions.
+     * Specifies an int as the type.
+     */
+    const MODE_ID = 2;
+    /**
+     * One of 3 modes to help indicate desired input or output from various internal functions.
+     * Specifies a name-like string as the type.
+     */
+    const MODE_NAME = 3;
     const NOTIFICATION_CREATE = 19;
     const NOTIFICATION_DISMISS = 20;
     const PUBLICATION_CREATE = 21;
@@ -201,7 +200,7 @@ class LogEvent
             $this->setTimestamp($timestamp),
         ];
         if (in_array(false, $result, true)) {
-            throw new Exception("LogEvent->__construct2($user, $eventTypeID, $file, $table, [".implode(" ", $identifiers)."], $timestamp) - Unable to construct LogEvent object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
+            throw new Exception("LogEvent->__construct2($user, $eventTypeID, $file, $table, [" . implode(" ", $identifiers) . "], $timestamp) - Unable to construct LogEvent object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
         }
     }
 
@@ -225,10 +224,10 @@ class LogEvent
             $table = " [" . $this->getTable() . " | ";
             $identifierNames = $this->getTable(self::MODE_DESCRIPTION);
             $identifiers = $this->getIdentifiers();
-            $table = $table . str_replace("+"," ", http_build_query(array_combine($identifierNames, $identifiers), null, ", ")) . "]";
+            $table = $table . str_replace("+", " ", http_build_query(array_combine($identifierNames, $identifiers), null, ", ")) . "]";
         }
         //File information for inclusion.
-        if($this->getFile() === null) {
+        if ($this->getFile() === null) {
             $file = "";
         } else {
             $file = " [" . $this->getFile()->getInternalName() . " : " . $this->getFile()->getName() . "]";
@@ -468,7 +467,7 @@ class LogEvent
                                                                           WHERE `TABLE_SCHEMA` = ?
                                                                           AND `TABLE_NAME` = ?
                                                                           AND `COLUMN_KEY` = 'PRI'", $params);
-                    if($keys) {
+                    if ($keys) {
                         //Again, sort out the database output into a flat array.
                         $columns = [];
                         foreach ($keys as $key) {
@@ -494,13 +493,13 @@ class LogEvent
     }
 
     /**
-     * @param int|DateTime $time
+     * @param int|string|DateTime|null $time
      * @return bool
      */
     public function setTimestamp($time = null): bool
     {
         if (isset($time)) {
-            if(gettype($time) == "object") {
+            if (gettype($time) == "object") {
                 $this->timestamp = $time;
             } else if (gettype($time) == "int") {
                 $this->timestamp = new DateTime(date('Y-m-d H:i:s', $time));

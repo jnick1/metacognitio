@@ -93,6 +93,7 @@ class Controller
         $this->setHomeDir();
         $this->CSS = [];
         $this->javaScript = [];
+        FileMaster::clearDownloads();
 
         if (self::getLogger() === null) {
             self::setLogger(new Logger());
@@ -119,17 +120,9 @@ class Controller
      *
      * @return Logger|null
      */
-    public static function getLogger() {
+    public static function getLogger()
+    {
         return $_SESSION["logger"];
-    }
-
-    /**
-     * @param Logger $logger
-     * @return bool
-     */
-    public static function setLogger(Logger $logger): bool {
-        $_SESSION["logger"] = $logger;
-        return true;
     }
 
     /**
@@ -145,7 +138,7 @@ class Controller
     public static function getLoginFails()
     {
         if (session_status() == PHP_SESSION_ACTIVE) {
-            if(isset($_SESSION["loginFails"])) {
+            if (isset($_SESSION["loginFails"])) {
                 return $_SESSION["loginFails"];
             } else {
                 return false;
@@ -208,6 +201,16 @@ class Controller
         } else {
             return false;
         }
+    }
+
+    /**
+     * @param Logger $logger
+     * @return bool
+     */
+    public static function setLogger(Logger $logger): bool
+    {
+        $_SESSION["logger"] = $logger;
+        return true;
     }
 
     /**
@@ -294,6 +297,8 @@ class Controller
     public function addCSS(string $CSS)
     {
         if ($filtered = filter_var($CSS, FILTER_SANITIZE_STRING)) {
+            $dirPath = preg_split("/[\\/]/", $filtered);
+            $filtered = implode(DIRECTORY_SEPARATOR, $dirPath);
             if (!in_array($filtered, $this->CSS)) {
                 return array_push($this->CSS, $filtered);
             }
@@ -310,12 +315,69 @@ class Controller
     public function addJavaScript(string $javaScript)
     {
         if ($filtered = filter_var($javaScript, FILTER_SANITIZE_STRING)) {
+            $dirPath = preg_split("/[\\/]/", $filtered);
+            $filtered = implode(DIRECTORY_SEPARATOR, $dirPath);
             if (!in_array($filtered, $this->javaScript)) {
                 return array_push($this->javaScript, $filtered);
             }
         }
         return false;
     }
+
+//    /**
+//     * TODO: convert functions from procedural to OOP
+//     * This function (enum2options) retrieves an enum field from a table and echoes
+//     * the possible values for that enum field as options for an HTML select
+//     * element.
+//     *
+//     * The second function, field2options, does the same as enum2options, but
+//     * instead of getting all possible values of enums, it retrieves all of values
+//     * of a given field stored in a given table. This may be useful for foreign
+//     * key constraints requiring select elements.
+//     */
+//    function enum2options($table, $field)
+//    {
+//
+//        $q1 = "SHOW COLUMNS FROM `$table` WHERE FIELD = '$field'";
+//
+//        $column = query("select", $q1);
+//
+//        if ($column) {
+//
+//            $enum = $column["Type"];
+//
+//            if (startsWith($enum, "enum")) {
+//                preg_match_all("~\'(.*)\'~U", $enum, $values);
+//                $values = $values[1];
+//
+//                foreach ($values as $value) {
+//                    echo "<option value='$value'>$value</option>\n";
+//                }
+//            } else {
+//                return false;
+//            }
+//        } else {
+//            return false;
+//        }
+//    }
+//
+//    function field2options($table, $field)
+//    {
+//
+//        $q1 = "SELECT `$field` FROM `$table`";
+//
+//        $columns = query("select multiple", $q1);
+//
+//        if ($columns) {
+//
+//            foreach ($columns as $column) {
+//                $value = $column[$field];
+//                echo "<option value='$value'>$value</option>";
+//            }
+//        } else {
+//            return false;
+//        }
+//    }
 
     /**
      * @return string
@@ -364,9 +426,9 @@ class Controller
     {
         $stack = debug_backtrace();
         $pathToCaller = $stack[0]['file'];
-        if (stripos($pathToCaller, rtrim(Controller::MODULE_DIR,"/"))) {
+        if (stripos($pathToCaller, rtrim(Controller::MODULE_DIR, "/"))) {
             $pathArr = explode(DIRECTORY_SEPARATOR, $pathToCaller);
-            $nextDir = array_search(rtrim(Controller::MODULE_DIR,"/"), $pathArr) + 1;
+            $nextDir = array_search(rtrim(Controller::MODULE_DIR, "/"), $pathArr) + 1;
             $this->moduleDir = Controller::MODULE_DIR . $pathArr[$nextDir] . "/";
             return true;
         }
@@ -558,7 +620,7 @@ class Controller
                     true
                 ];
                 $success = call_user_func_array("Authenticator::register", $args);
-                if($success) {
+                if ($success) {
                     $this::getLogger()->log(LogEvent::USER_CREATE);
                 }
                 break;
@@ -574,7 +636,7 @@ class Controller
                     $this->scrubbed["password"]
                 ];
                 $success = call_user_func_array("Authenticator::authenticate", $args);
-                if($success) {
+                if ($success) {
                     $this::getLogger()->log(LogEvent::USER_LOGIN);
                 }
                 break;
@@ -597,10 +659,8 @@ class Controller
              *              file : array
              */
             case "submit":
-                $file = new File($_FILES["file"]["name"], "");
-                move_uploaded_file($_FILES['file']['tmp_name'], File::DEFAULT_PATH . $file->getInternalName());
-                $file->fetchContents();
-                $file->updateToDatabase();
+                var_dump($_FILES);
+                $file = FileMaster::uploadFromFILES("file");
                 $submission = new Submission(
                     $this->scrubbed["additionalAuthors"],
                     self::getLoggedInUser(),
@@ -611,8 +671,8 @@ class Controller
                     null
                 );
                 $success = $submission->updateToDatabase();
-                if($success) {
-                    self::getLogger()->log(LogEvent::SUBMISSION_CREATE, ["file"=>$file, "identifiers"=>[$submission->getSubmissionID()]]);
+                if ($success) {
+                    self::getLogger()->log(LogEvent::SUBMISSION_CREATE, ["file" => $file, "identifiers" => [$submission->getSubmissionID()]]);
                 }
                 break;
         }

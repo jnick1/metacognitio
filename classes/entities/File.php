@@ -1,7 +1,5 @@
 <?php
 
-define("DEFAULT_PATH", $_SERVER["DOCUMENT_ROOT"] . "/" . AutoLoader::PROJECT_DIR . "files/");
-
 /**
  * Created by PhpStorm.
  * User: Jacob
@@ -11,8 +9,14 @@ define("DEFAULT_PATH", $_SERVER["DOCUMENT_ROOT"] . "/" . AutoLoader::PROJECT_DIR
 class File
 {
 
-    const DEFAULT_PATH = DEFAULT_PATH;
-
+    const UPLOAD_DIR = UPLOAD_DIR;
+    /**
+     * Allow read and write access to file data (bool)? Essentially, disallows access to reading or writing the
+     * $contents variable when set to false.
+     *
+     * @var bool
+     */
+    private $active;
     /**
      * Bytes that make up the file stored as a string.
      *
@@ -20,24 +24,17 @@ class File
      */
     private $contents;
     /**
+     * Indicates if the file is stored in the database.
+     *
+     * @var bool
+     */
+    private $inDatabase;
+    /**
      * Stores the internally-used, hashed, filename of the file. Should exclude the file type extension.
      *
      * @var string
      */
     private $internalName;
-    /**
-     * Allow read and write access to file data (bool)? Essentially, disallows access to reading or writing the
-     * $contents variable when set to false.
-     *
-     * @var bool
-     */
-    private $isActive;
-    /**
-     * Indicates if the file is stored in the database.
-     *
-     * @var bool
-     */
-    private $isInDatabase;
     /**
      * Stores the externally-used, human-readable, filename of the file.
      *
@@ -141,10 +138,10 @@ class File
         if ($file) {
             $result = [
                 $this->internalName = $file["pkFilename"],
-                $this->setIsActive($file["isActive"]),
+                $this->setActive($file["isActive"]),
                 $this->fetchContents(),
                 $this->setName($file["nmTitle"]),
-                $this->isInDatabase = true,
+                $this->inDatabase = true,
             ];
             if (isset($file["fkFilename"])) {
                 $result[] = $this->setParent(new File($file["fkFilename"]));
@@ -169,11 +166,11 @@ class File
     {
         $result = [
             $this->setName($name),
-            $this->setIsActive(true),
+            $this->setActive(true),
             $this->setParent($parent),
             $this->setContents($contents),
         ];
-        $this->isInDatabase = false;
+        $this->inDatabase = false;
         $result[] = $this->newInternalName();
         if (in_array(false, $result, true)) {
             throw new Exception("File->__construct2($name, \$contents, $parent) - Unable to construct File object; variable assignment failure - (" . array_keys($result, false, true) . ")");
@@ -194,7 +191,7 @@ class File
     public function fetchContents(): bool
     {
         if ($this->isActive()) {
-            $this->setContents(file_get_contents(self::DEFAULT_PATH . $this->getInternalName()));
+            $this->setContents(file_get_contents(self::UPLOAD_DIR . $this->getInternalName()));
             return true;
         } else {
             return false;
@@ -227,7 +224,7 @@ class File
     public function getMimeType(): string
     {
         if ($this->isActive() and $this->getContents() !== null) {
-            return mime_content_type(self::DEFAULT_PATH . $this->getInternalName());
+            return mime_content_type(self::UPLOAD_DIR . $this->getInternalName());
         } else {
             return false;
         }
@@ -255,7 +252,7 @@ class File
     public function getRootParent()
     {
         $file = $this;
-        if($file->getParent() === null) {
+        if ($file->getParent() === null) {
             return null;
         } else {
             while ($file->getParent() !== null) {
@@ -270,7 +267,7 @@ class File
      */
     public function isActive(): bool
     {
-        return $this->isActive;
+        return $this->active;
     }
 
     /**
@@ -278,7 +275,7 @@ class File
      */
     public function isInDatabase(): bool
     {
-        return $this->isInDatabase;
+        return $this->inDatabase;
     }
 
     /**
@@ -299,7 +296,17 @@ class File
      */
     public function saveContents(): void
     {
-        file_put_contents(self::DEFAULT_PATH . $this->getInternalName(), $this->getContents());
+        file_put_contents(self::UPLOAD_DIR . $this->getInternalName(), $this->getContents());
+    }
+
+    /**
+     * @param bool $active
+     * @return bool
+     */
+    public function setActive(bool $active): bool
+    {
+        $this->active = $active;
+        return true;
     }
 
     /**
@@ -309,16 +316,6 @@ class File
     public function setContents(string $contents): bool
     {
         $this->contents = $contents;
-        return true;
-    }
-
-    /**
-     * @param bool $isActive
-     * @return bool
-     */
-    public function setIsActive(bool $isActive): bool
-    {
-        $this->isActive = $isActive;
         return true;
     }
 
@@ -387,7 +384,7 @@ class File
             $params = ["sssi", $this->getInternalName(), $parent, $this->getName(), $this->isActive()];
             $result = $dbc->query("insert", "INSERT INTO `file`(`pkFilename`, `fkFilename`, `nmTitle`, `isActive`) VALUES (?,?,?,?)", $params);
             $this->saveContents();
-            $this->isInDatabase = true;
+            $this->inDatabase = true;
             return (bool)$result;
         }
     }

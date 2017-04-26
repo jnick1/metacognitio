@@ -43,7 +43,7 @@ class Publication
      *
      * @var bool
      */
-    private $isInDatabase;
+    private $inDatabase;
     /**
      * Stores the iteration identifier of the publication. For example, this would be 2 if a publication is
      * the second volume in a series. For an independent publication, this value is always 1.
@@ -127,7 +127,7 @@ class Publication
                 $this->setCoverFile(new File($publication["fkCoverFilename"])),
                 $this->setDescription($publication["txDescription"]),
                 $this->setEditionID($publication["idEdition"]),
-                $this->isInDatabase = true,
+                $this->inDatabase = true,
                 $this->setIterationID($publication["idIteration"]),
                 $this->setPublicationDate(new DateTime($publication["dtPublished"])),
                 $this->setPublicationID($publication["pkPublicationID"]),
@@ -176,9 +176,9 @@ class Publication
             $this->setTitle($title)
         ];
         if (in_array(false, $result, true)) {
-            throw new Exception("Publication->__construct4($title, $description, $editionID, $iterationID, $status, ".$targetPublicationDate->format('Y-m-d').", ".$publicationDate->format('Y-m-d').", $serial, $ISBN, $coverFile) - Unable to construct Publication object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
+            throw new Exception("Publication->__construct4($title, $description, $editionID, $iterationID, $status, " . $targetPublicationDate->format('Y-m-d') . ", " . $publicationDate->format('Y-m-d') . ", $serial, $ISBN, $coverFile) - Unable to construct Publication object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
         }
-        $this->isInDatabase = false;
+        $this->inDatabase = false;
     }
 
     /**
@@ -282,7 +282,7 @@ class Publication
      */
     public function isInDatabase(): bool
     {
-        return $this->isInDatabase;
+        return $this->inDatabase;
     }
 
     /**

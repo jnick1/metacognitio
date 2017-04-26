@@ -67,18 +67,18 @@ class User
      */
     private $hash;
     /**
-     * Stores a boolean indicating whether or not a user is permitted to log in.
-     *
-     * @var bool
-     */
-    private $isActive;
-    /**
      * Stores a boolean indicating whether or not a user's information is stored in the database (true), or whether
      * the current User object only exists within the current session.
      *
      * @var bool
      */
-    private $isInDatabase;
+    private $inDatabase;
+    /**
+     * Stores a boolean indicating whether or not a user is permitted to log in.
+     *
+     * @var bool
+     */
+    private $isActive;
     /**
      * Stores a user's last name.
      *
@@ -210,7 +210,7 @@ class User
                     throw new Exception("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $postalCode, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
                 }
                 $this->permissions = [];
-                $this->isInDatabase = false;
+                $this->inDatabase = false;
             }
         } else {
             throw new InvalidArgumentException("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $postalCode, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; Invalid province");
@@ -263,7 +263,7 @@ class User
                     if (in_array(false, $result, true)) {
                         throw new Exception("User->__construct2($identifier, $mode) - Unable to construct User object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
                     }
-                    $this->isInDatabase = true;
+                    $this->inDatabase = true;
                     $this->removeAllPermissions();
                     $params = ["i", $user["pkUserID"]];
                     $permissions = $dbc->query("select multiple", "SELECT `fkPermissionID` FROM `userpermissions` WHERE `fkUserID` = ?", $params);
@@ -331,7 +331,7 @@ class User
      * @param int $mode
      * @return int|string
      */
-    public function getCountry(int $mode=self::MODE_NAME)
+    public function getCountry(int $mode = self::MODE_NAME)
     {
         switch ($mode) {
             case self::MODE_DBID:
@@ -488,8 +488,8 @@ class User
      */
     public function isInDatabase(): bool
     {
-        if(isset($this->isInDatabase)) {
-            return $this->isInDatabase;
+        if (isset($this->inDatabase)) {
+            return $this->inDatabase;
         } else {
             return false;
         }
@@ -784,10 +784,11 @@ class User
     }
 
     /**
+     * Pulls data stored in the database to the current User instance.
+     * Returns true on success, false otherwise.
+     *
      * @return bool
      * @throws Exception
-     *
-     * Pulls data stored in the database to the current User instance.
      */
     public function updateFromDatabase(): bool
     {
@@ -795,7 +796,7 @@ class User
             $this->__construct2($this->getUserID(), self::MODE_DBID);
             return true;
         } else {
-            throw new LogicException("User->updateFromDatabase() - Unable to pull from database when User instance is not stored in database");
+            return false;
         }
     }
 
@@ -892,7 +893,7 @@ class User
                 $result = ($result and $dbc->query("insert", "INSERT INTO `userpermissions` (`fkPermissionID`,`fkUserID`) VALUES (?,?)", $params));
             }
 
-            $this->isInDatabase = $result;
+            $this->inDatabase = $result;
         }
 
         return (bool)$result;
