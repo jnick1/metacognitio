@@ -42,9 +42,9 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                                             <hr>
                                             <p style="padding: 10px"></p>
                                             <label style="font-size: small">First Name:</label><br>
-                                            <input class="tbox" name="firstname" style="width: 238px; height: 25px; padding-left: 5px;" type="text" value="<?php echo Controller::getLoggedInUser()->getFName(); ?>">
+                                            <input class="tbox" name="firstname" style="width: 238px; height: 25px; padding-left: 5px;" type="text" value="<?php echo Controller::getLoggedInUser()->getFirstName(); ?>">
                                             <label style="font-size: small">Last Name:</label><br>
-                                            <input class="tbox" name="lastname" style="width: 238px; height: 25px; padding-left: 5px;" type="text" value="<?php echo Controller::getLoggedInUser()->getLName(); ?>">
+                                            <input class="tbox" name="lastname" style="width: 238px; height: 25px; padding-left: 5px;" type="text" value="<?php echo Controller::getLoggedInUser()->getLastName(); ?>">
                                             <label style="font-size: small">Email:</label><br>
                                             <input class="tbox" name="email" style="width: 238px; height: 25px; padding-left: 5px;" type="text" value="<?php echo Controller::getLoggedInUser()->getEmail(); ?>">
                                             <label style="font-size: small">Alternative Email:</label><br>

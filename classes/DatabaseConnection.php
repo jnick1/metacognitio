@@ -10,17 +10,29 @@
 class DatabaseConnection
 {
     /**
-     * @var mysqli The database connection
+     * The database connection
+     *
+     * @var mysqli
      */
     protected static $connection;
+    /**
+     * Name of the currently connected-to database
+     *
+     * @var string
+     */
     private static $db;
+    /**
+     * Flag indicating if the current connection is processing an SQL transaction
+     *
+     * @var bool
+     */
     private static $inTransaction;
 
     /**
      * @return bool
      * @throws Exception
      */
-    public function commitTransaction()
+    public function commitTransaction(): bool
     {
         $connection = $this->connect();
         if ($stmt = $connection->prepare("COMMIT;")) {
@@ -32,9 +44,10 @@ class DatabaseConnection
     }
 
     /**
-     * Connect to the database
+     * Connect to the database.
+     * Returns a MySQLi object instance on success, false on failure.
      *
-     * @return bool|mysqli false on failure / mysqli MySQLi object instance on success
+     * @return bool|mysqli
      */
     public function connect()
     {
@@ -55,9 +68,9 @@ class DatabaseConnection
     }
 
     /**
-     * Fetch the last error from the database
+     * Fetch the last error from the database.
      *
-     * @return string Database error message
+     * @return string
      */
     public function error(): string
     {
@@ -314,7 +327,7 @@ class DatabaseConnection
      * @return bool
      * @throws Exception
      */
-    public function rollbackTransaction()
+    public function rollbackTransaction(): bool
     {
         $connection = $this->connect();
         if ($stmt = $connection->prepare("ROLLBACK;")) {
@@ -329,7 +342,7 @@ class DatabaseConnection
      * @return bool
      * @throws Exception
      */
-    public function startTransaction()
+    public function startTransaction(): bool
     {
         $connection = $this->connect();
         if ($stmt = $connection->prepare("SET autocommit = 0; START TRANSACTION;")) {
@@ -341,7 +354,7 @@ class DatabaseConnection
     }
 
     /**
-     * @param $params
+     * @param $params array
      * @return mixed[]
      *
      * Originally created by bitWorking, April 20, 2013

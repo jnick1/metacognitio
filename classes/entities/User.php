@@ -15,7 +15,12 @@ class User
     const MODE_ISO_SHORT = 3;
     const MODE_NAME = 4;
     const MODE_PHONE = 5;
-
+    /**
+     * Stores a boolean indicating whether or not a user is permitted to log in.
+     *
+     * @var bool
+     */
+    private $active;
     /**
      * Stores a user's alternative email address for contact purposes only. A user cannot log in using their
      * alternate email address.
@@ -47,7 +52,7 @@ class User
      *
      * @var string
      */
-    private $fName;
+    private $firstName;
     /**
      * Stores the expected graduation semester of a user.
      *
@@ -74,17 +79,11 @@ class User
      */
     private $inDatabase;
     /**
-     * Stores a boolean indicating whether or not a user is permitted to log in.
-     *
-     * @var bool
-     */
-    private $isActive;
-    /**
      * Stores a user's last name.
      *
      * @var string
      */
-    private $lName;
+    private $lastName;
     /**
      * Stores an array of Permission objects indicating what permissions the a user has.
      *
@@ -165,8 +164,8 @@ class User
     /**
      * User constructor (13 arguments).
      *
-     * @param string $fName
-     * @param string $lName
+     * @param string $firstName
+     * @param string $lastName
      * @param string $email
      * @param string $altEmail
      * @param string $streetAddress
@@ -177,10 +176,10 @@ class User
      * @param string $gradSemester
      * @param int $gradYear
      * @param string $password
-     * @param bool $isActive
+     * @param bool $active
      * @throws Exception
      */
-    public function __construct13(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $postalCode, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive)
+    public function __construct13(string $firstName, string $lastName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $postalCode, int $phone, string $gradSemester, int $gradYear, string $password, bool $active)
     {
         $dbc = new DatabaseConnection();
         $params = ["s", $province];
@@ -191,8 +190,8 @@ class User
 
             if ($country) {
                 $result = [
-                    $this->setFName($fName),
-                    $this->setLName($lName),
+                    $this->setFirstName($firstName),
+                    $this->setLastName($lastName),
                     $this->setEmail($email),
                     $this->setAltEmail($altEmail),
                     $this->setStreetAddress($streetAddress),
@@ -204,23 +203,23 @@ class User
                     $this->setGradsemester($gradSemester),
                     $this->setGradYear($gradYear),
                     $this->updatePassword($password),
-                    $this->setIsActive($isActive),
+                    $this->setActive($active),
                 ];
                 if (in_array(false, $result, true)) {
-                    throw new Exception("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $postalCode, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
+                    throw new Exception("User->__construct13($firstName, $lastName, $email, $altEmail, $streetAddress, $city, $province, $postalCode, $phone, $gradSemester, $gradYear, $password, $active) - Unable to construct User object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
                 }
                 $this->permissions = [];
                 $this->inDatabase = false;
             }
         } else {
-            throw new InvalidArgumentException("User->__construct13($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $postalCode, $phone, $gradSemester, $gradYear, $password, $isActive) - Unable to construct User object; Invalid province");
+            throw new InvalidArgumentException("User->__construct13($firstName, $lastName, $email, $altEmail, $streetAddress, $city, $province, $postalCode, $phone, $gradSemester, $gradYear, $password, $active) - Unable to construct User object; Invalid province");
         }
     }
 
     /**
      * User Constructor (2 arguments).
      *
-     * @param $identifier
+     * @param int|string $identifier
      * @param int $mode
      * @throws Exception
      */
@@ -245,8 +244,8 @@ class User
                 if ($country) {
                     $result = [
                         $this->setUserID($user["pkUserID"]),
-                        $this->setFName($user["nmFirst"]),
-                        $this->setLName($user["nmLast"]),
+                        $this->setFirstName($user["nmFirst"]),
+                        $this->setLastName($user["nmLast"]),
                         $this->setEmail($user["txEmail"]),
                         $this->setAltEmail($user["txEmailAlt"]),
                         $this->setStreetAddress($user["txStreetAddress"]),
@@ -258,7 +257,7 @@ class User
                         $this->setGradYear($user["dtGradYear"]),
                         $this->setSalt($user["blSalt"]),
                         $this->setHash($user["txHash"]),
-                        $this->setIsActive($user["isActive"]),
+                        $this->setActive($user["isActive"]),
                     ];
                     if (in_array(false, $result, true)) {
                         throw new Exception("User->__construct2($identifier, $mode) - Unable to construct User object; variable assignment failure - (" . implode(" ", array_keys($result, false, true)) . ")");
@@ -288,7 +287,7 @@ class User
      */
     public function __toString(): string
     {
-        return "{" . implode(" ", [$this->getFName(), $this->getLName(), $this->getEmail(), $this->getUserID(), $this->isInDatabase(), $this->getIsActive()]) . "}";
+        return "{" . implode(" ", [$this->getFirstName(), $this->getLastName(), $this->getEmail(), $this->getUserID(), $this->isInDatabase(), $this->isActive()]) . "}";
     }
 
     /**
@@ -357,9 +356,9 @@ class User
     /**
      * @return string
      */
-    public function getFName(): string
+    public function getFirstName(): string
     {
-        return $this->fName;
+        return $this->firstName;
     }
 
     /**
@@ -387,19 +386,11 @@ class User
     }
 
     /**
-     * @return bool
-     */
-    public function getIsActive(): bool
-    {
-        return $this->isActive;
-    }
-
-    /**
      * @return string
      */
-    public function getLName(): string
+    public function getLastName(): string
     {
-        return $this->lName;
+        return $this->lastName;
     }
 
     /**
@@ -486,6 +477,14 @@ class User
     /**
      * @return bool
      */
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    /**
+     * @return bool
+     */
     public function isInDatabase(): bool
     {
         if (isset($this->inDatabase)) {
@@ -524,7 +523,17 @@ class User
     }
 
     /**
-     * @param string $email
+     * @param bool $active
+     * @return bool
+     */
+    public function setActive(bool $active): bool
+    {
+        $this->active = $active;
+        return true;
+    }
+
+    /**
+     * @param null|string $email
      * @return bool
      */
     public function setAltEmail(string $email = null): bool
@@ -561,7 +570,7 @@ class User
      * self::MODE_DBID.
      * Returns true on success, false otherwise.
      *
-     * @param string|int
+     * @param int|string $country
      * @param int $mode
      * @return bool
      */
@@ -625,14 +634,14 @@ class User
     }
 
     /**
-     * @param string $fName
+     * @param string $firstName
      * @return bool
      */
-    public function setFName(string $fName): bool
+    public function setFirstName(string $firstName): bool
     {
         $dbc = new DatabaseConnection();
-        if (strlen($fName) <= $dbc->getMaximumLength("user", "nmFirst")) {
-            $this->fName = $fName;
+        if (strlen($firstName) <= $dbc->getMaximumLength("user", "nmFirst")) {
+            $this->firstName = $firstName;
             return true;
         }
         return false;
@@ -681,24 +690,14 @@ class User
     }
 
     /**
-     * @param bool $isActive
+     * @param string $lastName
      * @return bool
      */
-    public function setIsActive(bool $isActive): bool
-    {
-        $this->isActive = $isActive;
-        return true;
-    }
-
-    /**
-     * @param string $lName
-     * @return bool
-     */
-    public function setLName(string $lName): bool
+    public function setLastName(string $lastName): bool
     {
         $dbc = new DatabaseConnection();
-        if (strlen($lName) <= $dbc->getMaximumLength("user", "nmLast")) {
-            $this->lName = $lName;
+        if (strlen($lastName) <= $dbc->getMaximumLength("user", "nmLast")) {
+            $this->lastName = $lastName;
             return true;
         }
         return false;
@@ -747,7 +746,7 @@ class User
      * @param int $mode Indicates input types, and must be either MODE_ISO or MODE_NAME
      * @return bool
      */
-    public function setProvince(string $province, int $mode): bool
+    public function setProvince(string $province, int $mode = self::MODE_ISO): bool
     {
         $province = strtoupper($province);
         $dbc = new DatabaseConnection();
@@ -827,8 +826,8 @@ class User
         if ($this->isInDatabase()) {
             $params = [
                 "ssssssiiisissi",
-                $this->getFName(),
-                $this->getLName(),
+                $this->getFirstName(),
+                $this->getLastName(),
                 $this->getEmail(),
                 $this->getAltEmail(),
                 $this->getStreetAddress(),
@@ -840,7 +839,7 @@ class User
                 $this->getGradYear(),
                 $this->getSalt(),
                 $this->getHash(),
-                $this->getIsActive(),
+                $this->isActive(),
                 $this->getUserID()
             ];
             $result = $dbc->query("update", "UPDATE `user` SET 
@@ -860,8 +859,8 @@ class User
         } else {
             $params = [
                 "ssssssiiisissi",
-                $this->getFName(),
-                $this->getLName(),
+                $this->getFirstName(),
+                $this->getLastName(),
                 $this->getEmail(),
                 $this->getAltEmail(),
                 $this->getStreetAddress(),
@@ -873,7 +872,7 @@ class User
                 $this->getGradYear(),
                 $this->getSalt(),
                 $this->getHash(),
-                $this->getIsActive()
+                $this->isActive()
             ];
             $result = $dbc->query("insert", "INSERT INTO `user` (`pkUserID`, 
                                           `nmFirst`, `nmLast`, `txEmail`, `txEmailAlt`, 

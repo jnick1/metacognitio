@@ -253,7 +253,7 @@ class Submission
     }
 
     /**
-     * @param string $additionalAuthors
+     * @param string|null $additionalAuthors
      * @return bool
      */
     public function setAdditionalAuthors(string $additionalAuthors = null)
@@ -417,7 +417,7 @@ class Submission
     }
 
     /**
-     * @param float $rating
+     * @param float|null $rating
      * @return bool
      */
     public function setRating(float $rating = null): bool

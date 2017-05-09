@@ -126,7 +126,7 @@ class Token
             }
         }
         $result = [
-            $this->setTokenID(Hasher::randomHash()),
+            $this->setTokenID(),
             $this->setPurpose($purpose),
             $this->setData($data),
             $this->setExpiration($expiration),
@@ -222,7 +222,7 @@ class Token
     }
 
     /**
-     * @param int|string}DateTime|null $expiration
+     * @param int|string|DateTime|null $expiration
      * @return bool
      */
     public function setExpiration($expiration = null): bool
@@ -254,17 +254,26 @@ class Token
     }
 
     /**
-     * @param string $tokenID
+     * @param string|null $tokenID
      * @return bool
      */
-    public function setTokenID(string $tokenID): bool
+    public function setTokenID(string $tokenID = null): bool
     {
-        $dbc = new DatabaseConnection();
-        if (strlen($tokenID) == $dbc->getMaximumLength("token", "pkTokenID")) {
-            $this->tokenID = $tokenID;
-            return true;
-        } else {
+        if($this->isInDatabase()) {
             return false;
+        } else {
+            if(isset($tokenID)) {
+                $dbc = new DatabaseConnection();
+                if (strlen($tokenID) == $dbc->getMaximumLength("token", "pkTokenID")) {
+                    $this->tokenID = $tokenID;
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                $this->tokenID = Hasher::randomHash();
+                return true;
+            }
         }
     }
 

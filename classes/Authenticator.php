@@ -86,27 +86,27 @@ class Authenticator
      * saving their information to the database.
      * Returns true on success, false on failure.
      *
-     * @param string $fName
-     * @param string $lName
+     * @param string $firstName
+     * @param string $lastName
      * @param string $email
      * @param string $altEmail
      * @param string $streetAddress
      * @param string $city
      * @param string $province
-     * @param int $zip
+     * @param int $postalCode
      * @param int $phone
      * @param string $gradSemester
      * @param int $gradYear
      * @param string $password
-     * @param bool $isActive
+     * @param bool $active
      * @return bool
      */
-    public static function register(string $fName, string $lName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $zip, int $phone, string $gradSemester, int $gradYear, string $password, bool $isActive): bool
+    public static function register(string $firstName, string $lastName, string $email, string $altEmail, string $streetAddress, string $city, string $province, int $postalCode, int $phone, string $gradSemester, int $gradYear, string $password, bool $active): bool
     {
         if (Controller::isUserLoggedIn()) {
             return false;
         } else {
-            $user = new User($fName, $lName, $email, $altEmail, $streetAddress, $city, $province, $zip, $phone, $gradSemester, $gradYear, $password, $isActive);
+            $user = new User($firstName, $lastName, $email, $altEmail, $streetAddress, $city, $province, $postalCode, $phone, $gradSemester, $gradYear, $password, $active);
             $user->addPermission(new Permission(Permission::PERMISSION_AUTHOR));
             if (self::userExists($user)) {
                 return false;

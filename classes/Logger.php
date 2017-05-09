@@ -42,6 +42,29 @@ class Logger
     }
 
     /**
+     * Outputs the contents of the cache to a string. Typically used only for debugging during development.
+     *
+     * @return string
+     */
+    public function __toString(): string {
+        $output = "";
+        $dbc = new DatabaseConnection();
+        $i = count($this->logCache);
+        foreach ($this->logCache as $log) {
+            if ($log->getEventID() === null) {
+                $output .= "[CACHE] " . $log;
+            } else {
+                $output .= "[" . $log->getEventID() . "] " . $log;
+            }
+            if($i > 1) {
+                $output .= "\n";
+            }
+            $i--;
+        }
+        return $output;
+    }
+
+    /**
      * Resets the local cache to an empty state.
      *
      * @return bool
@@ -204,7 +227,7 @@ class Logger
      * The event type then determine which parameters are required.
      *
      * @param int $eventType
-     * @param mixed[] $parameters ["file"=File|null, "table"=string|null, "identifiers"=mixed[]|null]
+     * @param mixed[]|null $parameters ["file"=File|null, "table"=string|null, "identifiers"=mixed[]|null]
      * @return bool
      */
     public function log(int $eventType, array $parameters = null): bool
@@ -389,36 +412,13 @@ class Logger
      * The function reports any anomalous events it finds in an array.
      * How you deal with them at this point is up to the user.
      *
-     * @param int $startTime
+     * @param DateTime $startTime
      * @return LogEvent[]
      */
-    public function normalizeLog(int $startTime): array
+    public function normalizeLog(DateTime $startTime)
     {
         //TODO: any implementation for this method. Low priority, focus on other stuff first
         return [];
-    }
-
-    /**
-     * Prints out the contents of the cache to a string. Typically used only for debugging during development.
-     *
-     * @return string
-     */
-    public function printCache(): string {
-        $output = "";
-        $dbc = new DatabaseConnection();
-        $i = count($this->logCache);
-        foreach ($this->logCache as $log) {
-            if ($log->getEventID() === null) {
-                $output .= "[CACHE] " . $log;
-            } else {
-                $output .= "[" . $log->getEventID() . "] " . $log;
-            }
-            if($i > 1) {
-                $output .= "\n";
-            }
-            $i--;
-        }
-        return $output;
     }
 
     /**

@@ -382,15 +382,15 @@ class Controller
     /**
      * @return string
      */
-    public function getAbsoluteHomeDir()
+    public function getAbsoluteHomeDir(): string
     {
         return $_SERVER["DOCUMENT_ROOT"] . $this->homeDir;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getHomeDir()
+    public function getHomeDir(): string
     {
         return $this->homeDir;
     }
@@ -398,15 +398,15 @@ class Controller
     /**
      * @return string
      */
-    public function getModuleDir()
+    public function getModuleDir(): string
     {
         return $this->moduleDir;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getPageTitle()
+    public function getPageTitle(): string
     {
         return $this->pageTitle;
     }
@@ -414,7 +414,7 @@ class Controller
     /**
      * @return int
      */
-    public function getTabIncrement()
+    public function getTabIncrement(): int
     {
         return $this->tabIncrement;
     }
@@ -422,7 +422,7 @@ class Controller
     /**
      * @return bool
      */
-    public function initModuleDir()
+    public function initModuleDir(): bool
     {
         $stack = debug_backtrace();
         $pathToCaller = $stack[0]['file'];
@@ -438,7 +438,7 @@ class Controller
     /**
      * Prints javascript, favicon, CSS, and page title
      */
-    public function printHead()
+    public function printHead(): void
     {
         /**
          * The four sections of this function used to be separate, but their only instance of use was to be called in
@@ -480,7 +480,7 @@ class Controller
      * A middle-man to handle requests of the http variety
      * @return bool
      */
-    public function processREQUEST()
+    public function processREQUEST(): bool
     {
         switch (strtoupper($_SERVER["REQUEST_METHOD"])) {
             case "POST":
@@ -498,7 +498,7 @@ class Controller
      * @param string $favicon
      * @return bool
      */
-    public function setFavicon(string $favicon)
+    public function setFavicon(string $favicon): bool
     {
         if ($filtered = filter_var($favicon, FILTER_SANITIZE_STRING)) {
             $this->favicon = $filtered;
@@ -511,7 +511,7 @@ class Controller
      * @param string $pageTitle
      * @return bool
      */
-    public function setPageTitle(string $pageTitle)
+    public function setPageTitle(string $pageTitle): bool
     {
         if ($filtered = filter_var($pageTitle, FILTER_SANITIZE_STRING)) {
             $this->pageTitle = $filtered;
@@ -524,7 +524,7 @@ class Controller
      * @param int $tabIncrement
      * @return bool
      */
-    public function setTabIncrement(int $tabIncrement)
+    public function setTabIncrement(int $tabIncrement): bool
     {
         if ($filtered = filter_var($tabIncrement, FILTER_VALIDATE_INT)) {
             $this->tabIncrement = $filtered;
@@ -536,7 +536,7 @@ class Controller
     /**
      * @return int
      */
-    public function useTabIncrement()
+    public function useTabIncrement(): int
     {
         return $this->tabIncrement++;
     }
@@ -573,7 +573,7 @@ class Controller
     /**
      * @return bool
      */
-    private function processGET()
+    private function processGET(): bool
     {
         $this->scrubbed = array_map(array("Controller", "spamScrubber"), $_GET);
         //TODO: Finish implementation via switch-case for various GET submit types.
@@ -583,7 +583,7 @@ class Controller
     /**
      * @return bool
      */
-    private function processPOST()
+    private function processPOST(): bool
     {
         $this->scrubbed = array_map(array("Controller", "spamScrubber"), $_POST);
         switch ($this->scrubbed["requestType"]) {
@@ -682,7 +682,7 @@ class Controller
     /**
      * @return bool
      */
-    private function setHomeDir()
+    private function setHomeDir(): bool
     {
         $path = explode("/", dirname($_SERVER["SCRIPT_NAME"]));
         $homeDir = "";

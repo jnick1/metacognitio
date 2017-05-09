@@ -176,9 +176,9 @@ class Serial
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getSerialID(): int
+    public function getSerialID()
     {
         return $this->serialID;
     }

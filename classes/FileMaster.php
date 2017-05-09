@@ -38,7 +38,6 @@ class FileMaster
     public static function clearDownloads(): bool
     {
         $files = self::getDirFlatContents(DOWNLOAD_DIR);
-
         foreach ($files as $file) {
             //Fixed timeout used for now until need arises for more user account customization/this to be added to a
             //file object.
