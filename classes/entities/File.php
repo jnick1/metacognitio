@@ -69,7 +69,7 @@ class File
      * @param $filename
      * @return string
      */
-    private static function beautify_filename(string $filename): string
+    private static function beautifyFilename(string $filename): string
     {
         // reduce consecutive characters
         $filename = preg_replace(array(
@@ -99,9 +99,9 @@ class File
      *
      * @param $filename
      * @param bool $beautify
-     * @return mixed|string
+     * @return string
      */
-    private static function filter_filename($filename, $beautify = true): string
+    private static function filterFilename(string $filename, bool $beautify = true): string
     {
         // sanitize filename
         $filename = preg_replace(
@@ -116,7 +116,7 @@ class File
         // avoids ".", ".." or ".hiddenFiles"
         $filename = ltrim($filename, '.-');
         // optional beautification
-        if ($beautify) $filename = File::beautify_filename($filename);
+        if ($beautify) $filename = File::beautifyFilename($filename);
         // maximise filename length to 255 bytes http://serverfault.com/a/9548/44086
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
         $filename = mb_strcut(pathinfo($filename, PATHINFO_FILENAME), 0, 255 - ($ext ? strlen($ext) + 1 : 0), mb_detect_encoding($filename)) . ($ext ? '.' . $ext : '');
@@ -292,7 +292,7 @@ class File
     }
 
     /**
-     *
+     * @return void
      */
     public function saveContents(): void
     {
@@ -325,7 +325,7 @@ class File
      */
     public function setName(string $name): bool
     {
-        $this->name = File::filter_filename($name);
+        $this->name = File::filterFilename($name);
         return true;
     }
 

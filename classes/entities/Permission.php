@@ -20,8 +20,17 @@ class Permission
     const PERMISSION_TREASURER = 9;
     const PERMISSION_VICE_PRESIDENT = 10;
 
+    /**
+     * @var string
+     */
     private $description;
+    /**
+     * @var string
+     */
     private $name;
+    /**
+     * @var int
+     */
     private $permissionID;
 
     /**

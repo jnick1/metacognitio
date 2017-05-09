@@ -347,16 +347,21 @@ class Publication
      * @param int|null $ISBN
      * @return bool
      */
-    public function setISBN($ISBN): bool
+    public function setISBN(int $ISBN = null): bool
     {
-        $dbc = new DatabaseConnection();
-        $params = ["i", $ISBN];
-        $result = $dbc->query("isset", "SELECT * FROM `publication` WHERE `idISBN` = ?", $params);
-        if (strlen($ISBN) == $dbc->getMaximumLength("publication", "idISBN") and $result) {
+        if(isset($ISBN)) {
+            $dbc = new DatabaseConnection();
+            $params = ["i", $ISBN];
+            $result = $dbc->query("isset", "SELECT * FROM `publication` WHERE `idISBN` = ?", $params);
+            if (strlen($ISBN) == $dbc->getMaximumLength("publication", "idISBN") and !$result) {
+                $this->ISBN = $ISBN;
+                return true;
+            }
+            return false;
+        } else {
             $this->ISBN = $ISBN;
             return true;
         }
-        return false;
     }
 
     /**
