@@ -8,15 +8,18 @@
 
 include "../../autoload.php";
 
-$controller = new Controller("My Dashboard");
+$_SESSION["controller"] = $controller = new Controller("Create Account");
+
 $controller->initModuleDir();
 $controller->processREQUEST();
+$controller->setHeader(new PageAssembly("header"));
+$controller->setFooter(new PageAssembly("footer"));
 $controller->addCSS($controller->getModuleDir() . "css/createaccount.min.css");
-$controller->addCSS("java/lib/jquery-ui/jquery-ui.css");
-$controller->addCSS("java/lib/jquery-dropdown/jquery.dropdown.min.css");
-$controller->addJavaScript("java/lib/jquery/jQuery.min.js");
-$controller->addJavaScript("java/lib/jquery-ui/jquery-ui.min.js");
-$controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
+$controller->addCSS("resources/lib/jquery-ui/jquery-ui.css");
+$controller->addCSS("resources/lib/jquery-dropdown/jquery.dropdown.min.css");
+$controller->addJavaScript("resources/lib/jquery/jQuery.min.js");
+$controller->addJavaScript("resources/lib/jquery-ui/jquery-ui.min.js");
+$controller->addJavaScript("resources/lib/jquery-dropdown/jquery.dropdown.min.js");
 
 ?>
 <!DOCTYPE html>
@@ -26,7 +29,7 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
     </head>
     <body>
         <div id="page" class="hfeed site">
-            <?php include $controller->getHomeDir() . Controller::HEADER_FILE; ?>
+            <?php $controller->printHeader(); ?>
             <div id="content" class="site-content">
                 <article id="post-8" class="single-post post-8 page type-page status-publish hentry">
                     <div class="entry-content">
@@ -96,9 +99,7 @@ $controller->addJavaScript("java/lib/jquery-dropdown/jquery.dropdown.min.js");
                     </div>
                 </article>
             </div>
-            <?php include $controller->getHomeDir() . Controller::FOOTER_FILE; ?>
+            <?php $controller->printFooter(); ?>
         </div>
-
     </body>
-
 </html>

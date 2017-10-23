@@ -99,17 +99,17 @@ class DatabaseConnection
      * the DATA_TYPE of the specified column is neither numeric, a string, nor a datetime.
      *
      * @param string $table
-     * @param string $column
+     * @param string $field
      * @param string|null $schema
      * @return int|int[]|bool
      */
-    public function getMaximumLength(string $table, string $column, string $schema=null)
+    public function getMaximumLength(string $table, string $field, string $schema=null)
     {
         $this->connect();
         if(!isset($schema)) {
             $schema = $this->getTableSchema();
         }
-        $params = ["sss", $schema, $table, $column];
+        $params = ["sss", $schema, $table, $field];
         $type = $this->query("select", "SELECT `DATA_TYPE` 
                                                               FROM `information_schema`.`COLUMNS` 
                                                               WHERE `TABLE_SCHEMA` = ? 

@@ -10,21 +10,21 @@ module.exports = function(grunt) {
         //         banner: "/*! <%= pkg.name %> <%= grunt.template.today('yyyy-mm-dd') %> */\n"
         //     },
         //     build: {
-        //         src: "java/src/<%= pkg.name %>.js",
-        //         dest: "java/build/<%= pkg.name %>.min.js"
+        //         src: "resources/src/<%= pkg.name %>.js",
+        //         dest: "resources/build/<%= pkg.name %>.min.js"
         //     }
         // },
         jshint: {
             all: [
                 "Gruntfile.js",
-                "java/src/*.js"
+                "resources/src/*.js"
             ]
         },
         watch: {
             scripts: {
                 files: [
                     "Gruntfile.js",
-                    "java/src/*.js"
+                    "resources/src/*.js"
                 ],
                 tasks: ["uglify"],
                 options: {

@@ -19,7 +19,7 @@ define("SECURE_DIR", $_SERVER["DOCUMENT_ROOT"]."/../secure/");
  * Class AutoLoader
  */
 class AutoLoader {
-    const PROJECT_DIR = "metacognitio/";
+    const PROJECT_DIR = "metacognitio" . DIRECTORY_SEPARATOR;
 
     protected static $paths = [
         CLASSES_DIR,
@@ -44,4 +44,4 @@ class AutoLoader {
 
 spl_autoload_register(array("AutoLoader", "load"));
 
-require $_SERVER["DOCUMENT_ROOT"]."/".AutoLoader::PROJECT_DIR."vendor/autoload.php";
+require $_SERVER["DOCUMENT_ROOT"].DIRECTORY_SEPARATOR.AutoLoader::PROJECT_DIR."vendor" . DIRECTORY_SEPARATOR . "autoload.php";
