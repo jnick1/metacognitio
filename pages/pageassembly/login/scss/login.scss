@@ -1,11 +1,31 @@
-#loginForm {
-  text-align: center;
+@import '../../../../resources/ui';
 
+#loginForm {
   label {
     display: block;
-    margin-bottom: 20px;
+    margin-top: 20px;
+
+    &:first-child {
+      margin-top: 0;
+    }
   }
   input {
-    width: 200px;
+    width: 150px;
   }
+  input[type="submit"] {
+    width: auto;
+
+  }
+}
+
+#forgotPassword {
+  font-size: 9pt;
+  display: block;
+  text-align: left;
+  padding-left: 4px;
+  cursor: pointer;
+}
+
+#loginButton {
+margin-top: 20px;
 }

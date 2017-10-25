@@ -353,7 +353,7 @@ class Controller
      */
     public function addPopup(PageAssembly $popup)
     {
-        if (!in_array($popup, $this->popups)) {
+        if (!in_array($popup, $this->popups, true)) {
             array_push($this->popups, $popup);
             foreach ($popup->getCSS() as $CSS) {
                 $this->addCSS($CSS);
@@ -571,7 +571,9 @@ class Controller
              * @var $popup PageAssembly
              */
             foreach ($this->popups as $popup) {
+                echo "<div id='controller-popup-".$popup->getName()."' style='display: none'>";
                 include $popup->getMain();
+                echo "</div>";
             }
         }
     }

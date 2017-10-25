@@ -1,30 +1,5 @@
-@font-face {
-  font-family: "Aharoni";
-  src: url("/resources/fonts/ahronbd.ttf");
-}
-
-@font-face {
-  font-family: "Couture";
-  src: local("/resources/fonts/couture-bld.otf");
-}
-
-@font-face {
-  font-family: "Couture-Italics";
-  src: url("/resources/fonts/couture-bldit.otf");
-}
-
-@font-face {
-  font-family: "Leelawadee";
-  src: url("/resources/fonts/leelawad.ttf");
-}
-
-@font-face {
-  font-family: "Leelawadee-Bold";
-  src: url("/resources/fonts/leelawdb.ttf");
-}
-
-$hoverGrey: #e8e8e8;
-$clickBlue: #008cff;
+@import url('/resources/fonts');
+@import '../../../../resources/ui';
 
 header {
   margin: 10px 10px;
@@ -32,42 +7,22 @@ header {
 
   #header-title {
     font-family: Couture, Arial, sans-serif;
+    float: left;
+    h1 {
+      margin: 0;
+    }
   }
   #site-nav-global {
-    float: right;
+    text-align: right;
 
     ul {
       padding-left: 0;
       margin: 0;
 
       li, .navButton {
-        font-family: Leelawadee-Bold, sans-serif;
-        font-weight: bold;
         list-style-type: none;
         width: 150px;
-        height: 36px;
-        text-align: center;
-        display: inline-block;
-        filter: drop-shadow(5px 5px 3px $hoverGrey);
-        background-color: white;
-        transition: background 0.37s cubic-bezier(0.4, 0, 0.2, 1), color 0.37s cubic-bezier(0.4, 0, 0.2, 1);
-
-        &:hover {
-          background-color: $clickBlue;
-          color: white;
-          font-family: Couture, serif;
-        }
-        &:active {
-          position: relative;
-          top: 1px;
-        }
-
-        a, input {
-          display: block;
-          margin-top: 8px;
-          width: 100%;
-          height: 24px;
-        }
+        height: 40px;
       }
     }
   }

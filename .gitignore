@@ -1,8 +1,9 @@
-/node_modules/
-/resources/
-/vendor/
-/composer.lock
 /.idea/
-/pages/**/css/
-/files/
+/composer.lock
 /downloads/
+/files/
+/node_modules/
+/pages/**/css/
+/resources/fonts/
+/resources/lib/
+/vendor/

@@ -11,12 +11,6 @@ class PageAssembly
     const POPUP_DIR = Controller::MODULE_DIR . "pageassembly" . DIRECTORY_SEPARATOR;
 
     /**
-     * String containing an absolute reference to the main file for a pageassembly.
-     *
-     * @var string
-     */
-    private $main;
-    /**
      * An array of strings containing absolute file paths to the CSS files relevant to a pageassembly.
      *
      * @var string[]
@@ -28,8 +22,22 @@ class PageAssembly
      * @var string[]
      */
     private $javaScript;
+    /**
+     * String containing an absolute reference to the main file for a pageassembly.
+     *
+     * @var string
+     */
+    private $main;
+    /**
+     * Stores the "name" for the PageAssembly unit. By default, this is the name of the folder the PageAssembly's
+     * files are stored in, though it can be changed manually.
+     *
+     * @var string
+     */
+    private $name;
 
-    public function __construct(string $mainFolderName) {
+    public function __construct(string $mainFolderName)
+    {
         $path = explode("/", dirname($_SERVER["SCRIPT_NAME"]));
         $homeDir = "";
         foreach ($path as $dir) {
@@ -39,64 +47,38 @@ class PageAssembly
         }
         $relativeDir = $homeDir . self::POPUP_DIR;
 
-        $this->setMain($relativeDir . $mainFolderName . DIRECTORY_SEPARATOR . $mainFolderName . ".php");
+        if (is_dir($relativeDir . $mainFolderName)) {
+            $this->setName($mainFolderName);
+            $this->setMain($relativeDir . $mainFolderName . DIRECTORY_SEPARATOR . $mainFolderName . ".php");
 
-        $this->CSS = [];
-        //The two different directories exist because the Controller class automatically prepends a homeDir to the
-        //included files. Since we use a homeDir here too, we don't want to double up, so there's two different dirs now
-        $checkSafeCssDir = $relativeDir . $mainFolderName . DIRECTORY_SEPARATOR . "css" . DIRECTORY_SEPARATOR;
-        $inclusionSafeCssDir = self::POPUP_DIR . $mainFolderName . DIRECTORY_SEPARATOR . "css" . DIRECTORY_SEPARATOR;
-        $cssFiles = scandir($checkSafeCssDir);
-        foreach($cssFiles as $cssFile) {
-            //checks to see if the filename ends with ".css", and is at least 5 characters long (must be, in order to end with ".css")
-            if(strlen($cssFile)>4 and strpos($cssFile, ".css", strlen($cssFile) - strlen(".css")) !== false) {
-                $this->addCSS($inclusionSafeCssDir . $cssFile);
+            $this->CSS = [];
+            //The two different directories exist because the Controller class automatically prepends a homeDir to the
+            //included files. Since we use a homeDir here too, we don't want to double up, so there's two different dirs now
+            $checkSafeCssDir = $relativeDir . $mainFolderName . DIRECTORY_SEPARATOR . "css" . DIRECTORY_SEPARATOR;
+            $inclusionSafeCssDir = self::POPUP_DIR . $mainFolderName . DIRECTORY_SEPARATOR . "css" . DIRECTORY_SEPARATOR;
+            $cssFiles = scandir($checkSafeCssDir);
+            foreach ($cssFiles as $cssFile) {
+                //checks to see if the filename ends with ".css", and is at least 5 characters long (must be, in order to end with ".css")
+                if (strlen($cssFile) > 4 and strpos($cssFile, ".css", strlen($cssFile) - strlen(".css")) !== false) {
+                    $this->addCSS($inclusionSafeCssDir . $cssFile);
+                }
             }
-        }
 
-        $this->javaScript = [];
-        //The two different directories exist because the Controller class automatically prepends a homeDir to the
-        //included files. Since we use a homeDir here too, we don't want to double up, so there's two different dirs now
-        $checkSafeJsDir = $relativeDir . $mainFolderName . DIRECTORY_SEPARATOR . "java" . DIRECTORY_SEPARATOR;
-        $inclusionSafeJsDir = self::POPUP_DIR . $mainFolderName . DIRECTORY_SEPARATOR . "java" . DIRECTORY_SEPARATOR;
-        $jsFiles = scandir($checkSafeJsDir);
-        foreach($jsFiles as $jsFile) {
-            //checks to see if the filename ends with ".js", and is at least 4 characters long (must be, in order to end with ".js")
-            if(strlen($jsFile)>3 and strpos($jsFile, ".js", strlen($jsFile) - strlen(".js")) !== false) {
-                $this->addJavaScript($inclusionSafeJsDir . $jsFile);
+            $this->javaScript = [];
+            //The two different directories exist because the Controller class automatically prepends a homeDir to the
+            //included files. Since we use a homeDir here too, we don't want to double up, so there's two different dirs now
+            $checkSafeJsDir = $relativeDir . $mainFolderName . DIRECTORY_SEPARATOR . "java" . DIRECTORY_SEPARATOR;
+            $inclusionSafeJsDir = self::POPUP_DIR . $mainFolderName . DIRECTORY_SEPARATOR . "java" . DIRECTORY_SEPARATOR;
+            $jsFiles = scandir($checkSafeJsDir);
+            foreach ($jsFiles as $jsFile) {
+                //checks to see if the filename ends with ".js", and is at least 4 characters long (must be, in order to end with ".js")
+                if (strlen($jsFile) > 3 and strpos($jsFile, ".js", strlen($jsFile) - strlen(".js")) !== false) {
+                    $this->addJavaScript($inclusionSafeJsDir . $jsFile);
+                }
             }
+        } else {
+            throw new Exception("Specified PageAssembly does not exist");
         }
-    }
-
-    /**
-     * String pointing to the main file for a pageassembly. Does start with a directory separator.
-     *
-     * @return string
-     */
-    public function getMain(): string
-    {
-        return $this->main;
-    }
-
-    /**
-     * @param string $main
-     */
-    public function setMain(string $main): void
-    {
-        if ($filtered = filter_var($main, FILTER_SANITIZE_STRING)) {
-            $dirPath = preg_split("/[\\/]/", $filtered);
-            $filtered = implode(DIRECTORY_SEPARATOR, $dirPath);
-            $this->main = $filtered;
-        }
-
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCSS(): array
-    {
-        return $this->CSS;
     }
 
     /**
@@ -116,14 +98,6 @@ class PageAssembly
     }
 
     /**
-     * @return string[]
-     */
-    public function getJavaScript(): array
-    {
-        return $this->javaScript;
-    }
-
-    /**
      * @param string $javaScript
      * @return bool|int
      */
@@ -138,4 +112,61 @@ class PageAssembly
         }
         return false;
     }
+
+    /**
+     * @return string[]
+     */
+    public function getCSS(): array
+    {
+        return $this->CSS;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getJavaScript(): array
+    {
+        return $this->javaScript;
+    }
+
+    /**
+     * String pointing to the main file for a pageassembly. Does start with a directory separator.
+     *
+     * @return string
+     */
+    public function getMain(): string
+    {
+        return $this->main;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $main
+     */
+    public function setMain(string $main): void
+    {
+        if ($filtered = filter_var($main, FILTER_SANITIZE_STRING)) {
+            $dirPath = preg_split("/[\\/]/", $filtered);
+            $filtered = implode(DIRECTORY_SEPARATOR, $dirPath);
+            $this->main = $filtered;
+        }
+
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name)
+    {
+        $this->name = $name;
+    }
+
+
 }

@@ -1,12 +1,15 @@
-<div id="loginForm">
+<div id="loginForm" class="popup">
     <form action="" method="post">
         <label>
-            <input type="email" name="email" placeholder="Email...">
+            <input type="email" class="textbox" name="email" placeholder="Email">
         </label>
         <label>
-            <input type="password" name="password" placeholder="Password...">
+            <input type="password" class="textbox" name="password" placeholder="Password">
         </label>
+        <a id="forgotPassword" class="minimalist-button">
+            forgot password?
+        </a>
         <input type="hidden" name="requestType" value="login">
-        <input type="submit" value="Login">
+        <input type="submit" id="loginButton" class="minimalist-button" value="Login">
     </form>
 </div>
