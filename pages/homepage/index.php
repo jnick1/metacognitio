@@ -12,15 +12,15 @@ $controller = $_SESSION["controller"] = new Controller("MetaCognitio");
 
 $controller->initModuleDir();
 $controller->processREQUEST();
-$controller->setHeader(new PageAssembly("header"));
-$controller->setFooter(new PageAssembly("footer"));
-$controller->addPopup(new PageAssembly("login"));
 $controller->addCSS($controller->getModuleDir() . "css/index.min.css");
-$controller->addCSS("resources/lib/jquery-ui/jquery-ui.css");
+$controller->addCSS("resources/lib/jquery-ui/jquery-ui.min.css");
 $controller->addCSS("resources/lib/jquery-dropdown/jquery.dropdown.min.css");
 $controller->addJavaScript("resources/lib/jquery/jQuery.min.js");
 $controller->addJavaScript("resources/lib/jquery-ui/jquery-ui.min.js");
 $controller->addJavaScript("resources/lib/jquery-dropdown/jquery.dropdown.min.js");
+$controller->setHeader(new PageAssembly("header"));
+$controller->setFooter(new PageAssembly("footer"));
+$controller->addPopup(new PageAssembly("login"));
 ?>
 <!DOCTYPE html>
 

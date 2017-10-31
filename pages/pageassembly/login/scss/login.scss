@@ -29,3 +29,17 @@
 #loginButton {
 margin-top: 20px;
 }
+
+#loginClose {
+  display: block;
+  float: right;
+  cursor: pointer;
+  @include user-select(none);
+
+  &:hover {
+    opacity: 0.6;
+  }
+  &:active {
+    opacity: 1;
+  }
+}

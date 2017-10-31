@@ -1,5 +1,7 @@
 <div id="loginForm" class="popup">
     <form action="" method="post">
+        <div id="loginClose" class="login-hide ui-icon ui-icon-closethick">
+        </div>
         <label>
             <input type="email" class="textbox" name="email" placeholder="Email">
         </label>

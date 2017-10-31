@@ -24,8 +24,8 @@
                 </li>
             <?php }
             if (!Controller::isUserLoggedIn()) { ?>
-                <li class="colorswap-button">
-                    <input type="button" id="showLogin" class="minimalist-button" value="Login">
+                <li class="colorswap-button login-show">
+                    Login
                 </li>
                 <li class="colorswap-button">
                     <a href="<?php echo $controller->getHomeDir() . "pages/createaccount/createaccount.php"; ?>">Create
