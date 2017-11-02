@@ -1,6 +1,9 @@
 @import '../../../../resources/ui';
 
 #loginForm {
+  width: 225px;
+  height: 200px;
+
   label {
     display: block;
     margin-top: 20px;
@@ -14,7 +17,6 @@
   }
   input[type="submit"] {
     width: auto;
-
   }
 }
 

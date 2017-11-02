@@ -27,9 +27,8 @@
                 <li class="colorswap-button login-show">
                     Login
                 </li>
-                <li class="colorswap-button">
-                    <a href="<?php echo $controller->getHomeDir() . "pages/createaccount/createaccount.php"; ?>">Create
-                        Account</a>
+                <li class="colorswap-button register-show">
+                    Register
                 </li>
             <?php } else { ?>
                 <li class="colorswap-button">

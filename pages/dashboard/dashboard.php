@@ -12,24 +12,24 @@ $_SESSION["controller"] = $controller = new Controller("My Dashboard");
 
 $controller->initModuleDir();
 $controller->processREQUEST();
-$controller->setHeader(new PageAssembly("header"));
-$controller->setFooter(new PageAssembly("footer"));
-$controller->addCSS($controller->getModuleDir() . "/css/dashboard.min.css");
-$controller->addCSS("resources/lib/jquery-ui/jquery-ui.css");
-$controller->addCSS("resources/lib/jquery-dropdown/jquery.dropdown.min.css");
-$controller->addJavaScript("resources/lib/jquery/jQuery.min.js");
-$controller->addJavaScript("resources/lib/jquery-ui/jquery-ui.min.js");
-$controller->addJavaScript("resources/lib/jquery-dropdown/jquery.dropdown.min.js");
+$controller->PageAssembler()->setHeader(new PageAssembly("header"));
+$controller->PageAssembler()->setFooter(new PageAssembly("footer"));
+$controller->PageAssembler()->addCSS($controller->getModuleDir() . "/css/dashboard.min.css");
+$controller->PageAssembler()->addCSS("resources/lib/jquery-ui/jquery-ui.css");
+$controller->PageAssembler()->addCSS("resources/lib/jquery-dropdown/jquery.dropdown.min.css");
+$controller->PageAssembler()->addJavaScript("resources/lib/jquery/jQuery.min.js");
+$controller->PageAssembler()->addJavaScript("resources/lib/jquery-ui/jquery-ui.min.js");
+$controller->PageAssembler()->addJavaScript("resources/lib/jquery-dropdown/jquery.dropdown.min.js");
 
 ?>
 <!DOCTYPE html>
 <html lang="en-US">
     <head>
-        <?php $controller->printHead(); ?>
+        <?php $controller->PageAssembler()->printHead(); ?>
     </head>
     <body>
         <div id="page" class="hfeed site">
-            <?php $controller->printHeader(); ?>
+            <?php $controller->PageAssembler()->printHeader(); ?>
             <div id="content" class="site-content">
                 <h2> Welcome to your Dashboard! </h2>
                 <?php if ($controller->userHasAccess([new Permission(Permission::PERMISSION_EXECUTIVE)])) { ?>
@@ -45,7 +45,7 @@ $controller->addJavaScript("resources/lib/jquery-dropdown/jquery.dropdown.min.js
                     </div>
                 <?php } ?>
             </div>
-            <?php $controller->printFooter(); ?>
+            <?php $controller->PageAssembler()->printFooter(); ?>
         </div>
     </body>
 </html>

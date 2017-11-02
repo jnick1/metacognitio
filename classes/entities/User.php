@@ -200,7 +200,7 @@ class User
                     $this->setCountry($country["idISO"]),
                     $this->setPostalCode($postalCode),
                     $this->setPhone($phone),
-                    $this->setGradsemester($gradSemester),
+                    $this->setGradsemester(strtolower($gradSemester)),
                     $this->setGradYear($gradYear),
                     $this->updatePassword($password),
                     $this->setActive($active),

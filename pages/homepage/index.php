@@ -12,30 +12,31 @@ $controller = $_SESSION["controller"] = new Controller("MetaCognitio");
 
 $controller->initModuleDir();
 $controller->processREQUEST();
-$controller->addCSS($controller->getModuleDir() . "css/index.min.css");
-$controller->addCSS("resources/lib/jquery-ui/jquery-ui.min.css");
-$controller->addCSS("resources/lib/jquery-dropdown/jquery.dropdown.min.css");
-$controller->addJavaScript("resources/lib/jquery/jQuery.min.js");
-$controller->addJavaScript("resources/lib/jquery-ui/jquery-ui.min.js");
-$controller->addJavaScript("resources/lib/jquery-dropdown/jquery.dropdown.min.js");
-$controller->setHeader(new PageAssembly("header"));
-$controller->setFooter(new PageAssembly("footer"));
-$controller->addPopup(new PageAssembly("login"));
+$controller->PageAssembler()->addCSS($controller->getModuleDir() . "css/index.min.css");
+$controller->PageAssembler()->addCSS("resources/lib/jquery-ui/jquery-ui.min.css");
+$controller->PageAssembler()->addCSS("resources/lib/jquery-dropdown/jquery.dropdown.min.css");
+$controller->PageAssembler()->addJavaScript("resources/lib/jquery/jQuery.min.js");
+$controller->PageAssembler()->addJavaScript("resources/lib/jquery-ui/jquery-ui.min.js");
+$controller->PageAssembler()->addJavaScript("resources/lib/jquery-dropdown/jquery.dropdown.min.js");
+$controller->PageAssembler()->setHeader(new PageAssembly("header"));
+$controller->PageAssembler()->setFooter(new PageAssembly("footer"));
+$controller->PageAssembler()->addPopup(new PageAssembly("login"));
+$controller->PageAssembler()->addPopup(new PageAssembly("register"));
 ?>
 <!DOCTYPE html>
 
 <html lang="en-US">
     <head>
-        <?php $controller->printHead(); ?>
+        <?php $controller->PageAssembler()->printHead(); ?>
     </head>
     <body>
         <div id="page">
-            <?php $controller->printHeader(); ?>
+            <?php $controller->PageAssembler()->printHeader(); ?>
             <div id="content" class="site-content">
 
             </div>
-            <?php $controller->printFooter(); ?>
+            <?php $controller->PageAssembler()->printFooter(); ?>
         </div>
-        <?php $controller->printPopups(); ?>
+        <?php $controller->PageAssembler()->printPopups(); ?>
     </body>
 </html>

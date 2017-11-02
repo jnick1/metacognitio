@@ -102,10 +102,10 @@ body {
   right: 0;
   bottom: 0;
   left: 0;
-  width: 225px;
-  height: 200px;
   background-color: white;
   border-radius: 3px;
+  border-top: 1px solid $hoverGrey;
+  border-left: 1px solid $hoverGrey;
   filter: drop-shadow(5px 5px 3px $strongGrey);
   display: flex;
   justify-content: center;

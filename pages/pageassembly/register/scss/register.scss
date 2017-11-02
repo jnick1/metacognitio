@@ -1,0 +1,39 @@
+@import '../../../../resources/ui';
+
+#registerForm {
+  width: 250px;
+  height: 775px;
+
+  label {
+    display: block;
+    margin-top: 20px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+  input {
+    width: 150px;
+  }
+  input[type="submit"] {
+    width: auto;
+  }
+}
+
+#registerButton {
+  margin-top: 20px;
+}
+
+#registerClose {
+  display: block;
+  float: right;
+  cursor: pointer;
+  @include user-select(none);
+
+  &:hover {
+    opacity: 0.6;
+  }
+  &:active {
+    opacity: 1;
+  }
+}
