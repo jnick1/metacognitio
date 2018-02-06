@@ -40,7 +40,11 @@ class Hasher
      */
     public static function randomSalt(): string
     {
-        return random_bytes(16);
+        try {
+            return random_bytes(16);
+        } catch (Exception $e) {
+            return substr(hash("sha256",rand()),0,16);
+        }
     }
 
     /**

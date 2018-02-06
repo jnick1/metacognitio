@@ -295,7 +295,6 @@ class User
      *
      * @param Permission $permission
      * @return bool|int
-     * @throws InvalidArgumentException()
      */
     public function addPermission(Permission $permission)
     {

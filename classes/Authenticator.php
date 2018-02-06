@@ -128,7 +128,6 @@ class Authenticator
      *
      * @param User $user
      * @return bool
-     * @throws TypeError
      */
     public static function userExists(User $user): bool
     {
